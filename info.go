@@ -1,6 +1,6 @@
 package microservicecore
 
-import "github.com/LUSHDigital/microservice-core-golang/routes"
+import "github.com/LUSHDigital/microservice-core-golang/routing"
 
 // MicroserviceInfo - Represents information about this microservice.
 type MicroserviceInfo struct {
