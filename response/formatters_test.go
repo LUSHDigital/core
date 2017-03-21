@@ -18,7 +18,7 @@ var responseData = map[string]interface{}{
 }
 
 // The expected response body.
-var expectedBody = []byte(`{"string":"ok","code":200,"message":"","data":{"tests":{"language":"golang","tests":"ok"}}}`)
+var expectedBody = []byte(`{"status":"ok","code":200,"message":"","data":{"tests":{"language":"golang","tests":"ok"}}}`)
 
 // TestJSONResponseFormatter - Test a JSON response over HTTP.
 func TestJSONResponseFormatter(t *testing.T) {
