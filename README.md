@@ -21,3 +21,8 @@ Install the package as normal:
 ```bash
 $ go get -u github.com/LUSHDigital/microservice-core-golang
 ```
+
+## Documentation
+* [General](https://godoc.org/github.com/LUSHDigital/microservice-core-golang)
+* [Response](https://godoc.org/github.com/LUSHDigital/microservice-core-golang/response)
+* [Routing](https://godoc.org/github.com/LUSHDigital/microservice-core-golang/routing)
