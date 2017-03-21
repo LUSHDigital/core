@@ -55,3 +55,17 @@ func TestResponseObjectNoData(t *testing.T) {
 		t.Error(fmt.Sprintf("Expected %v, got %v", response, expectedResponseNoData))
 	}
 }
+
+// ExampleCreateResponse - Example usage for the CreateResponse function.
+func ExampleCreateResponse() {
+	someThings := map[string]string{
+		"thing_one": "a thing",
+		"thing_two": "another thing",
+	}
+
+	response := CreateResponse("things", someThings, 200, "ok", "")
+	fmt.Printf("%+v", response)
+
+	// Output:
+	// &{Status:ok Code:200 Message: Data:map[things:map[thing_one:a thing thing_two:another thing]]}
+}

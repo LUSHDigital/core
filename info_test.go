@@ -41,3 +41,33 @@ func TestServiceInfo(t *testing.T) {
 		t.Error(fmt.Sprintf("Expected %v, got %v", os.Getenv("SERVICE_VERSION"), info.ServiceVersion))
 	}
 }
+
+// ExampleGetMicroserviceInfo - Example for GetMicroserviceInfo.
+func ExampleGetMicroserviceInfo() {
+	envVars := map[string]string{
+		"SERVICE_NAME":    "example-service",
+		"SERVICE_TYPE":    "examples",
+		"SERVICE_SCOPE":   "testing",
+		"SERVICE_VERSION": "0.0.1",
+	}
+
+	// Set our expected environment variables.
+	for key, value := range envVars {
+		os.Setenv(key, value)
+	}
+
+	// Get the service info.
+	info := GetMicroserviceInfo()
+
+	// Print the details.
+	fmt.Println(info.ServiceName)
+	fmt.Println(info.ServiceType)
+	fmt.Println(info.ServiceScope)
+	fmt.Println(info.ServiceVersion)
+
+	// Output:
+	// example-service
+	// examples
+	// testing
+	// 0.0.1
+}
