@@ -17,7 +17,7 @@ var expectedResponseData = map[string]interface{}{
 
 // An example response object for testing with.
 var expectedResponse = &MicroserviceReponse{
-	Status:  "ok",
+	Status:  StatusOk,
 	Code:    200,
 	Message: "",
 	Data: map[string]interface{}{
@@ -27,7 +27,7 @@ var expectedResponse = &MicroserviceReponse{
 
 // An example response object (with no data) for testing with.
 var expectedResponseNoData = &MicroserviceReponse{
-	Status:  "ok",
+	Status:  StatusOk,
 	Code:    200,
 	Message: "",
 }
@@ -36,7 +36,7 @@ var expectedResponseNoData = &MicroserviceReponse{
 // response.
 func TestResponseObject(t *testing.T) {
 	// Create a response.
-	response := CreateResponse(expectedResponseDataType, expectedResponseData, 200, "ok", "")
+	response := CreateResponse(expectedResponseDataType, expectedResponseData, 200, StatusOk, "")
 
 	// Check the response.
 	if !reflect.DeepEqual(response, expectedResponse) {
@@ -48,7 +48,7 @@ func TestResponseObject(t *testing.T) {
 // response if there is no data.
 func TestResponseObjectNoData(t *testing.T) {
 	// Create a response.
-	response := CreateResponse(expectedResponseDataType, nil, 200, "ok", "")
+	response := CreateResponse(expectedResponseDataType, nil, 200, StatusOk, "")
 
 	// Check the response.
 	if !reflect.DeepEqual(response, expectedResponseNoData) {
@@ -63,7 +63,7 @@ func ExampleCreateResponse() {
 		"thing_two": "another thing",
 	}
 
-	response := CreateResponse("things", someThings, 200, "ok", "")
+	response := CreateResponse("things", someThings, 200, StatusOk, "")
 	fmt.Printf("%+v", response)
 
 	// Output:

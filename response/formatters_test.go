@@ -25,7 +25,7 @@ func TestJSONResponseFormatter(t *testing.T) {
 	// Start a HTTP server for testing purposes.
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Create a response.
-		response := CreateResponse("tests", responseData, 200, "ok", "")
+		response := CreateResponse("tests", responseData, 200, StatusOk, "")
 
 		// Format the response as JSON.
 		JSONResponseFormatter(w, response)
@@ -36,6 +36,11 @@ func TestJSONResponseFormatter(t *testing.T) {
 	res, err := http.Get(ts.URL)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	// Check the response code.
+	if res.StatusCode != http.StatusOK {
+		t.Error(fmt.Sprintf("Expected %d, got %d", http.StatusOK, res.StatusCode))
 	}
 
 	// Get the response body.

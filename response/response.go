@@ -6,6 +6,12 @@ import (
 	"strings"
 )
 
+// Standard response statuses.
+const (
+	StatusOk   = "ok"
+	StatusFail = "fail"
+)
+
 // MicroserviceReponse - A standardised reponse format for a microservice.
 type MicroserviceReponse struct {
 	Status  string                 `json:"status"`
