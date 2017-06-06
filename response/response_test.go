@@ -16,7 +16,7 @@ var expectedResponseData = map[string]interface{}{
 }
 
 // An example response object for testing with.
-var expectedResponse = &MicroserviceReponse{
+var expectedResponse = &MicroserviceResponse{
 	Status:  StatusOk,
 	Code:    200,
 	Message: "",
@@ -26,7 +26,7 @@ var expectedResponse = &MicroserviceReponse{
 }
 
 // An example response object (with no data) for testing with.
-var expectedResponseNoData = &MicroserviceReponse{
+var expectedResponseNoData = &MicroserviceResponse{
 	Status:  StatusOk,
 	Code:    200,
 	Message: "",

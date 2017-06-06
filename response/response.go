@@ -12,8 +12,8 @@ const (
 	StatusFail = "fail"
 )
 
-// MicroserviceReponse - A standardised reponse format for a microservice.
-type MicroserviceReponse struct {
+// MicroserviceResponse - A standardised response format for a microservice.
+type MicroserviceResponse struct {
 	Status  string                 `json:"status"`
 	Code    int                    `json:"code"`
 	Message string                 `json:"message"`
@@ -43,8 +43,8 @@ type MicroserviceReponse struct {
 //     Message string - A more detailed status message.
 //
 // Return:
-//     *MicroserviceReponse - The populated response object.
-func CreateResponse(Type string, Data interface{}, Code int, Status string, Message string) *MicroserviceReponse {
+//     *MicroserviceResponse - The populated response object.
+func CreateResponse(Type string, Data interface{}, Code int, Status string, Message string) *MicroserviceResponse {
 	// Validate the arguments.
 	if Data != nil && Type == "" {
 		log.Fatal("Cannot prepare response. No type specified.")
@@ -58,7 +58,7 @@ func CreateResponse(Type string, Data interface{}, Code int, Status string, Mess
 	}
 
 	// Prepare the response object.
-	response := &MicroserviceReponse{
+	response := &MicroserviceResponse{
 		Status:  Status,
 		Code:    Code,
 		Message: Message,
