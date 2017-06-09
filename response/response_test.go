@@ -56,6 +56,21 @@ func TestResponseObjectNoData(t *testing.T) {
 	}
 }
 
+// TestExtractData - Check the ExtractData function.
+func TestExtractData(t *testing.T) {
+	// Create a response.
+	response := CreateResponse(expectedResponseDataType, expectedResponseData, 200, StatusOk, "")
+
+	// Extract the data.
+	var dst map[string]interface{}
+	extractedData := response.ExtractData("tests", dst)
+
+	// Compare the data.
+	if reflect.DeepEqual(dst, response.Data["tests"]) {
+		t.Errorf("TestExtractData: Expected %v got %v", response.Data["tests"], extractedData)
+	}
+}
+
 // ExampleCreateResponse - Example usage for the CreateResponse function.
 func ExampleCreateResponse() {
 	someThings := map[string]string{

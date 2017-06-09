@@ -1,6 +1,7 @@
 package response
 
 import (
+	"encoding/json"
 	"log"
 	"regexp"
 	"strings"
@@ -71,4 +72,31 @@ func CreateResponse(Type string, Data interface{}, Code int, Status string, Mess
 	}
 
 	return response
+}
+
+// ExtractData - Extract a particular item of data from the response.
+//
+// Params:
+//     srcKey string - The name of the data item we want from the response.
+//     dst interface{} - The interface to extract data into.
+//
+// Return:
+//     error - An error if it occurred.
+func (response MicroserviceResponse) ExtractData(srcKey string, dst interface{}) error {
+	for key, value := range response.Data {
+		if key != srcKey {
+			continue
+		}
+
+		// Get the raw JSON just for the endpoints.
+		rawJSON, err := json.Marshal(value)
+		if err != nil {
+			return err
+		}
+
+		// Decode the raw JSON.
+		json.Unmarshal(rawJSON, &dst)
+	}
+
+	return nil
 }
