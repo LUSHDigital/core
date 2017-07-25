@@ -39,10 +39,6 @@ func (d *Data) Valid() bool {
 // MarshalJSON implements the Marshaler interface and is there to ensure the output
 // is correct when we return data to the consumer
 func (d *Data) MarshalJSON() ([]byte, error) {
-	if !d.Valid() {
-		return []byte{}, fmt.Errorf("data provided, type cannot be empty")
-	}
-
 	return json.Marshal(d.Map())
 }
 
