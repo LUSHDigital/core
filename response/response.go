@@ -2,8 +2,8 @@ package response
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
-	"regexp"
 	"strings"
 )
 
@@ -13,65 +13,73 @@ const (
 	StatusFail = "fail"
 )
 
-// MicroserviceResponse - A standardised response format for a microservice.
-type MicroserviceResponse struct {
-	Status  string                 `json:"status"`
-	Code    int                    `json:"code"`
-	Message string                 `json:"message"`
-	Data    map[string]interface{} `json:"data,omitempty"`
+// Response - A standardised response format for a microservice.
+type Response struct {
+	Status  string `json:"status"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    *Data  `json:"data,omitempty"`
 }
 
-// CreateResponse - Prepare a response for a microservice endpoint.
-//
+// Data represents the collection data the the response will return to the consumer
+// Type ends up being the name of the key containing the collection of Content
+type Data struct {
+	Type    string
+	Content map[string]interface{}
+}
+
+// Valid ensures the Data passed to the response is correct
+func (d *Data) Valid() bool {
+	if d.Type != "" {
+		return true
+	}
+	return false
+}
+
+// MarshalJSON implements the Marshaler interface and is there to ensure the output
+// is correct when we return data to the consumer
+func (d *Data) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.Map())
+}
+
+// Map returns a version of the data as a map
+func (d *Data) Map() map[string]interface{} {
+	d.Type = strings.Replace(strings.ToLower(d.Type), " ", "-", -1)
+	if !d.Valid() {
+		log.Printf("invalid data: %v", d)
+		return nil
+	}
+
+	return map[string]interface{}{
+		d.Type: d.Content,
+	}
+}
+
+// New returns a new Response for a microservice endpoint
 // This ensures that all API endpoints return data in a standardised format:
 //
-// {
-//     "status": "ok", - Can contain any string. Usually 'ok', 'error' etc.
-//     "code": 200, - A HTTP status code.
-//     "message": "", - A message string elaborating on the status.
-//     "data": {[ - A collection of return data. Can be omitted in the event
-//     ]}           an error occurred.
-// }
-//
+//    {
+//       "status": "ok", - Can contain any string. Usually 'ok', 'error' etc.
+//       "code": 200, - A HTTP status code.
+//       "message": "", - A message string elaborating on the status.
+//       "data": {[ - A collection of return data. Can be omitted in the event an error occurred.
+//       ]}
+//    }
 // Params:
-//     Type string - The type of data being returned. Will be used to name the
-//     collection.
-//     Data interface{} - The data to return. Will always be parsed into a
-//     collection.
-//     Code int - HTTP status code for the response.
-//     Status - A short status message. Examples: 'OK', 'Bad Request',
-//     'Not Found'.
-//     Message string - A more detailed status message.
+//   - [code] - HTTP status code for the response.
+//   - [status] - A short status message. Examples: 'OK', 'Bad Request', 'Not Found' etc...
+//   - [message] - A more detailed status message
+//   - [data] The data to return. Will always be parsed into a collection.
 //
 // Return:
-//     *MicroserviceResponse - The populated response object.
-func CreateResponse(Type string, Data interface{}, Code int, Status string, Message string) *MicroserviceResponse {
-	// Validate the arguments.
-	if Data != nil && Type == "" {
-		log.Fatal("Cannot prepare response. No type specified.")
-	} else {
-		reg, err := regexp.Compile("[^A-Za-z]")
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		Type = reg.ReplaceAllString(strings.ToLower(Type), "-")
+//   *Response - The populated response object.
+func New(code int, status, message string, data *Data) *Response {
+	return &Response{
+		Code:    code,
+		Status:  status,
+		Message: message,
+		Data:    data,
 	}
-
-	// Prepare the response object.
-	response := &MicroserviceResponse{
-		Status:  Status,
-		Code:    Code,
-		Message: Message,
-	}
-
-	// Only add the data if supplied.
-	if Data != nil {
-		response.Data = make(map[string]interface{})
-		response.Data[Type] = Data
-	}
-
-	return response
 }
 
 // ExtractData - Extract a particular item of data from the response.
@@ -82,8 +90,12 @@ func CreateResponse(Type string, Data interface{}, Code int, Status string, Mess
 //
 // Return:
 //     error - An error if it occurred.
-func (response MicroserviceResponse) ExtractData(srcKey string, dst interface{}) error {
-	for key, value := range response.Data {
+func (r *Response) ExtractData(srcKey string, dst interface{}) error {
+	if !r.Data.Valid() {
+		return fmt.Errorf("invalid data provided: %v", r.Data)
+	}
+
+	for key, value := range r.Data.Map() {
 		if key != srcKey {
 			continue
 		}
