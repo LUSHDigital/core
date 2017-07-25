@@ -11,10 +11,12 @@ import (
 	"testing"
 )
 
-// Response data for testing with.
-var responseData = map[string]interface{}{
-	"tests":    "ok",
-	"language": "golang",
+var responseData = Data{
+	Type: "tests",
+	Content: map[string]interface{}{
+		"tests":    "ok",
+		"language": "golang",
+	},
 }
 
 // The expected response body.
@@ -25,8 +27,7 @@ func TestJSONResponseFormatter(t *testing.T) {
 	// Start a HTTP server for testing purposes.
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Create a response.
-		response := CreateResponse("tests", responseData, 200, StatusOk, "")
-
+		response := New(200, StatusOk, "", &responseData)
 		// Format the response as JSON.
 		JSONResponseFormatter(w, response)
 	}))
