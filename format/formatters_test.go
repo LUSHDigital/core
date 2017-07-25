@@ -1,4 +1,4 @@
-package response
+package format
 
 import (
 	"encoding/json"
@@ -9,9 +9,11 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
+
+	"github.com/LUSHDigital/microservice-core-golang/response"
 )
 
-var responseData = Data{
+var responseData = response.Data{
 	Type: "tests",
 	Content: map[string]interface{}{
 		"tests":    "ok",
@@ -27,9 +29,9 @@ func TestJSONResponseFormatter(t *testing.T) {
 	// Start a HTTP server for testing purposes.
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Create a response.
-		response := New(200, StatusOk, "", &responseData)
+		resp := response.New(200, response.StatusOk, "", &responseData)
 		// Format the response as JSON.
-		JSONResponseFormatter(w, response)
+		JSONResponseFormatter(w, resp)
 	}))
 	defer ts.Close()
 
