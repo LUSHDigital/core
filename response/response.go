@@ -25,7 +25,7 @@ type Response struct {
 // Type ends up being the name of the key containing the collection of Content
 type Data struct {
 	Type    string
-	Content map[string]interface{}
+	Content interface{}
 }
 
 // Valid ensures the Data passed to the response is correct
