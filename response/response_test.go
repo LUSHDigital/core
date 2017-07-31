@@ -6,7 +6,10 @@ import (
 
 	"fmt"
 
+	"encoding/json"
 	"log"
+	"os"
+	"io/ioutil"
 )
 
 func init() {
@@ -159,6 +162,65 @@ func TestData_MarshalJSON(t *testing.T) {
 	}
 }
 
+func TestData_UnmarshalJSON(t *testing.T) {
+	tt := []struct {
+		name     string
+		json     []byte
+		expected *Response
+	}{
+		{
+			name: "collection",
+			json: []byte(`{"status":"ok","code":200,"message":"","data":{"collection":{"language":"golang","tests":"ok"}}}`),
+		},
+		{
+			name: "doube collection",
+			json: []byte(`{"status":"ok","code":200,"message":"","data":{"collection":{"language":"golang","tests":"ok"},"collection2":{"language":"golang","tests":"ok"}}}`),
+		},
+		{
+			name: "object",
+			json: []byte(`{"status":"ok","code":200,"message":"","data":[{"language":"golang","tests":"ok"}]}`),
+		},
+		{
+			name: "k/v pairs inside object",
+			json: []byte(`{"status":"ok","code":200,"message":"","data":{"test":"hello", "test2":"hello2"}}`),
+		},
+		{
+			name: "double nested objects",
+			json: []byte(`{"status":"ok","code":200,"message":"","data":[{"collection":{"language":"golang","tests":"ok"}},{"collection2":{"language":"golang","tests":"ok"}}]}`),
+		},
+		{
+			name: "empty arrays",
+			json: []byte(`{"status":"ok","code":200,"message":"","data":{"obj1":[],"obj2":[],"obj3":[]}}`),
+		},
+		{
+			name: "empty json",
+			json: []byte(`{}`),
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			var resp *Response
+			if err := json.Unmarshal(tc.json, &resp); err != nil {
+				t.Fail()
+			}
+			b, _ := json.Marshal(resp)
+			fmt.Println(string(b))
+		})
+	}
+}
+
+func BenchmarkData_UnmarshalJSON(b *testing.B) {
+	log.SetOutput(ioutil.Discard)
+	defer log.SetOutput(os.Stderr)
+	b.ReportAllocs()
+	body := []byte(`{"status":"ok","code":200,"message":"","data":{"collection":{"language":"golang","tests":"ok"}}}`)
+	for i := 0; i < b.N; i++ {
+		var resp *Response
+		json.Unmarshal(body, &resp)
+	}
+}
+
 func TestData_Map(t *testing.T) {
 	tt := []struct {
 		name     string
@@ -202,6 +264,8 @@ func TestData_Map(t *testing.T) {
 }
 
 func BenchmarkData_MarshalJSON(b *testing.B) {
+	log.SetOutput(ioutil.Discard)
+	defer log.SetOutput(os.Stderr)
 	data := Data{
 		Type: "test",
 		Content: map[string]interface{}{
@@ -217,6 +281,8 @@ func BenchmarkData_MarshalJSON(b *testing.B) {
 }
 
 func BenchmarkData_MarshalJSON_MissingType(b *testing.B) {
+	log.SetOutput(ioutil.Discard)
+	defer log.SetOutput(os.Stderr)
 	data := Data{
 		Content: map[string]interface{}{
 			"test1": "test1",
@@ -231,6 +297,8 @@ func BenchmarkData_MarshalJSON_MissingType(b *testing.B) {
 }
 
 func BenchmarkData_Map(b *testing.B) {
+	log.SetOutput(ioutil.Discard)
+	defer log.SetOutput(os.Stderr)
 	data := Data{
 		Content: map[string]interface{}{
 			"thing_one": "a thing",
@@ -244,6 +312,8 @@ func BenchmarkData_Map(b *testing.B) {
 }
 
 func BenchmarkResponse_ExtractData(b *testing.B) {
+	log.SetOutput(ioutil.Discard)
+	defer log.SetOutput(os.Stderr)
 	resp := New(200, StatusOk, "", preparedData)
 	for i := 0; i < b.N; i++ {
 		var dst map[string]interface{}
