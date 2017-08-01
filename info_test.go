@@ -26,19 +26,19 @@ func TestServiceInfo(t *testing.T) {
 
 	// Check each expected env var.
 	if info.ServiceName != os.Getenv("SERVICE_NAME") {
-		t.Error(fmt.Sprintf("Expected %v, got %v", os.Getenv("SERVICE_NAME"), info.ServiceName))
+		t.Errorf("Expected %v, got %v", os.Getenv("SERVICE_NAME"), info.ServiceName)
 	}
 
 	if info.ServiceType != os.Getenv("SERVICE_TYPE") {
-		t.Error(fmt.Sprintf("Expected %v, got %v", os.Getenv("SERVICE_TYPE"), info.ServiceType))
+		t.Errorf("Expected %v, got %v", os.Getenv("SERVICE_TYPE"), info.ServiceType)
 	}
 
 	if info.ServiceScope != os.Getenv("SERVICE_SCOPE") {
-		t.Error(fmt.Sprintf("Expected %v, got %v", os.Getenv("SERVICE_SCOPE"), info.ServiceScope))
+		t.Errorf("Expected %v, got %v", os.Getenv("SERVICE_SCOPE"), info.ServiceScope)
 	}
 
 	if info.ServiceVersion != os.Getenv("SERVICE_VERSION") {
-		t.Error(fmt.Sprintf("Expected %v, got %v", os.Getenv("SERVICE_VERSION"), info.ServiceVersion))
+		t.Errorf("Expected %v, got %v", os.Getenv("SERVICE_VERSION"), info.ServiceVersion)
 	}
 }
 

@@ -7,9 +7,9 @@ import (
 	"fmt"
 
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"os"
-	"io/ioutil"
 )
 
 func init() {
@@ -166,35 +166,47 @@ func TestData_UnmarshalJSON(t *testing.T) {
 	tt := []struct {
 		name     string
 		json     []byte
-		expected *Response
+		expected string
 	}{
 		{
-			name: "collection",
-			json: []byte(`{"status":"ok","code":200,"message":"","data":{"collection":{"language":"golang","tests":"ok"}}}`),
+			name:     "collection",
+			json:     []byte(`{"status":"ok","code":200,"message":"","data":{"collection":{"language":"golang","tests":"ok"}}}`),
+			expected: "collection",
 		},
 		{
-			name: "doube collection",
-			json: []byte(`{"status":"ok","code":200,"message":"","data":{"collection":{"language":"golang","tests":"ok"},"collection2":{"language":"golang","tests":"ok"}}}`),
+			name:     "complex response",
+			json:     []byte(`{"status":"success","code":200,"message":"","data":{"endpoints":[{"uri":"/","method":"get","grants":[]},{"uri":"/healthz","method":"get","grants":[]}]}}`),
+			expected: "endpoints",
 		},
 		{
-			name: "object",
-			json: []byte(`{"status":"ok","code":200,"message":"","data":[{"language":"golang","tests":"ok"}]}`),
+			name:     "doube collection",
+			json:     []byte(`{"status":"ok","code":200,"message":"","data":{"collection":{"language":"golang","tests":"ok"},"collection2":{"language":"golang","tests":"ok"}}}`),
+			expected: "",
 		},
 		{
-			name: "k/v pairs inside object",
-			json: []byte(`{"status":"ok","code":200,"message":"","data":{"test":"hello", "test2":"hello2"}}`),
+			name:     "object",
+			json:     []byte(`{"status":"ok","code":200,"message":"","data":[{"language":"golang","tests":"ok"}]}`),
+			expected: "",
 		},
 		{
-			name: "double nested objects",
-			json: []byte(`{"status":"ok","code":200,"message":"","data":[{"collection":{"language":"golang","tests":"ok"}},{"collection2":{"language":"golang","tests":"ok"}}]}`),
+			name:     "k/v pairs inside object",
+			json:     []byte(`{"status":"ok","code":200,"message":"","data":{"test":"hello", "test2":"hello2"}}`),
+			expected: "",
 		},
 		{
-			name: "empty arrays",
-			json: []byte(`{"status":"ok","code":200,"message":"","data":{"obj1":[],"obj2":[],"obj3":[]}}`),
+			name:     "double nested objects",
+			json:     []byte(`{"status":"ok","code":200,"message":"","data":[{"collection":{"language":"golang","tests":"ok"}},{"collection2":{"language":"golang","tests":"ok"}}]}`),
+			expected: "",
 		},
 		{
-			name: "empty json",
-			json: []byte(`{}`),
+			name:     "empty arrays",
+			json:     []byte(`{"status":"ok","code":200,"message":"","data":{"obj1":[],"obj2":[],"obj3":[]}}`),
+			expected: "",
+		},
+		{
+			name:     "empty json",
+			json:     []byte(`{}`),
+			expected: "",
 		},
 	}
 
@@ -204,8 +216,11 @@ func TestData_UnmarshalJSON(t *testing.T) {
 			if err := json.Unmarshal(tc.json, &resp); err != nil {
 				t.Fail()
 			}
-			b, _ := json.Marshal(resp)
-			fmt.Println(string(b))
+			if resp.Data != nil {
+				if resp.Data.Type != tc.expected {
+					t.Fail()
+				}
+			}
 		})
 	}
 }

@@ -48,6 +48,9 @@ func (d *Data) UnmarshalJSON(b []byte) error {
 			if _, ok := value.(map[string]interface{}); ok {
 				count++
 			}
+			if _, ok := value.([]interface{}); ok {
+				count++
+			}
 		}
 		if count > 1 {
 			// we can stop there since this is not a single collection
@@ -56,6 +59,9 @@ func (d *Data) UnmarshalJSON(b []byte) error {
 
 		for key, value := range data {
 			if _, ok := value.(map[string]interface{}); ok {
+				d.Type = key
+				d.Content = data[key]
+			} else if _, ok := value.([]interface{}); ok {
 				d.Type = key
 				d.Content = data[key]
 			}
@@ -81,11 +87,10 @@ func (d *Data) MarshalJSON() ([]byte, error) {
 
 // Map returns a version of the data as a map
 func (d *Data) Map() map[string]interface{} {
-	d.Type = strings.Replace(strings.ToLower(d.Type), " ", "-", -1)
 	if !d.Valid() {
-		log.Printf("invalid data: %v", d)
 		return nil
 	}
+	d.Type = strings.Replace(strings.ToLower(d.Type), " ", "-", -1)
 
 	return map[string]interface{}{
 		d.Type: d.Content,
@@ -131,7 +136,6 @@ func (r *Response) ExtractData(srcKey string, dst interface{}) error {
 	if !r.Data.Valid() {
 		return fmt.Errorf("invalid data provided: %v", r.Data)
 	}
-
 	for key, value := range r.Data.Map() {
 		if key != srcKey {
 			continue
