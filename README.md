@@ -25,4 +25,5 @@ $ go get -u github.com/LUSHDigital/microservice-core-golang
 ## Documentation
 * [General](https://godoc.org/github.com/LUSHDigital/microservice-core-golang)
 * [Response](https://godoc.org/github.com/LUSHDigital/microservice-core-golang/response)
+* [Format](https://godoc.org/github.com/LUSHDigital/microservice-core-golang/format)
 * [Routing](https://godoc.org/github.com/LUSHDigital/microservice-core-golang/routing)
