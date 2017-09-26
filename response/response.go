@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+
 	"strings"
+
+	"github.com/LUSHDigital/microservice-core-golang/pagination"
 )
 
 // Standard response statuses.
@@ -13,12 +16,173 @@ const (
 	StatusFail = "fail"
 )
 
+// ResponseInterface - Inteface for microservice responses.
+type ResponseInterface interface {
+	// ExtractData - Extract a particular item of data from the response.
+	//
+	// Params:
+	//     srcKey string - The name of the data item we want from the response.
+	//     dst interface{} - The interface to extract data into.
+	//
+	// Return:
+	//     error - An error if it occurred.
+	ExtractData(srcKey string, dst interface{}) error
+
+	// GetCode - Get the response code.
+	//
+	// Return:
+	//     int - The response code.
+	GetCode() int
+}
+
 // Response - A standardised response format for a microservice.
 type Response struct {
 	Status  string `json:"status"`
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Data    *Data  `json:"data,omitempty"`
+}
+
+// New returns a new Response for a microservice endpoint
+// This ensures that all API endpoints return data in a standardised format:
+//
+//    {
+//       "status": "ok", - Can contain any string. Usually 'ok', 'error' etc.
+//       "code": 200, - A HTTP status code.
+//       "message": "", - A message string elaborating on the status.
+//       "data": {[ - A collection of return data. Can be omitted in the event an error occurred.
+//       ]}
+//    }
+// Params:
+//     code int - HTTP status code for the response.
+//     status string - A short status message. Examples: 'OK', 'Bad Request', 'Not Found' etc...
+//     message string - A more detailed status message
+//     data *Data - The data to return. Will always be parsed into a collection.
+//
+// Return:
+//   *Response - The populated response object.
+func New(code int, status, message string, data *Data) *Response {
+	return &Response{
+		Code:    code,
+		Status:  status,
+		Message: message,
+		Data:    data,
+	}
+}
+
+// ExtractData - Extract a particular item of data from the response.
+//
+// Params:
+//     srcKey string - The name of the data item we want from the response.
+//     dst interface{} - The interface to extract data into.
+//
+// Return:
+//     error - An error if it occurred.
+func (r *Response) ExtractData(srcKey string, dst interface{}) error {
+	if !r.Data.Valid() {
+		return fmt.Errorf("invalid data provided: %v", r.Data)
+	}
+	for key, value := range r.Data.Map() {
+		if key != srcKey {
+			continue
+		}
+
+		// Get the raw JSON just for the endpoints.
+		rawJSON, err := json.Marshal(value)
+		if err != nil {
+			return err
+		}
+
+		// Decode the raw JSON.
+		json.Unmarshal(rawJSON, &dst)
+	}
+
+	return nil
+}
+
+// GetCode - Get the response code.
+//
+// Return:
+//     int - The response code.
+func (r *Response) GetCode() int {
+	return r.Code
+}
+
+// PaginatedResponse - A paginated response format for a microservice.
+type PaginatedResponse struct {
+	Status     string               `json:"status"`
+	Code       int                  `json:"code"`
+	Message    string               `json:"message"`
+	Data       *Data                `json:"data,omitempty"`
+	Pagination *pagination.Response `json:"pagination"`
+}
+
+// New returns a new PaginatedResponse for a microservice endpoint
+// This ensures that all API endpoints return data in a standardised format:
+//
+//    {
+//       "status": "ok", - Can contain any string. Usually 'ok', 'error' etc.
+//       "code": 200, - A HTTP status code.
+//       "message": "", - A message string elaborating on the status.
+//       "data": {[ - A collection of return data. Can be omitted in the event an error occurred.
+//       ]}
+//       "pagination": {} - An object representing pagination.
+//    }
+// Params:
+//     paginator *pagination.Paginator - A paginator for the data being returned.
+//     code int - HTTP status code for the response.
+//     status string - A short status message. Examples: 'OK', 'Bad Request', 'Not Found' etc...
+//     message string - A more detailed status message
+//     data *Data - The data to return. Will always be parsed into a collection.
+//
+// Return:
+//   *Response - The populated response object.
+func NewPaginated(paginator *pagination.Paginator, code int, status, message string, data *Data) *PaginatedResponse {
+	return &PaginatedResponse{
+		Code:       code,
+		Status:     status,
+		Message:    message,
+		Data:       data,
+		Pagination: paginator.PrepareResponse(),
+	}
+}
+
+// ExtractData - Extract a particular item of data from the response.
+//
+// Params:
+//     srcKey string - The name of the data item we want from the response.
+//     dst interface{} - The interface to extract data into.
+//
+// Return:
+//     error - An error if it occurred.
+func (p *PaginatedResponse) ExtractData(srcKey string, dst interface{}) error {
+	if !p.Data.Valid() {
+		return fmt.Errorf("invalid data provided: %v", p.Data)
+	}
+	for key, value := range p.Data.Map() {
+		if key != srcKey {
+			continue
+		}
+
+		// Get the raw JSON just for the endpoints.
+		rawJSON, err := json.Marshal(value)
+		if err != nil {
+			return err
+		}
+
+		// Decode the raw JSON.
+		json.Unmarshal(rawJSON, &dst)
+	}
+
+	return nil
+}
+
+// GetCode - Get the response code.
+//
+// Return:
+//     int - The response code.
+func (p *PaginatedResponse) GetCode() int {
+	return p.Code
 }
 
 // Data represents the collection data the the response will return to the consumer
@@ -95,61 +259,4 @@ func (d *Data) Map() map[string]interface{} {
 	return map[string]interface{}{
 		d.Type: d.Content,
 	}
-}
-
-// New returns a new Response for a microservice endpoint
-// This ensures that all API endpoints return data in a standardised format:
-//
-//    {
-//       "status": "ok", - Can contain any string. Usually 'ok', 'error' etc.
-//       "code": 200, - A HTTP status code.
-//       "message": "", - A message string elaborating on the status.
-//       "data": {[ - A collection of return data. Can be omitted in the event an error occurred.
-//       ]}
-//    }
-// Params:
-//   - [code] - HTTP status code for the response.
-//   - [status] - A short status message. Examples: 'OK', 'Bad Request', 'Not Found' etc...
-//   - [message] - A more detailed status message
-//   - [data] The data to return. Will always be parsed into a collection.
-//
-// Return:
-//   *Response - The populated response object.
-func New(code int, status, message string, data *Data) *Response {
-	return &Response{
-		Code:    code,
-		Status:  status,
-		Message: message,
-		Data:    data,
-	}
-}
-
-// ExtractData - Extract a particular item of data from the response.
-//
-// Params:
-//     srcKey string - The name of the data item we want from the response.
-//     dst interface{} - The interface to extract data into.
-//
-// Return:
-//     error - An error if it occurred.
-func (r *Response) ExtractData(srcKey string, dst interface{}) error {
-	if !r.Data.Valid() {
-		return fmt.Errorf("invalid data provided: %v", r.Data)
-	}
-	for key, value := range r.Data.Map() {
-		if key != srcKey {
-			continue
-		}
-
-		// Get the raw JSON just for the endpoints.
-		rawJSON, err := json.Marshal(value)
-		if err != nil {
-			return err
-		}
-
-		// Decode the raw JSON.
-		json.Unmarshal(rawJSON, &dst)
-	}
-
-	return nil
 }

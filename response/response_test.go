@@ -10,6 +10,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+
+	"github.com/LUSHDigital/microservice-core-golang/pagination"
 )
 
 func init() {
@@ -23,6 +25,7 @@ var (
 		"tests":    "ok",
 		"language": "golang",
 	}
+
 	// example Data struct
 	preparedData = &Data{
 		Type:    "tests",
@@ -111,6 +114,38 @@ func TestResponse_ExtractData(t *testing.T) {
 	dst = nil
 	extractedData = resp.ExtractData("tests", dst)
 	//
+	// Compare the data.
+	if reflect.DeepEqual(dst, nil) {
+		t.Errorf("TestExtractData: Expected %v got %v", resp.Data.Map()["tests"], extractedData)
+	}
+}
+
+func TestPaginatedResponse_ExtractData(t *testing.T) {
+	paginator, err := pagination.NewPaginator(1, 1, len(expectedResponseData))
+	if err != nil {
+		t.Errorf("TestPaginatedResponse_ExtractData: %s", err)
+	}
+
+	resp := NewPaginated(paginator, 200, StatusOk, "", preparedData)
+
+	// Extract the data.
+	var dst map[string]interface{}
+	extractedData := resp.ExtractData("tests", dst)
+
+	// Compare the data.
+	if reflect.DeepEqual(dst, resp.Data.Map()["test"]) {
+		t.Errorf("TestExtractData: Expected %v got %v", resp.Data.Map()["tests"], extractedData)
+	}
+
+	// test with broken data as well
+	resp = NewPaginated(paginator, 200, StatusOk, "", &Data{
+		Content: expectedResponseData,
+	})
+
+	// Extract the data.
+	dst = nil
+	extractedData = resp.ExtractData("tests", dst)
+
 	// Compare the data.
 	if reflect.DeepEqual(dst, nil) {
 		t.Errorf("TestExtractData: Expected %v got %v", resp.Data.Map()["tests"], extractedData)
