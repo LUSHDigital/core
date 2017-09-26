@@ -11,13 +11,13 @@ import (
 //
 // Params:
 //     w http.ResponseWriter - The HTTP response writer.
-//     response *Response - The microservice response object.
-func JSONResponseFormatter(w http.ResponseWriter, response *response.Response) {
+//     response *response.ResponseInterface - The microservice response object.
+func JSONResponseFormatter(w http.ResponseWriter, response response.ResponseInterface) {
 	// Set the content type header.
 	w.Header().Set("Content-Type", "application/json")
 
 	// Set the status code.
-	w.WriteHeader(response.Code)
+	w.WriteHeader(response.GetCode())
 
 	// Set the response.
 	json.NewEncoder(w).Encode(response)
