@@ -1,3 +1,5 @@
+// Package pagination defines a paginator able to return formatted responses
+// enabling the API consumer to retrieve data in defined chunks
 package pagination
 
 import (
@@ -14,10 +16,7 @@ type Paginator struct {
 	lastPage int // The number of the last possible page.
 }
 
-// calculateOffset - Calculate the offset based on the current values.
-//
-// Return:
-//     error - An error if it occurred.
+// calculateOffset sets the offset field based on the current values.
 func (p *Paginator) calculateOffset() error {
 	if p.page == 0 || p.perPage == 0 {
 		return errors.New("cannot calculate offset: insufficient data")
@@ -27,10 +26,8 @@ func (p *Paginator) calculateOffset() error {
 	return nil
 }
 
-// calculateLastPage - Calculate the last page based on the current values.
-//
-// Return:
-//     error - An error if it occurred.
+// calculateLastPage sets the lastPage field based on the
+// current values and returns an error if it fails.
 func (p *Paginator) calculateLastPage() error {
 	if p.total == 0 || p.perPage == 0 {
 		return errors.New("cannot calculate last page: insufficient data")
@@ -41,21 +38,14 @@ func (p *Paginator) calculateLastPage() error {
 	return nil
 }
 
-// GetPerPage
-//
-// Return:
-//     int - Number of items per page.
+// GetPerPage returns the number of items per page.
 func (p *Paginator) GetPerPage() int {
 	return p.perPage
 }
 
-// SetPerPage
-//
-// Params:
-//     perPage int - Number of items per page.
-//
-// Return:
-//     error - An error if it occurred.
+// SetPerPage defines how many items per page the
+// paginator will return, based on the supplied parameter,
+// and will return an error if anything fails.
 func (p *Paginator) SetPerPage(perPage int) error {
 	p.perPage = perPage
 
@@ -71,21 +61,13 @@ func (p *Paginator) SetPerPage(perPage int) error {
 	return nil
 }
 
-// GetPage
-//
-// Return:
-//     int - Which page are we on?
+// GetPage returns the current page index
 func (p *Paginator) GetPage() int {
 	return p.page
 }
 
-// SetPage
-//
-// Params:
-//     page int - Which page are we on?
-//
-// Return:
-//     error - An error if it occurred.
+// SetPage sets the page field to the provided value
+// and returns an error if anything fails
 func (p *Paginator) SetPage(page int) error {
 	p.page = page
 
@@ -101,29 +83,18 @@ func (p *Paginator) SetPage(page int) error {
 	return nil
 }
 
-// GetOffset
-//
-// Return:
-//     int - The current offset to pass to the query.
+// GetOffset returns the current offset of the paginator.
 func (p *Paginator) GetOffset() int {
 	return p.offset
 }
 
-// GetTotal
-//
-// Return:
-//     int - The total number of items.
+// GetTotal returns the total number of items in the paginator.
 func (p *Paginator) GetTotal() int {
 	return p.total
 }
 
-// GetTotal
-//
-// Params:
-//     total int - The total number of items.
-//
-// Return:
-//     error - An error if it occurred.
+// SetTotal sets the total number of items in the paginator
+// to the provided value and returns an error if it fails.
 func (p *Paginator) SetTotal(total int) error {
 	p.total = total
 
@@ -139,32 +110,18 @@ func (p *Paginator) SetTotal(total int) error {
 	return nil
 }
 
-// GetLastPage
-//
-// Return:
-//     int - The number of the last possible page
+// GetLastPage returns the last possible page number.
 func (p *Paginator) GetLastPage() int {
 	return p.lastPage
 }
 
-// PrepareResponse - Prepare the pagination response.
-//
-// Return:
-//     *response - The pagination response.
+// PrepareResponse returns a prepared pagination response.
 func (p *Paginator) PrepareResponse() *Response {
 	return newResponse(p.total, p.perPage, p.page, p.lastPage)
 }
 
-// NewPaginator - Instantiate a new paginator.
-//
-// Params:
-//     perPage int - Number of items to display per page.
-//     page int - Which page are we on?
-//     total int - Number of items there are in total.
-//
-// Return:
-//     *Paginator - The instantiated paginator object.
-//     error - An error if it occurred
+// NewPaginator returns a new Paginator instance with the provided
+// parameters set and reutrns an error if it fails.
 func NewPaginator(perPage, page, total int) (*Paginator, error) {
 	// Create the paginator.
 	p := Paginator{

@@ -1,3 +1,4 @@
+// Package response defines the how the default microservice response must look and behave like.
 package response
 
 import (
@@ -16,51 +17,34 @@ const (
 	StatusFail = "fail"
 )
 
-// ResponseInterface - Inteface for microservice responses.
+// ResponseInterface - Interface for microservice responses.
 type ResponseInterface interface {
-	// ExtractData - Extract a particular item of data from the response.
-	//
-	// Params:
-	//     srcKey string - The name of the data item we want from the response.
-	//     dst interface{} - The interface to extract data into.
-	//
-	// Return:
-	//     error - An error if it occurred.
+	// ExtractData returns a particular item of data from the response.
 	ExtractData(srcKey string, dst interface{}) error
 
-	// GetCode - Get the response code.
-	//
-	// Return:
-	//     int - The response code.
+	// GetCode returns the response code.
 	GetCode() int
 }
 
 // Response - A standardised response format for a microservice.
 type Response struct {
-	Status  string `json:"status"`
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-	Data    *Data  `json:"data,omitempty"`
+	Status  string `json:"status"`         // Can be 'ok' or 'fail'
+	Code    int    `json:"code"`           // Any valid HTTP response code
+	Message string `json:"message"`        // Any relevant message (optional)
+	Data    *Data  `json:"data,omitempty"` // Data to pass along to the response (optional)
 }
 
 // New returns a new Response for a microservice endpoint
 // This ensures that all API endpoints return data in a standardised format:
 //
 //    {
-//       "status": "ok", - Can contain any string. Usually 'ok', 'error' etc.
-//       "code": 200, - A HTTP status code.
-//       "message": "", - A message string elaborating on the status.
-//       "data": {[ - A collection of return data. Can be omitted in the event an error occurred.
+//       "status": "ok or fail",
+//       "code": any HTTP response code,
+//       "message": "any relevant message (optional)",
+//       "data": {[
+//          ...
 //       ]}
 //    }
-// Params:
-//     code int - HTTP status code for the response.
-//     status string - A short status message. Examples: 'OK', 'Bad Request', 'Not Found' etc...
-//     message string - A more detailed status message
-//     data *Data - The data to return. Will always be parsed into a collection.
-//
-// Return:
-//   *Response - The populated response object.
 func New(code int, status, message string, data *Data) *Response {
 	return &Response{
 		Code:    code,
@@ -70,14 +54,7 @@ func New(code int, status, message string, data *Data) *Response {
 	}
 }
 
-// ExtractData - Extract a particular item of data from the response.
-//
-// Params:
-//     srcKey string - The name of the data item we want from the response.
-//     dst interface{} - The interface to extract data into.
-//
-// Return:
-//     error - An error if it occurred.
+// ExtractData returns a particular item of data from the response.
 func (r *Response) ExtractData(srcKey string, dst interface{}) error {
 	if !r.Data.Valid() {
 		return fmt.Errorf("invalid data provided: %v", r.Data)
@@ -100,43 +77,21 @@ func (r *Response) ExtractData(srcKey string, dst interface{}) error {
 	return nil
 }
 
-// GetCode - Get the response code.
-//
-// Return:
-//     int - The response code.
+// GetCode returns the response code.
 func (r *Response) GetCode() int {
 	return r.Code
 }
 
 // PaginatedResponse - A paginated response format for a microservice.
 type PaginatedResponse struct {
-	Status     string               `json:"status"`
-	Code       int                  `json:"code"`
-	Message    string               `json:"message"`
-	Data       *Data                `json:"data,omitempty"`
-	Pagination *pagination.Response `json:"pagination"`
+	Status     string               `json:"status"`         // Can be 'ok' or 'fail'
+	Code       int                  `json:"code"`           // Any valid HTTP response code
+	Message    string               `json:"message"`        // Any relevant message (optional)
+	Data       *Data                `json:"data,omitempty"` // Data to pass along to the response (optional)
+	Pagination *pagination.Response `json:"pagination"`     // Pagination data
 }
 
-// New returns a new PaginatedResponse for a microservice endpoint
-// This ensures that all API endpoints return data in a standardised format:
-//
-//    {
-//       "status": "ok", - Can contain any string. Usually 'ok', 'error' etc.
-//       "code": 200, - A HTTP status code.
-//       "message": "", - A message string elaborating on the status.
-//       "data": {[ - A collection of return data. Can be omitted in the event an error occurred.
-//       ]}
-//       "pagination": {} - An object representing pagination.
-//    }
-// Params:
-//     paginator *pagination.Paginator - A paginator for the data being returned.
-//     code int - HTTP status code for the response.
-//     status string - A short status message. Examples: 'OK', 'Bad Request', 'Not Found' etc...
-//     message string - A more detailed status message
-//     data *Data - The data to return. Will always be parsed into a collection.
-//
-// Return:
-//   *Response - The populated response object.
+// NewPaginated returns a new PaginatedResponse for a microservice endpoint
 func NewPaginated(paginator *pagination.Paginator, code int, status, message string, data *Data) *PaginatedResponse {
 	return &PaginatedResponse{
 		Code:       code,
@@ -147,14 +102,7 @@ func NewPaginated(paginator *pagination.Paginator, code int, status, message str
 	}
 }
 
-// ExtractData - Extract a particular item of data from the response.
-//
-// Params:
-//     srcKey string - The name of the data item we want from the response.
-//     dst interface{} - The interface to extract data into.
-//
-// Return:
-//     error - An error if it occurred.
+// ExtractData returns a particular item of data from the response.
 func (p *PaginatedResponse) ExtractData(srcKey string, dst interface{}) error {
 	if !p.Data.Valid() {
 		return fmt.Errorf("invalid data provided: %v", p.Data)
@@ -177,15 +125,12 @@ func (p *PaginatedResponse) ExtractData(srcKey string, dst interface{}) error {
 	return nil
 }
 
-// GetCode - Get the response code.
-//
-// Return:
-//     int - The response code.
+// GetCode returns the response code.
 func (p *PaginatedResponse) GetCode() int {
 	return p.Code
 }
 
-// Data represents the collection data the the response will return to the consumer
+// Data represents the collection data the the response will return to the consumer.
 // Type ends up being the name of the key containing the collection of Content
 type Data struct {
 	Type    string
@@ -196,8 +141,8 @@ type Data struct {
 // this implementation will fill the type in the case we're been provided a valid single collection
 // and set the content to the contents of said collection.
 // for every other options, it behaves like normal.
-// Despite the fact that we are not suposed to marshal without a type set
-// This is purposefuly left open to unmarshal without a collection name set, in case you may want to set it later,
+// Despite the fact that we are not suposed to marshal without a type set,
+// this is purposefuly left open to unmarshal without a collection name set, in case you may want to set it later,
 // and for interop with other systems which may not send the collection properly.
 func (d *Data) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &d.Content); err != nil {
@@ -235,7 +180,7 @@ func (d *Data) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Valid ensures the Data passed to the response is correct
+// Valid ensures the Data passed to the response is correct (it must contain a Type along with the data).
 func (d *Data) Valid() bool {
 	if d.Type != "" {
 		return true

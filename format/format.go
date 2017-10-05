@@ -1,3 +1,5 @@
+// Package format defines any necessary custom formatters for the responses
+// presently only JSON is supported.
 package format
 
 import (
@@ -7,11 +9,7 @@ import (
 	"github.com/LUSHDigital/microservice-core-golang/response"
 )
 
-// JSONResponseFormatter - Format a microservice response as JSON.
-//
-// Params:
-//     w http.ResponseWriter - The HTTP response writer.
-//     response *response.ResponseInterface - The microservice response object.
+// JSONResponseFormatter formats a microservice response as JSON.
 func JSONResponseFormatter(w http.ResponseWriter, response response.ResponseInterface) {
 	// Set the content type header.
 	w.Header().Set("Content-Type", "application/json")
