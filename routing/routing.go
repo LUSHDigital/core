@@ -1,8 +1,9 @@
+// Package routing defines the basic structure a microservice route must abide by.
 package routing
 
 import "net/http"
 
-// Route - A HTTP route.
+// Route defines an HTTP route
 type Route struct {
 	Path    string                                   `json:"uri"`
 	Method  string                                   `json:"method"`
