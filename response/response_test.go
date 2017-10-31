@@ -1,17 +1,16 @@
 package response
 
 import (
-	"reflect"
-	"testing"
-
-	"fmt"
-
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"reflect"
+	"testing"
 
 	"github.com/LUSHDigital/microservice-core-golang/pagination"
+	"net/http/httptest"
 )
 
 func init() {
@@ -309,6 +308,41 @@ func TestData_Map(t *testing.T) {
 			if !reflect.DeepEqual(tc.expected, tc.data.Map()) {
 				t.Errorf("want: %v, got: %v", tc.expected, tc.data.Map())
 			}
+		})
+	}
+}
+
+func TestResponse_WriteTo(t *testing.T) {
+	h := httptest.NewRecorder()
+	type fields struct {
+		Status  string
+		Code    int
+		Message string
+		Data    *Data
+	}
+	tests := []struct {
+		name   string
+		fields fields
+	}{
+		{
+			name: "200 response",
+			fields: fields{
+				Code:    200,
+				Data:    nil,
+				Message: "",
+				Status:  "ok",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := &Response{
+				Status:  tt.fields.Status,
+				Code:    tt.fields.Code,
+				Message: tt.fields.Message,
+				Data:    tt.fields.Data,
+			}
+			r.WriteTo(h)
 		})
 	}
 }

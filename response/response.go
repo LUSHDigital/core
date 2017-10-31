@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 
 	"strings"
 
@@ -52,6 +53,13 @@ func New(code int, status, message string, data *Data) *Response {
 		Message: message,
 		Data:    data,
 	}
+}
+
+// WriteTo - pick a response writer to write the default json response to.
+func (r *Response) WriteTo(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(r.Code)
+	json.NewEncoder(w).Encode(r)
 }
 
 // ExtractData returns a particular item of data from the response.
