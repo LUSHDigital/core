@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
 	"strings"
 
 	"github.com/LUSHDigital/microservice-core-golang/pagination"
@@ -46,7 +45,14 @@ type Response struct {
 //          ...
 //       ]}
 //    }
-func New(code int, status, message string, data *Data) *Response {
+func New(code int, message string, data *Data) *Response {
+	var status string
+	switch {
+	case code >= http.StatusOK && code < http.StatusBadRequest:
+		status = StatusOk
+	default:
+		status = StatusFail
+	}
 	return &Response{
 		Code:    code,
 		Status:  status,

@@ -38,7 +38,7 @@ func TestJSONResponseFormatter(t *testing.T) {
 	// Start a HTTP server for testing purposes.
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Create a response.
-		resp := response.New(200, response.StatusOk, "", &responseData)
+		resp := response.New(200, "", &responseData)
 		// Format the response as JSON.
 		JSONResponseFormatter(w, resp)
 	}))

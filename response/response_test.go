@@ -42,6 +42,17 @@ var (
 		},
 	}
 
+	// An example response object (wuth data), for a failed response
+	expectedResponseFail = &Response{
+		Status:  StatusFail,
+		Code:    400,
+		Message: "",
+		Data: &Data{
+			Type:    "tests",
+			Content: expectedResponseData,
+		},
+	}
+
 	// An example response object (with no data) for testing with.
 	expectedResponseNoData = &Response{
 		Status:  StatusOk,
@@ -57,7 +68,6 @@ func TestNew(t *testing.T) {
 	tt := []struct {
 		name     string
 		code     int
-		status   string
 		message  string
 		typ      string
 		data     *Data
@@ -66,15 +76,20 @@ func TestNew(t *testing.T) {
 		{
 			name:     "response valid",
 			code:     200,
-			status:   StatusOk,
 			message:  "",
 			data:     preparedData,
 			expected: expectedResponse,
 		},
 		{
+			name:     "response valid",
+			code:     400,
+			message:  "",
+			data:     preparedData,
+			expected: expectedResponseFail,
+		},
+		{
 			name:     "response no data",
 			code:     200,
-			status:   StatusOk,
 			message:  "",
 			data:     nil,
 			expected: expectedResponseNoData,
@@ -83,7 +98,7 @@ func TestNew(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			resp := New(tc.code, tc.status, tc.message, tc.data)
+			resp := New(tc.code, tc.message, tc.data)
 
 			if !reflect.DeepEqual(resp, tc.expected) {
 				t.Errorf("want: %v\ngot: %v", tc.expected, resp)
@@ -93,7 +108,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestResponse_ExtractData(t *testing.T) {
-	resp := New(200, StatusOk, "", preparedData)
+	resp := New(200, "", preparedData)
 	//
 	// Extract the data.
 	var dst map[string]interface{}
@@ -105,7 +120,7 @@ func TestResponse_ExtractData(t *testing.T) {
 	}
 
 	// test with broken data as well
-	resp = New(200, StatusOk, "", &Data{
+	resp = New(200, "", &Data{
 		Content: expectedResponseData,
 	})
 	//
@@ -398,7 +413,7 @@ func BenchmarkData_Map(b *testing.B) {
 func BenchmarkResponse_ExtractData(b *testing.B) {
 	log.SetOutput(ioutil.Discard)
 	defer log.SetOutput(os.Stderr)
-	resp := New(200, StatusOk, "", preparedData)
+	resp := New(200, "", preparedData)
 	for i := 0; i < b.N; i++ {
 		var dst map[string]interface{}
 		resp.ExtractData("tests", dst)
@@ -415,6 +430,6 @@ func ExampleNew() {
 		},
 	}
 
-	resp := New(200, StatusOk, "test message", data)
+	resp := New(200, "test message", data)
 	fmt.Printf("%+v", resp)
 }
