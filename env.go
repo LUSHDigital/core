@@ -15,10 +15,12 @@ import (
 // Return:
 //     string - The value of the requested environment variable.
 func GetEnvOrFail(name string) string {
-	envVar := os.Getenv(name)
-	if envVar == "" {
-		log.Fatalf("Environment variable (%s) has not been set.", name)
+	envVar, ok := os.LookupEnv(name)
+	if !ok {
+		log.Fatalf("environment variable (%s) has not been set", name)
 	}
-
+	if envVar == "" {
+		log.Fatalf("environment variable (%s) is empty", name)
+	}
 	return envVar
 }
