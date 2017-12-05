@@ -106,7 +106,14 @@ type PaginatedResponse struct {
 }
 
 // NewPaginated returns a new PaginatedResponse for a microservice endpoint
-func NewPaginated(paginator *pagination.Paginator, code int, status, message string, data *Data) *PaginatedResponse {
+func NewPaginated(paginator *pagination.Paginator, code int, message string, data *Data) *PaginatedResponse {
+	var status string
+	switch {
+	case code >= http.StatusOK && code < http.StatusBadRequest:
+		status = StatusOk
+	default:
+		status = StatusFail
+	}
 	return &PaginatedResponse{
 		Code:       code,
 		Status:     status,
@@ -114,6 +121,12 @@ func NewPaginated(paginator *pagination.Paginator, code int, status, message str
 		Data:       data,
 		Pagination: paginator.PrepareResponse(),
 	}
+}
+
+func (p *PaginatedResponse) WriteTo(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(p.Code)
+	json.NewEncoder(w).Encode(p)
 }
 
 // ExtractData returns a particular item of data from the response.
