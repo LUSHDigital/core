@@ -42,29 +42,3 @@ func newResponse(total, perPage, currentPage, lastPage int) *Response {
 
 	return r
 }
-
-//// MarshalJSON - Override default marshal.
-//func (r *Response) MarshalJSON() ([]byte, error) {
-//	type Alias Response
-//
-//	// Void as an integer.
-//	var intVoid = 0
-//
-//	// Get the integer value.
-//	if o.Void == true {
-//		intVoid = 1
-//	}
-//
-//	// Handle the time offset.
-//	outputZone := time.FixedZone("outputZone", int(o.Offset))
-//
-//	return json.Marshal(&struct {
-//		Void      int    `json:"void"`
-//		Timestamp string `json:"timestamp"`
-//		*Alias
-//	}{
-//		Void:      intVoid,
-//		Timestamp: o.Timestamp.In(outputZone).Format(timeLayout),
-//		Alias:     (*Alias)(o),
-//	})
-//}
