@@ -9,6 +9,9 @@ import (
 	"strings"
 
 	"github.com/LUSHDigital/microservice-core-golang/pagination"
+	"database/sql"
+	"github.com/VividCortex/mysqlerr"
+	"github.com/go-sql-driver/mysql"
 )
 
 // Standard response statuses.
@@ -59,6 +62,59 @@ func New(code int, message string, data *Data) *Response {
 		Message: message,
 		Data:    data,
 	}
+}
+
+// SQLError returns a prepared 422 Unprocessable Entity response if the error passed is of type sql.ErrNoRows,
+// otherwise, returns a 500 Internal Server Error prepared response.
+func SQLError(err error) *Response {
+	if err == sql.ErrNoRows {
+		return New(http.StatusUnprocessableEntity, "no data found", nil)
+	}
+	if driverErr, ok := err.(*mysql.MySQLError); ok {
+		if driverErr.Number == mysqlerr.ER_DUP_ENTRY {
+			return New(http.StatusUnprocessableEntity, "duplicate entry.", nil)
+		}
+	}
+	return New(http.StatusInternalServerError, fmt.Sprintf("db error: %v", err), nil)
+}
+
+// JSONError returns a prepared 422 Unprocessable Entity response if the error passed is of type *json.SyntaxError,
+// otherwise, returns a 500 Internal Server Error prepared response.
+func JSONError(err error) *Response {
+	if syn, ok := err.(*json.SyntaxError); ok {
+		return New(http.StatusUnprocessableEntity, fmt.Sprintf("invalid json: %v", syn), nil)
+	}
+	return New(http.StatusInternalServerError, fmt.Sprintf("json error: %v", err), nil)
+}
+
+// ParamError returns a prepared 422 Unprocessable Entity response, including the name of
+// the failing parameter in the message field of the response object.
+func ParamError(name string) *Response {
+	return New(http.StatusUnprocessableEntity, fmt.Sprintf("invalid or missing parameter: %v", name), nil)
+}
+
+// ValidationError returns a prepared 422 Unprocessable Entity response, including the name of
+// the failing validation/validator in the message field of the response object.
+func ValidationError(err error, name string) *Response {
+	return New(http.StatusUnprocessableEntity, fmt.Sprintf("validation error on %s: %v", name, err), nil)
+}
+
+// NotFoundErr returns a prepared 404 Not Found response, including the message passed by the user
+// in the message field of the response object.
+func NotFoundErr(msg string) *Response {
+	return New(http.StatusNotFound, msg, nil)
+}
+
+// ConflictErr returns a prepared 409 Conflict response, including the message passed by the user
+// in the message field of the response object.
+func ConflictErr(msg string) *Response {
+	return New(http.StatusConflict, msg, nil)
+}
+
+// InternalError returns a prepared 500 Internal Server Error, including the error
+// message in the message field of the response object
+func InternalError(err error) *Response {
+	return New(http.StatusInternalServerError, fmt.Sprintf("internal server error: %v", err), nil)
 }
 
 // WriteTo - pick a response writer to write the default json response to.
