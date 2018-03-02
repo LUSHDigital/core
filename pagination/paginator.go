@@ -54,11 +54,7 @@ func (p *Paginator) SetPerPage(perPage int) error {
 		return offsetErr
 	}
 
-	lastPageErr := p.calculateLastPage()
-	if lastPageErr != nil {
-		return lastPageErr
-	}
-	return nil
+	return p.calculateLastPage()
 }
 
 // GetPage returns the current page index
@@ -76,11 +72,7 @@ func (p *Paginator) SetPage(page int) error {
 		return offsetErr
 	}
 
-	lastPageErr := p.calculateLastPage()
-	if lastPageErr != nil {
-		return lastPageErr
-	}
-	return nil
+	return p.calculateLastPage()
 }
 
 // GetOffset returns the current offset of the paginator.
@@ -103,11 +95,7 @@ func (p *Paginator) SetTotal(total int) error {
 		return offsetErr
 	}
 
-	lastPageErr := p.calculateLastPage()
-	if lastPageErr != nil {
-		return lastPageErr
-	}
-	return nil
+	return p.calculateLastPage()
 }
 
 // GetLastPage returns the last possible page number.
@@ -122,23 +110,20 @@ func (p *Paginator) PrepareResponse() *Response {
 
 // NewPaginator returns a new Paginator instance with the provided
 // parameters set and reutrns an error if it fails.
-func NewPaginator(perPage, page, total int) (*Paginator, error) {
+func NewPaginator(perPage, page, total int) (paginator *Paginator, err error) {
 	// Create the paginator.
-	p := Paginator{
+	paginator = &Paginator{
 		perPage: perPage,
 		page:    page,
 		total:   total,
 	}
 
-	offsetErr := p.calculateOffset()
-	if offsetErr != nil {
-		return nil, offsetErr
+	if err = paginator.calculateOffset(); err != nil {
+		return nil, err
 	}
 
-	lastPageErr := p.calculateLastPage()
-	if lastPageErr != nil {
-		return nil, lastPageErr
+	if err = paginator.calculateLastPage(); err != nil {
+		return nil, err
 	}
-
-	return &p, nil
+	return
 }

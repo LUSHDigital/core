@@ -1,16 +1,20 @@
 package response
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http/httptest"
 	"os"
 	"reflect"
 	"testing"
 
 	"github.com/LUSHDigital/microservice-core-golang/pagination"
-	"net/http/httptest"
+	"github.com/VividCortex/mysqlerr"
+	"github.com/go-sql-driver/mysql"
 )
 
 func init() {
@@ -69,7 +73,6 @@ func TestNew(t *testing.T) {
 		name     string
 		code     int
 		message  string
-		typ      string
 		data     *Data
 		expected *Response
 	}{
@@ -140,7 +143,7 @@ func TestPaginatedResponse_ExtractData(t *testing.T) {
 		t.Errorf("TestPaginatedResponse_ExtractData: %s", err)
 	}
 
-	resp := NewPaginated(paginator, 200, StatusOk, "", preparedData)
+	resp := NewPaginated(paginator, 200, "", preparedData)
 
 	// Extract the data.
 	var dst map[string]interface{}
@@ -152,7 +155,7 @@ func TestPaginatedResponse_ExtractData(t *testing.T) {
 	}
 
 	// test with broken data as well
-	resp = NewPaginated(paginator, 200, StatusOk, "", &Data{
+	resp = NewPaginated(paginator, 200, "", &Data{
 		Content: expectedResponseData,
 	})
 
@@ -432,4 +435,80 @@ func ExampleNew() {
 
 	resp := New(200, "test message", data)
 	fmt.Printf("%+v", resp)
+}
+
+func TestSQLError(t *testing.T) {
+	type args struct {
+		err error
+	}
+	tests := []struct {
+		name string
+		args args
+		want *Response
+	}{
+		{
+			name: "duplicate error",
+			args: args{
+				err: &mysql.MySQLError{
+					Number:  mysqlerr.ER_DUP_ENTRY,
+					Message: "test error",
+				},
+			},
+			want: New(422, "duplicate entry.", nil),
+		},
+		{
+			name: "no rows",
+			args: args{
+				err: sql.ErrNoRows,
+			},
+			want: New(422, "no data found", nil),
+		},
+		{
+			name: "inernal error",
+			args: args{
+				err: errors.New("some error"),
+			},
+			want: New(500, "db error: some error", nil),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := SQLError(tt.args.err); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("SQLError() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestJSONError(t *testing.T) {
+	type args struct {
+		err error
+	}
+	tests := []struct {
+		name string
+		args args
+		want *Response
+	}{
+		{
+			name: "syntax error",
+			args: args{
+				err: &json.SyntaxError{
+					Offset: 99,
+				},
+			},
+			want: New(422, "invalid json: ", nil),
+		},
+		{
+			name: "any other error",
+			args: args{err: errors.New("some error")},
+			want: New(500, "json error: some error", nil),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := JSONError(tt.args.err); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("JSONError() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
