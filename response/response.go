@@ -8,8 +8,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/LUSHDigital/microservice-core-golang/pagination"
 	"database/sql"
+
+	"github.com/LUSHDigital/microservice-core-golang/pagination"
 	"github.com/VividCortex/mysqlerr"
 	"github.com/go-sql-driver/mysql"
 )
@@ -179,6 +180,7 @@ func NewPaginated(paginator *pagination.Paginator, code int, message string, dat
 	}
 }
 
+// WriteTo - pick a response writer to write the default json response to.
 func (p *PaginatedResponse) WriteTo(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(p.Code)
@@ -224,8 +226,8 @@ type Data struct {
 // this implementation will fill the type in the case we're been provided a valid single collection
 // and set the content to the contents of said collection.
 // for every other options, it behaves like normal.
-// Despite the fact that we are not suposed to marshal without a type set,
-// this is purposefuly left open to unmarshal without a collection name set, in case you may want to set it later,
+// Despite the fact that we are not supposed to marshal without a type set,
+// this is purposefully left open to unmarshal without a collection name set, in case you may want to set it later,
 // and for interop with other systems which may not send the collection properly.
 func (d *Data) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &d.Content); err != nil {
@@ -265,10 +267,7 @@ func (d *Data) UnmarshalJSON(b []byte) error {
 
 // Valid ensures the Data passed to the response is correct (it must contain a Type along with the data).
 func (d *Data) Valid() bool {
-	if d.Type != "" {
-		return true
-	}
-	return false
+	return d.Type != ""
 }
 
 // MarshalJSON implements the Marshaler interface and is there to ensure the output

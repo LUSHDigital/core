@@ -52,7 +52,7 @@ func TestJSONResponseFormatter(t *testing.T) {
 
 	// Check the response code.
 	if res.StatusCode != http.StatusOK {
-		t.Error(fmt.Sprintf("Expected %d, got %d", http.StatusOK, res.StatusCode))
+		t.Errorf("Expected %d, got %d", http.StatusOK, res.StatusCode)
 	}
 
 	// Get the response body.
@@ -64,7 +64,7 @@ func TestJSONResponseFormatter(t *testing.T) {
 
 	// Check the response is what we expect.
 	if !jsonEquals(body, expectedBody) {
-		t.Error(fmt.Sprintf("Expected %v, got %v", string(expectedBody), string(body)))
+		t.Errorf("Expected %v, got %v", string(expectedBody), string(body))
 	}
 }
 
@@ -112,7 +112,7 @@ func TestJSONResponseFormatter2(t *testing.T) {
 		responseData.Content = returnData
 
 		// Create a response.
-		resp := response.NewPaginated(paginator, 200, response.StatusOk, "", &responseData)
+		resp := response.NewPaginated(paginator, 200, "", &responseData)
 
 		// Format the response as JSON.
 		JSONResponseFormatter(w, resp)
@@ -159,7 +159,7 @@ func TestJSONResponseFormatter2(t *testing.T) {
 
 			// Check the response code.
 			if res.StatusCode != http.StatusOK {
-				t.Error(fmt.Sprintf("TestJSONResponseFormatter2: %s, expected %d, got %d", tc.name, http.StatusOK, res.StatusCode))
+				t.Errorf("TestJSONResponseFormatter2: %s, expected %d, got %d", tc.name, http.StatusOK, res.StatusCode)
 			}
 
 			// Get the response body.
@@ -171,7 +171,7 @@ func TestJSONResponseFormatter2(t *testing.T) {
 
 			// Check the response is what we expect.
 			if !jsonEquals(body, tc.expectedOutput) {
-				t.Error(fmt.Sprintf("TestJSONResponseFormatter2: %s, expected %v, got %v", tc.name, string(tc.expectedOutput), string(body)))
+				t.Errorf("TestJSONResponseFormatter2: %s, expected %v, got %v", tc.name, string(tc.expectedOutput), string(body))
 			}
 		})
 	}
