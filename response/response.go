@@ -65,11 +65,11 @@ func New(code int, message string, data *Data) *Response {
 	}
 }
 
-// SQLError returns a prepared 422 Unprocessable Entity response if the error passed is of type sql.ErrNoRows,
+// SQLError returns a prepared 204 No Content response if the error passed is of type sql.ErrNoRows,
 // otherwise, returns a 500 Internal Server Error prepared response.
 func SQLError(err error) *Response {
 	if err == sql.ErrNoRows {
-		return New(http.StatusUnprocessableEntity, "no data found", nil)
+		return New(http.StatusNoContent, "no data found", nil)
 	}
 	if driverErr, ok := err.(*mysql.MySQLError); ok {
 		if driverErr.Number == mysqlerr.ER_DUP_ENTRY {
