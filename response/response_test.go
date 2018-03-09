@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"reflect"
@@ -38,7 +39,7 @@ var (
 	// An example response object for testing with.
 	expectedResponse = &Response{
 		Status:  StatusOk,
-		Code:    200,
+		Code:    http.StatusOK,
 		Message: "",
 		Data: &Data{
 			Type:    "tests",
@@ -49,7 +50,7 @@ var (
 	// An example response object (wuth data), for a failed response
 	expectedResponseFail = &Response{
 		Status:  StatusFail,
-		Code:    400,
+		Code:    http.StatusBadRequest,
 		Message: "",
 		Data: &Data{
 			Type:    "tests",
@@ -60,7 +61,7 @@ var (
 	// An example response object (with no data) for testing with.
 	expectedResponseNoData = &Response{
 		Status:  StatusOk,
-		Code:    200,
+		Code:    http.StatusOK,
 		Message: "",
 	}
 
@@ -78,21 +79,21 @@ func TestNew(t *testing.T) {
 	}{
 		{
 			name:     "response valid",
-			code:     200,
+			code:     http.StatusOK,
 			message:  "",
 			data:     preparedData,
 			expected: expectedResponse,
 		},
 		{
 			name:     "response valid",
-			code:     400,
+			code:     http.StatusBadRequest,
 			message:  "",
 			data:     preparedData,
 			expected: expectedResponseFail,
 		},
 		{
 			name:     "response no data",
-			code:     200,
+			code:     http.StatusOK,
 			message:  "",
 			data:     nil,
 			expected: expectedResponseNoData,
@@ -111,7 +112,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestResponse_ExtractData(t *testing.T) {
-	resp := New(200, "", preparedData)
+	resp := New(http.StatusOK, "", preparedData)
 	//
 	// Extract the data.
 	var dst map[string]interface{}
@@ -123,7 +124,7 @@ func TestResponse_ExtractData(t *testing.T) {
 	}
 
 	// test with broken data as well
-	resp = New(200, "", &Data{
+	resp = New(http.StatusOK, "", &Data{
 		Content: expectedResponseData,
 	})
 	//
@@ -143,7 +144,7 @@ func TestPaginatedResponse_ExtractData(t *testing.T) {
 		t.Errorf("TestPaginatedResponse_ExtractData: %s", err)
 	}
 
-	resp := NewPaginated(paginator, 200, "", preparedData)
+	resp := NewPaginated(paginator, http.StatusOK, "", preparedData)
 
 	// Extract the data.
 	var dst map[string]interface{}
@@ -155,7 +156,7 @@ func TestPaginatedResponse_ExtractData(t *testing.T) {
 	}
 
 	// test with broken data as well
-	resp = NewPaginated(paginator, 200, "", &Data{
+	resp = NewPaginated(paginator, http.StatusOK, "", &Data{
 		Content: expectedResponseData,
 	})
 
@@ -345,7 +346,7 @@ func TestResponse_WriteTo(t *testing.T) {
 		{
 			name: "200 response",
 			fields: fields{
-				Code:    200,
+				Code:    http.StatusOK,
 				Data:    nil,
 				Message: "",
 				Status:  "ok",
@@ -416,7 +417,7 @@ func BenchmarkData_Map(b *testing.B) {
 func BenchmarkResponse_ExtractData(b *testing.B) {
 	log.SetOutput(ioutil.Discard)
 	defer log.SetOutput(os.Stderr)
-	resp := New(200, "", preparedData)
+	resp := New(http.StatusOK, "", preparedData)
 	for i := 0; i < b.N; i++ {
 		var dst map[string]interface{}
 		resp.ExtractData("tests", dst)
@@ -433,7 +434,7 @@ func ExampleNew() {
 		},
 	}
 
-	resp := New(200, "test message", data)
+	resp := New(http.StatusOK, "test message", data)
 	fmt.Printf("%+v", resp)
 }
 
@@ -454,21 +455,21 @@ func TestSQLError(t *testing.T) {
 					Message: "test error",
 				},
 			},
-			want: New(422, "duplicate entry.", nil),
+			want: New(http.StatusUnprocessableEntity, "duplicate entry.", nil),
 		},
 		{
 			name: "no rows",
 			args: args{
 				err: sql.ErrNoRows,
 			},
-			want: New(422, "no data found", nil),
+			want: New(http.StatusNoContent, "no data found", nil),
 		},
 		{
 			name: "inernal error",
 			args: args{
 				err: errors.New("some error"),
 			},
-			want: New(500, "db error: some error", nil),
+			want: New(http.StatusInternalServerError, "db error: some error", nil),
 		},
 	}
 	for _, tt := range tests {
@@ -496,12 +497,12 @@ func TestJSONError(t *testing.T) {
 					Offset: 99,
 				},
 			},
-			want: New(422, "invalid json: ", nil),
+			want: New(http.StatusUnprocessableEntity, "invalid json: ", nil),
 		},
 		{
 			name: "any other error",
 			args: args{err: errors.New("some error")},
-			want: New(500, "json error: some error", nil),
+			want: New(http.StatusInternalServerError, "json error: some error", nil),
 		},
 	}
 	for _, tt := range tests {
