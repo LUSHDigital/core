@@ -171,7 +171,7 @@ func TestJSONResponseFormatter2(t *testing.T) {
 
 			// Check the response is what we expect.
 			if !jsonEquals(body, tc.expectedOutput) {
-				t.Errorf("TestJSONResponseFormatter2: %s, expected %v, got %v", tc.name, string(tc.expectedOutput), string(body))
+				t.Errorf("TestJSONResponseFormatter2: %s,\nexp %v\ngot %v", tc.name, string(tc.expectedOutput), string(body))
 			}
 		})
 	}

@@ -68,6 +68,11 @@ func New(code int, message string, data *Data) *Response {
 // SQLError returns a prepared 204 No Content response if the error passed is of type sql.ErrNoRows,
 // otherwise, returns a 500 Internal Server Error prepared response.
 func SQLError(err error) *Response {
+	return SQLErrorf("", err)
+}
+
+// SQLErrorf allows a custom error message to be passed to the SQLError function.
+func SQLErrorf(format string, err error) *Response {
 	if err == sql.ErrNoRows {
 		return New(http.StatusNoContent, "no data found", nil)
 	}
@@ -76,7 +81,16 @@ func SQLError(err error) *Response {
 			return New(http.StatusUnprocessableEntity, "duplicate entry.", nil)
 		}
 	}
-	return New(http.StatusInternalServerError, fmt.Sprintf("db error: %v", err), nil)
+
+	// Use any format message provided by the user, otherwise, just return the error string.
+	var message string
+	if format == "" {
+		message = fmt.Sprintf("db error: %v", err)
+	} else {
+		message = fmt.Sprintf(format, err)
+	}
+
+	return New(http.StatusInternalServerError, message, nil)
 }
 
 // JSONError returns a prepared 422 Unprocessable Entity response if the error passed is of type *json.SyntaxError,
@@ -119,10 +133,16 @@ func InternalError(err error) *Response {
 }
 
 // WriteTo - pick a response writer to write the default json response to.
-func (r *Response) WriteTo(w http.ResponseWriter) {
+func (r *Response) WriteTo(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(r.Code)
-	json.NewEncoder(w).Encode(r)
+
+	j, err := json.Marshal(r)
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(j)
+	return err
 }
 
 // ExtractData returns a particular item of data from the response.
