@@ -10,13 +10,17 @@ import (
 )
 
 // JSONResponseFormatter formats a microservice response as JSON.
-func JSONResponseFormatter(w http.ResponseWriter, response response.ResponseInterface) {
+func JSONResponseFormatter(w http.ResponseWriter, response response.ResponseInterface) error {
 	// Set the content type header.
 	w.Header().Set("Content-Type", "application/json")
 
 	// Set the status code.
 	w.WriteHeader(response.GetCode())
 
-	// Set the response.
-	json.NewEncoder(w).Encode(response)
+	j, err := json.Marshal(response)
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(j)
+	return err
 }

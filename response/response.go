@@ -201,10 +201,16 @@ func NewPaginated(paginator *pagination.Paginator, code int, message string, dat
 }
 
 // WriteTo - pick a response writer to write the default json response to.
-func (p *PaginatedResponse) WriteTo(w http.ResponseWriter) {
+func (p *PaginatedResponse) WriteTo(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(p.Code)
-	json.NewEncoder(w).Encode(p)
+	
+	j, err := json.Marshal(p)
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(j)
+	return err
 }
 
 // ExtractData returns a particular item of data from the response.
