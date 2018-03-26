@@ -439,42 +439,47 @@ func ExampleNew() {
 }
 
 func TestSQLError(t *testing.T) {
-	type args struct {
-		err error
-	}
 	tests := []struct {
-		name string
-		args args
-		want *Response
+		name   string
+		format string
+		err    error
+		want   *Response
 	}{
 		{
 			name: "duplicate error",
-			args: args{
-				err: &mysql.MySQLError{
-					Number:  mysqlerr.ER_DUP_ENTRY,
-					Message: "test error",
-				},
+			err: &mysql.MySQLError{
+				Number:  mysqlerr.ER_DUP_ENTRY,
+				Message: "test error",
 			},
 			want: New(http.StatusUnprocessableEntity, "duplicate entry.", nil),
 		},
 		{
 			name: "no rows",
-			args: args{
-				err: sql.ErrNoRows,
-			},
+			err:  sql.ErrNoRows,
 			want: New(http.StatusNoContent, "no data found", nil),
 		},
 		{
-			name: "inernal error",
-			args: args{
-				err: errors.New("some error"),
-			},
+			name: "internal error",
+			err:  errors.New("some error"),
 			want: New(http.StatusInternalServerError, "db error: some error", nil),
+		},
+		{
+			name:   "internal error errorf",
+			format: "oh noes: %v",
+			err:    errors.New("some error"),
+			want:   New(http.StatusInternalServerError, "oh noes: some error", nil),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := SQLError(tt.args.err); !reflect.DeepEqual(got, tt.want) {
+			var got *Response
+			if tt.format != "" {
+				got = SQLErrorf(tt.format, tt.err)
+			} else {
+				got = SQLError(tt.err)
+			}
+
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("SQLError() = %v, want %v", got, tt.want)
 			}
 		})
