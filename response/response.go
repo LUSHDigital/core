@@ -93,13 +93,10 @@ func SQLErrorf(format string, err error) *Response {
 	return New(http.StatusInternalServerError, message, nil)
 }
 
-// JSONError returns a prepared 422 Unprocessable Entity response if the error passed is of type *json.SyntaxError,
-// otherwise, returns a 500 Internal Server Error prepared response.
+// JSONError returns a prepared 422 Unprocessable Entity response if the JSON is found to
+// contain syntax errors, or invalid values for types.
 func JSONError(err error) *Response {
-	if syn, ok := err.(*json.SyntaxError); ok {
-		return New(http.StatusUnprocessableEntity, fmt.Sprintf("invalid json: %v", syn), nil)
-	}
-	return New(http.StatusInternalServerError, fmt.Sprintf("json error: %v", err), nil)
+	return New(http.StatusUnprocessableEntity, fmt.Sprintf("json error: %v", err), nil)
 }
 
 // ParamError returns a prepared 422 Unprocessable Entity response, including the name of
