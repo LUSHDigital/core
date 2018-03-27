@@ -502,12 +502,12 @@ func TestJSONError(t *testing.T) {
 					Offset: 99,
 				},
 			},
-			want: New(http.StatusUnprocessableEntity, "invalid json: ", nil),
+			want: New(http.StatusUnprocessableEntity, "json error: ", nil),
 		},
 		{
 			name: "any other error",
 			args: args{err: errors.New("some error")},
-			want: New(http.StatusInternalServerError, "json error: some error", nil),
+			want: New(http.StatusUnprocessableEntity, "json error: some error", nil),
 		},
 	}
 	for _, tt := range tests {
