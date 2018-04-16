@@ -11,8 +11,7 @@ import (
 	"database/sql"
 
 	"github.com/LUSHDigital/microservice-core-golang/pagination"
-	"github.com/VividCortex/mysqlerr"
-	"github.com/go-sql-driver/mysql"
+	"github.com/LUSHDigital/sqlerr"
 )
 
 // Standard response statuses.
@@ -65,6 +64,15 @@ func New(code int, message string, data *Data) *Response {
 	}
 }
 
+type MySQLError struct {
+	Number  int
+	Message string
+}
+
+func (m *MySQLError) Error() string {
+	return fmt.Sprintf("Error %d: %s", m.Number, m.Message)
+}
+
 // SQLError returns a prepared 204 No Content response if the error passed is of type sql.ErrNoRows,
 // otherwise, returns a 500 Internal Server Error prepared response.
 func SQLError(err error) *Response {
@@ -76,8 +84,8 @@ func SQLErrorf(format string, err error) *Response {
 	if err == sql.ErrNoRows {
 		return New(http.StatusNoContent, "no data found", nil)
 	}
-	if driverErr, ok := err.(*mysql.MySQLError); ok {
-		if driverErr.Number == mysqlerr.ER_DUP_ENTRY {
+	if driverErr, ok := err.(*MySQLError); ok {
+		if driverErr.Number == int(sqlerr.ER_DUP_ENTRY) {
 			return New(http.StatusUnprocessableEntity, "duplicate entry.", nil)
 		}
 	}

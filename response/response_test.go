@@ -14,8 +14,7 @@ import (
 	"testing"
 
 	"github.com/LUSHDigital/microservice-core-golang/pagination"
-	"github.com/VividCortex/mysqlerr"
-	"github.com/go-sql-driver/mysql"
+	"github.com/LUSHDigital/sqlerr"
 )
 
 func init() {
@@ -47,7 +46,7 @@ var (
 		},
 	}
 
-	// An example response object (wuth data), for a failed response
+	// An example response object (with data), for a failed response
 	expectedResponseFail = &Response{
 		Status:  StatusFail,
 		Code:    http.StatusBadRequest,
@@ -447,8 +446,8 @@ func TestSQLError(t *testing.T) {
 	}{
 		{
 			name: "duplicate error",
-			err: &mysql.MySQLError{
-				Number:  mysqlerr.ER_DUP_ENTRY,
+			err: &MySQLError{
+				Number:  int(sqlerr.ER_DUP_ENTRY),
 				Message: "test error",
 			},
 			want: New(http.StatusUnprocessableEntity, "duplicate entry.", nil),
