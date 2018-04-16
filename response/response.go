@@ -21,8 +21,8 @@ const (
 	StatusFail = "fail"
 )
 
-// ResponseInterface - Interface for microservice responses.
-type ResponseInterface interface {
+// Interface - Interface for microservice responses.
+type Interface interface {
 	// ExtractData returns a particular item of data from the response.
 	ExtractData(srcKey string, dst interface{}) error
 
@@ -201,7 +201,7 @@ func NewPaginated(paginator *pagination.Paginator, code int, message string, dat
 func (p *PaginatedResponse) WriteTo(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(p.Code)
-	
+
 	j, err := json.Marshal(p)
 	if err != nil {
 		return err
@@ -258,30 +258,28 @@ func (d *Data) UnmarshalJSON(b []byte) error {
 	}
 
 	data, ok := d.Content.(map[string]interface{})
-	if ok {
-		// count how many collections were provided
-		var count int
-		for _, value := range data {
-			if _, ok := value.(map[string]interface{}); ok {
-				count++
-			}
-			if _, ok := value.([]interface{}); ok {
-				count++
-			}
+	if !ok {
+		return nil
+	}
+	// count how many collections were provided
+	var count int
+	for _, value := range data {
+		switch value.(type) {
+		case map[string]interface{}, []interface{}:
+			count++
 		}
-		if count > 1 {
-			// we can stop there since this is not a single collection
-			return nil
-		}
-
-		for key, value := range data {
-			if _, ok := value.(map[string]interface{}); ok {
-				d.Type = key
-				d.Content = data[key]
-			} else if _, ok := value.([]interface{}); ok {
-				d.Type = key
-				d.Content = data[key]
-			}
+	}
+	if count > 1 {
+		// we can stop there since this is not a single collection
+		return nil
+	}
+	for key, value := range data {
+		if _, ok := value.(map[string]interface{}); ok {
+			d.Type = key
+			d.Content = data[key]
+		} else if _, ok := value.([]interface{}); ok {
+			d.Type = key
+			d.Content = data[key]
 		}
 	}
 
