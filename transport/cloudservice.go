@@ -10,10 +10,10 @@ import (
 	"strings"
 
 	"github.com/LUSHDigital/microservice-core-golang/response"
-	"github.com/LUSHDigital/microservice-transport-golang/config"
-	"github.com/LUSHDigital/microservice-transport-golang/domain"
-	transportErrors "github.com/LUSHDigital/microservice-transport-golang/errors"
-	"github.com/LUSHDigital/microservice-transport-golang/models"
+	"github.com/LUSHDigital/microservice-core-golang/transport/models"
+	transportErrors "github.com/LUSHDigital/microservice-core-golang/transport/errors"
+	"github.com/LUSHDigital/microservice-core-golang/transport/config"
+	"github.com/LUSHDigital/microservice-core-golang/transport/domain"
 )
 
 // AuthCredentials - Credentials needed to authenticate for a cloud service.
