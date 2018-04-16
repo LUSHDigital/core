@@ -64,12 +64,13 @@ func New(code int, message string, data *Data) *Response {
 	}
 }
 
-type MySQLError struct {
-	Number  int
+// mySQLError is an almost identical copy from the mysql errors coming from our driver
+type mySQLError struct {
+	Number  uint16
 	Message string
 }
 
-func (m *MySQLError) Error() string {
+func (m *mySQLError) Error() string {
 	return fmt.Sprintf("Error %d: %s", m.Number, m.Message)
 }
 
@@ -84,8 +85,8 @@ func SQLErrorf(format string, err error) *Response {
 	if err == sql.ErrNoRows {
 		return New(http.StatusNoContent, "no data found", nil)
 	}
-	if driverErr, ok := err.(*MySQLError); ok {
-		if driverErr.Number == int(sqlerr.ER_DUP_ENTRY) {
+	if driverErr, ok := err.(*mySQLError); ok {
+		if driverErr.Number == uint16(sqlerr.ER_DUP_ENTRY) { // driver answers with uint16
 			return New(http.StatusUnprocessableEntity, "duplicate entry.", nil)
 		}
 	}
