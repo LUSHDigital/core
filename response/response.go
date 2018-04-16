@@ -274,10 +274,8 @@ func (d *Data) UnmarshalJSON(b []byte) error {
 		return nil
 	}
 	for key, value := range data {
-		if _, ok := value.(map[string]interface{}); ok {
-			d.Type = key
-			d.Content = data[key]
-		} else if _, ok := value.([]interface{}); ok {
+		switch value.(type) {
+		case map[string]interface{}, []interface{}:
 			d.Type = key
 			d.Content = data[key]
 		}
