@@ -83,7 +83,7 @@ func TestBuildCloudServiceUrl(t *testing.T) {
 	}
 }
 
-func ExampleBuildCloudServiceUrl() {
+func ExampleBuildCloudServiceURL() {
 	cloudServiceURL := BuildCloudServiceURL("my-api-gateway.com", "services", "myservice")
 	fmt.Println(cloudServiceURL)
 

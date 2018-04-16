@@ -447,7 +447,7 @@ func TestSQLError(t *testing.T) {
 		{
 			name: "duplicate error",
 			err: &mySQLError{
-				Number:  int(sqlerr.ER_DUP_ENTRY),
+				Number:  uint16(sqlerr.ER_DUP_ENTRY),
 				Message: "test error",
 			},
 			want: New(http.StatusUnprocessableEntity, "duplicate entry.", nil),

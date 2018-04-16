@@ -55,7 +55,7 @@ func TestToken_PrepareForHttp(t *testing.T) {
 	}
 }
 
-func ExampleToken_PrepareForHttp() {
+func ExampleToken_PrepareForHTTP() {
 	t := Token{
 		Type:  "JWT",
 		Value: "xxxxxx.xxxxxx.xxxxxx",
