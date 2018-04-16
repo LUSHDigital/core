@@ -14,6 +14,7 @@ import (
 	transportErrors "github.com/LUSHDigital/microservice-core-golang/transport/errors"
 	"github.com/LUSHDigital/microservice-core-golang/transport/config"
 	"github.com/LUSHDigital/microservice-core-golang/transport/domain"
+	"io/ioutil"
 )
 
 // AuthCredentials - Credentials needed to authenticate for a cloud service.
@@ -46,12 +47,13 @@ func NewCloudService(client *http.Client, branch, env, namespace, name string, c
 
 // authenticate - Authenticate against the API gateway and return an auth token.
 func (c *CloudService) authenticate(request *Request) (*models.Token, error) {
-	loginBody := new(bytes.Buffer)
-	if err := json.NewEncoder(loginBody).Encode(c.Credentials); err != nil {
+	//loginBody := new(bytes.Buffer)
+	loginBody, err := json.Marshal(c.Credentials)
+	if err != nil {
 		return nil, fmt.Errorf("cannot encode json: %s", err)
 	}
 
-	loginReq, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%s", c.GetAPIGatewayURL(request), "login"), loginBody)
+	loginReq, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%s", c.GetAPIGatewayURL(request), "login"), bytes.NewBuffer(loginBody))
 	if err != nil {
 		return nil, fmt.Errorf("cannot build login request: %s", err)
 	}
@@ -63,9 +65,13 @@ func (c *CloudService) authenticate(request *Request) (*models.Token, error) {
 
 	// Decode response.
 	serviceResponse := response.Response{}
-	jsonErr := json.NewDecoder(loginResp.Body).Decode(&serviceResponse)
-	if jsonErr != nil {
-		return nil, fmt.Errorf("cannot decode login response: %s", err)
+
+	content, err := ioutil.ReadAll(loginResp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("cannot read response body: %v", err)
+	}
+	if err := json.Unmarshal(content, &serviceResponse); err != nil {
+		return nil, fmt.Errorf("cannot decode login response: %v", err)
 	}
 
 	// Handle any error codes.
