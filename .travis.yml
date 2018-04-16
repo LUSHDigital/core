@@ -7,7 +7,7 @@ go:
     
 install: true # only use code in vendor
 
-before-script:
+before_script:
   - go get github.com/golang/lint/golint
 
 script:
