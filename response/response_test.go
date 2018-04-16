@@ -446,7 +446,7 @@ func TestSQLError(t *testing.T) {
 	}{
 		{
 			name: "duplicate error",
-			err: &MySQLError{
+			err: &mySQLError{
 				Number:  int(sqlerr.ER_DUP_ENTRY),
 				Message: "test error",
 			},
