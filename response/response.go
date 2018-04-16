@@ -21,8 +21,8 @@ const (
 	StatusFail = "fail"
 )
 
-// Interface - Interface for microservice responses.
-type Interface interface {
+// Responder - Responder for microservice responses.
+type Responder interface {
 	// ExtractData returns a particular item of data from the response.
 	ExtractData(srcKey string, dst interface{}) error
 
