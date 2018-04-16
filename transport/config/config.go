@@ -8,7 +8,7 @@ const (
 	AuthHeader = "Authorization"
 
 	// AuthHeaderPrefix - Prefix expected for the HTTP auth header value.
-	AuthHeaderPrefix = "Bearer "
+	AuthHeaderPrefix = "Bearer"
 
 	// ProtocolHTTP - Protocol string for non-ssl requests.
 	ProtocolHTTP = "http"
