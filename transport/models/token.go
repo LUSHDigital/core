@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/LUSHDigital/microservice-transport-golang/config"
+	"github.com/LUSHDigital/microservice-core-golang/transport/config"
 )
 
 // Token - An authentication token.

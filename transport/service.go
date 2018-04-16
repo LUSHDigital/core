@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/LUSHDigital/microservice-transport-golang/config"
-	"github.com/LUSHDigital/microservice-transport-golang/domain"
+	"github.com/LUSHDigital/microservice-core-golang/transport/config"
+	"github.com/LUSHDigital/microservice-core-golang/transport/domain"
 )
 
 // Service - Responsible for communication with a service.
