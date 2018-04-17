@@ -12,6 +12,7 @@ import (
 
 	"github.com/LUSHDigital/microservice-core-golang/pagination"
 	"github.com/LUSHDigital/sqlerr"
+	"reflect"
 )
 
 // Standard response statuses.
@@ -80,17 +81,19 @@ func SQLError(err error) *Response {
 	return SQLErrorf("", err)
 }
 
+var localType = reflect.TypeOf(&mySQLError{})
 // SQLErrorf allows a custom error message to be passed to the SQLError function.
 func SQLErrorf(format string, err error) *Response {
 	if err == sql.ErrNoRows {
 		return New(http.StatusNoContent, "no data found", nil)
 	}
-	if driverErr, ok := err.(*mySQLError); ok {
+	if reflect.TypeOf(err).ConvertibleTo(localType) {
+		tmp := reflect.ValueOf(err).Convert(localType).Interface()
+		driverErr, _ := tmp.(*mySQLError)
 		if driverErr.Number == uint16(sqlerr.ER_DUP_ENTRY) { // driver answers with uint16
 			return New(http.StatusUnprocessableEntity, "duplicate entry.", nil)
 		}
 	}
-
 	// Use any format message provided by the user, otherwise, just return the error string.
 	var message string
 	if format == "" {

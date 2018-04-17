@@ -15,6 +15,7 @@ import (
 
 	"github.com/LUSHDigital/microservice-core-golang/pagination"
 	"github.com/LUSHDigital/sqlerr"
+	"github.com/go-sql-driver/mysql"
 )
 
 func init() {
@@ -435,6 +436,30 @@ func ExampleNew() {
 
 	resp := New(http.StatusOK, "test message", data)
 	fmt.Printf("%+v", resp)
+}
+
+func TestDriverErrorsCompatible(t *testing.T) {
+	err := &mysql.MySQLError{
+		Message: "Some test error",
+		Number:  999,
+	}
+	err2 := errors.New("incorrect error")
+	if helper(t, err) != true {
+		t.Fatal("this error should be convertible")
+	}
+	if helper(t, err2) != false {
+		t.Fatal("this error should not be convertible")
+	}
+}
+
+func helper(t *testing.T, err error) bool {
+	t.Helper()
+	if reflect.TypeOf(err).ConvertibleTo(localType) {
+		tmp := reflect.ValueOf(err).Convert(localType).Interface()
+		_, ok := tmp.(*mySQLError)
+		return ok
+	}
+	return false
 }
 
 func TestSQLError(t *testing.T) {
