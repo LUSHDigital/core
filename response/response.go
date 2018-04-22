@@ -79,14 +79,12 @@ func DBErrorf(format string, err error) *Response {
 	return New(http.StatusServiceUnavailable, msg, nil)
 }
 
-// deprecated
-// SQLError - currently only wraps DBError
+// SQLError - DEPRECATED currently only wraps DBError
 func SQLError(err error) *Response {
 	return DBError(err)
 }
 
-// deprecated
-// SQLErrorf - currently only wraps DBErrorf
+// SQLErrorf - DEPRECATED currently only wraps DBErrorf
 func SQLErrorf(format string, err error) *Response {
 	return DBErrorf(format, err)
 }
