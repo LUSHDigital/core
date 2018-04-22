@@ -8,11 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"database/sql"
-
 	"github.com/LUSHDigital/microservice-core-golang/pagination"
-	"github.com/LUSHDigital/sqlerr"
-	"reflect"
 )
 
 // Standard response statuses.
@@ -65,44 +61,34 @@ func New(code int, message string, data *Data) *Response {
 	}
 }
 
-// mySQLError is an almost identical copy from the mysql errors coming from our driver
-type mySQLError struct {
-	Number  uint16
-	Message string
+// DBError returns a prepared 503 Service Unavailable response.
+func DBError(err error) *Response {
+	return DBErrorf("", err)
 }
 
-func (m *mySQLError) Error() string {
-	return fmt.Sprintf("Error %d: %s", m.Number, m.Message)
+// DBErrorf returns a prepared 503 Service Unavailable response,
+// using the user provided formatted message.
+func DBErrorf(format string, err error) *Response {
+	var msg string
+	switch format {
+	case "":
+		msg = fmt.Sprintf("db error: %v", err)
+	default:
+		msg = fmt.Sprintf(format, err)
+	}
+	return New(http.StatusServiceUnavailable, msg, nil)
 }
 
-// SQLError returns a prepared 204 No Content response if the error passed is of type sql.ErrNoRows,
-// otherwise, returns a 500 Internal Server Error prepared response.
+// deprecated
+// SQLError - currently only wraps DBError
 func SQLError(err error) *Response {
-	return SQLErrorf("", err)
+	return DBError(err)
 }
 
-var localType = reflect.TypeOf(&mySQLError{})
-// SQLErrorf allows a custom error message to be passed to the SQLError function.
+// deprecated
+// SQLErrorf - currently only wraps DBErrorf
 func SQLErrorf(format string, err error) *Response {
-	if err == sql.ErrNoRows {
-		return New(http.StatusNoContent, "no data found", nil)
-	}
-	if reflect.TypeOf(err).ConvertibleTo(localType) {
-		tmp := reflect.ValueOf(err).Convert(localType).Interface()
-		driverErr, _ := tmp.(*mySQLError)
-		if driverErr.Number == uint16(sqlerr.ER_DUP_ENTRY) { // driver answers with uint16
-			return New(http.StatusUnprocessableEntity, "duplicate entry.", nil)
-		}
-	}
-	// Use any format message provided by the user, otherwise, just return the error string.
-	var message string
-	if format == "" {
-		message = fmt.Sprintf("db error: %v", err)
-	} else {
-		message = fmt.Sprintf(format, err)
-	}
-
-	return New(http.StatusInternalServerError, message, nil)
+	return DBErrorf(format, err)
 }
 
 // JSONError returns a prepared 422 Unprocessable Entity response if the JSON is found to

@@ -1,7 +1,6 @@
 package response
 
 import (
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,8 +13,6 @@ import (
 	"testing"
 
 	"github.com/LUSHDigital/microservice-core-golang/pagination"
-	"github.com/LUSHDigital/sqlerr"
-	"github.com/go-sql-driver/mysql"
 )
 
 func init() {
@@ -438,31 +435,7 @@ func ExampleNew() {
 	fmt.Printf("%+v", resp)
 }
 
-func TestDriverErrorsCompatible(t *testing.T) {
-	err := &mysql.MySQLError{
-		Message: "Some test error",
-		Number:  999,
-	}
-	err2 := errors.New("incorrect error")
-	if helper(t, err) != true {
-		t.Fatal("this error should be convertible")
-	}
-	if helper(t, err2) != false {
-		t.Fatal("this error should not be convertible")
-	}
-}
-
-func helper(t *testing.T, err error) bool {
-	t.Helper()
-	if reflect.TypeOf(err).ConvertibleTo(localType) {
-		tmp := reflect.ValueOf(err).Convert(localType).Interface()
-		_, ok := tmp.(*mySQLError)
-		return ok
-	}
-	return false
-}
-
-func TestSQLError(t *testing.T) {
+func TestDBError(t *testing.T) {
 	tests := []struct {
 		name   string
 		format string
@@ -470,37 +443,24 @@ func TestSQLError(t *testing.T) {
 		want   *Response
 	}{
 		{
-			name: "duplicate error",
-			err: &mySQLError{
-				Number:  uint16(sqlerr.ER_DUP_ENTRY),
-				Message: "test error",
-			},
-			want: New(http.StatusUnprocessableEntity, "duplicate entry.", nil),
-		},
-		{
-			name: "no rows",
-			err:  sql.ErrNoRows,
-			want: New(http.StatusNoContent, "no data found", nil),
-		},
-		{
 			name: "internal error",
 			err:  errors.New("some error"),
-			want: New(http.StatusInternalServerError, "db error: some error", nil),
+			want: New(http.StatusServiceUnavailable, "db error: some error", nil),
 		},
 		{
 			name:   "internal error errorf",
 			format: "oh noes: %v",
 			err:    errors.New("some error"),
-			want:   New(http.StatusInternalServerError, "oh noes: some error", nil),
+			want:   New(http.StatusServiceUnavailable, "oh noes: some error", nil),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var got *Response
 			if tt.format != "" {
-				got = SQLErrorf(tt.format, tt.err)
+				got = DBErrorf(tt.format, tt.err)
 			} else {
-				got = SQLError(tt.err)
+				got = DBError(tt.err)
 			}
 
 			if !reflect.DeepEqual(got, tt.want) {
