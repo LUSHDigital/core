@@ -1,4 +1,4 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/LUSHDigital/microservice-core-golang)](https://goreportcard.com/report/github.com/LUSHDigital/microservice-core-golang)
+[![Go Report Card](https://goreportcard.com/badge/github.com/LUSHDigital/microservice-core-golang)](https://goreportcard.com/report/github.com/LUSHDigital/microservice-core-golang) [![](https://api.travis-ci.org/LUSHDigital/microservice-core-golang.svg?branch=master)](https://api.travis-ci.org/LUSHDigital/microservice-core-golang.svg?branch=master)
 
 # Lush Digital - Micro Service Core (Golang)
 A set of core functionality and convenience structs for a Golang microservice

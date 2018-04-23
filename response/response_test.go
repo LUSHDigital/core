@@ -1,7 +1,6 @@
 package response
 
 import (
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,8 +13,6 @@ import (
 	"testing"
 
 	"github.com/LUSHDigital/microservice-core-golang/pagination"
-	"github.com/VividCortex/mysqlerr"
-	"github.com/go-sql-driver/mysql"
 )
 
 func init() {
@@ -47,7 +44,7 @@ var (
 		},
 	}
 
-	// An example response object (wuth data), for a failed response
+	// An example response object (with data), for a failed response
 	expectedResponseFail = &Response{
 		Status:  StatusFail,
 		Code:    http.StatusBadRequest,
@@ -438,7 +435,7 @@ func ExampleNew() {
 	fmt.Printf("%+v", resp)
 }
 
-func TestSQLError(t *testing.T) {
+func TestDBError(t *testing.T) {
 	tests := []struct {
 		name   string
 		format string
@@ -446,37 +443,24 @@ func TestSQLError(t *testing.T) {
 		want   *Response
 	}{
 		{
-			name: "duplicate error",
-			err: &mysql.MySQLError{
-				Number:  mysqlerr.ER_DUP_ENTRY,
-				Message: "test error",
-			},
-			want: New(http.StatusUnprocessableEntity, "duplicate entry.", nil),
-		},
-		{
-			name: "no rows",
-			err:  sql.ErrNoRows,
-			want: New(http.StatusNoContent, "no data found", nil),
-		},
-		{
 			name: "internal error",
 			err:  errors.New("some error"),
-			want: New(http.StatusInternalServerError, "db error: some error", nil),
+			want: New(http.StatusServiceUnavailable, "db error: some error", nil),
 		},
 		{
 			name:   "internal error errorf",
 			format: "oh noes: %v",
 			err:    errors.New("some error"),
-			want:   New(http.StatusInternalServerError, "oh noes: some error", nil),
+			want:   New(http.StatusServiceUnavailable, "oh noes: some error", nil),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var got *Response
 			if tt.format != "" {
-				got = SQLErrorf(tt.format, tt.err)
+				got = DBErrorf(tt.format, tt.err)
 			} else {
-				got = SQLError(tt.err)
+				got = DBError(tt.err)
 			}
 
 			if !reflect.DeepEqual(got, tt.want) {

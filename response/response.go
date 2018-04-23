@@ -8,11 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"database/sql"
-
 	"github.com/LUSHDigital/microservice-core-golang/pagination"
-	"github.com/VividCortex/mysqlerr"
-	"github.com/go-sql-driver/mysql"
 )
 
 // Standard response statuses.
@@ -21,8 +17,8 @@ const (
 	StatusFail = "fail"
 )
 
-// ResponseInterface - Interface for microservice responses.
-type ResponseInterface interface {
+// Responder - Responder for microservice responses.
+type Responder interface {
 	// ExtractData returns a particular item of data from the response.
 	ExtractData(srcKey string, dst interface{}) error
 
@@ -65,32 +61,36 @@ func New(code int, message string, data *Data) *Response {
 	}
 }
 
-// SQLError returns a prepared 204 No Content response if the error passed is of type sql.ErrNoRows,
-// otherwise, returns a 500 Internal Server Error prepared response.
-func SQLError(err error) *Response {
-	return SQLErrorf("", err)
+// DBError returns a prepared 503 Service Unavailable response.
+func DBError(err error) *Response {
+	return DBErrorf("", err)
 }
 
-// SQLErrorf allows a custom error message to be passed to the SQLError function.
+// DBErrorf returns a prepared 503 Service Unavailable response,
+// using the user provided formatted message.
+func DBErrorf(format string, err error) *Response {
+	var msg string
+	switch format {
+	case "":
+		msg = fmt.Sprintf("db error: %v", err)
+	default:
+		msg = fmt.Sprintf(format, err)
+	}
+	return New(http.StatusServiceUnavailable, msg, nil)
+}
+
+// SQLError - currently only wraps DBError
+//
+// Deprecated: This function has been made redundant by the more genetic DBError
+func SQLError(err error) *Response {
+	return DBError(err)
+}
+
+// SQLErrorf - currently only wraps DBErrorf
+//
+// Deprecated: This function has been made redundant by the more genetic DBErrorf
 func SQLErrorf(format string, err error) *Response {
-	if err == sql.ErrNoRows {
-		return New(http.StatusNoContent, "no data found", nil)
-	}
-	if driverErr, ok := err.(*mysql.MySQLError); ok {
-		if driverErr.Number == mysqlerr.ER_DUP_ENTRY {
-			return New(http.StatusUnprocessableEntity, "duplicate entry.", nil)
-		}
-	}
-
-	// Use any format message provided by the user, otherwise, just return the error string.
-	var message string
-	if format == "" {
-		message = fmt.Sprintf("db error: %v", err)
-	} else {
-		message = fmt.Sprintf(format, err)
-	}
-
-	return New(http.StatusInternalServerError, message, nil)
+	return DBErrorf(format, err)
 }
 
 // JSONError returns a prepared 422 Unprocessable Entity response if the JSON is found to
@@ -201,7 +201,7 @@ func NewPaginated(paginator *pagination.Paginator, code int, message string, dat
 func (p *PaginatedResponse) WriteTo(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(p.Code)
-	
+
 	j, err := json.Marshal(p)
 	if err != nil {
 		return err
@@ -258,30 +258,26 @@ func (d *Data) UnmarshalJSON(b []byte) error {
 	}
 
 	data, ok := d.Content.(map[string]interface{})
-	if ok {
-		// count how many collections were provided
-		var count int
-		for _, value := range data {
-			if _, ok := value.(map[string]interface{}); ok {
-				count++
-			}
-			if _, ok := value.([]interface{}); ok {
-				count++
-			}
+	if !ok {
+		return nil
+	}
+	// count how many collections were provided
+	var count int
+	for _, value := range data {
+		switch value.(type) {
+		case map[string]interface{}, []interface{}:
+			count++
 		}
-		if count > 1 {
-			// we can stop there since this is not a single collection
-			return nil
-		}
-
-		for key, value := range data {
-			if _, ok := value.(map[string]interface{}); ok {
-				d.Type = key
-				d.Content = data[key]
-			} else if _, ok := value.([]interface{}); ok {
-				d.Type = key
-				d.Content = data[key]
-			}
+	}
+	if count > 1 {
+		// we can stop there since this is not a single collection
+		return nil
+	}
+	for key, value := range data {
+		switch value.(type) {
+		case map[string]interface{}, []interface{}:
+			d.Type = key
+			d.Content = data[key]
 		}
 	}
 

@@ -1,0 +1,17 @@
+language: go
+
+go:
+  - "1.9"
+  - "1.10"
+  - master
+    
+install: true # only use code in vendor
+
+before_script:
+  - go get golang.org/x/lint/golint
+
+script:
+  - go test -v -cover ./...
+  - go vet ./...
+  - golint -set_exit_status $(go list ./... | grep -v /vendor/)
+
