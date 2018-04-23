@@ -8,7 +8,7 @@ go:
 install: true # only use code in vendor
 
 before_script:
-  - go get github.com/golang/lint/golint
+  - go get golang.org/x/lint/golint
 
 script:
   - go test -v -cover ./...
