@@ -1,6 +1,4 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/LUSHDigital/microservice-core-golang)](https://goreportcard.com/report/github.com/LUSHDigital/microservice-core-golang) [![](https://api.travis-ci.org/LUSHDigital/microservice-core-golang.svg?branch=master)](https://api.travis-ci.org/LUSHDigital/microservice-core-golang.svg?branch=master)
-
-# Lush Digital - Micro Service Core (Golang)
+# Lush Digital - Micro Service Core (Golang) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://raw.githubusercontent.com/LUSHDigital/microservice-core-golang/master/LICENSE) [![Go Report Card](https://goreportcard.com/badge/github.com/LUSHDigital/microservice-core-golang)](https://goreportcard.com/report/github.com/LUSHDigital/microservice-core-golang) [![Build Status](https://travis-ci.org/LUSHDigital/microservice-core-golang.svg?branch=master)](https://travis-ci.org/LUSHDigital/microservice-core-golang)
 A set of core functionality and convenience structs for a Golang microservice
 
 ## Description
