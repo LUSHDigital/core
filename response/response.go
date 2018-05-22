@@ -81,14 +81,14 @@ func DBErrorf(format string, err error) *Response {
 
 // SQLError - currently only wraps DBError
 //
-// Deprecated: This function has been made redundant by the more genetic DBError
+// Deprecated: This function has been made redundant by the more generic DBError
 func SQLError(err error) *Response {
 	return DBError(err)
 }
 
 // SQLErrorf - currently only wraps DBErrorf
 //
-// Deprecated: This function has been made redundant by the more genetic DBErrorf
+// Deprecated: This function has been made redundant by the more generic DBErrorf
 func SQLErrorf(format string, err error) *Response {
 	return DBErrorf(format, err)
 }
