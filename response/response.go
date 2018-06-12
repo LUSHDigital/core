@@ -131,8 +131,14 @@ func InternalError(err error) *Response {
 
 // WriteTo - pick a response writer to write the default json response to.
 func (r *Response) WriteTo(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(r.Code)
+
+	// Don't attempt to write a body for 204s.
+	if r.Code == http.StatusNoContent {
+		return nil
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 
 	j, err := json.Marshal(r)
 	if err != nil {
