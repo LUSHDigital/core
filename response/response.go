@@ -131,14 +131,13 @@ func InternalError(err error) *Response {
 
 // WriteTo - pick a response writer to write the default json response to.
 func (r *Response) WriteTo(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(r.Code)
 
 	// Don't attempt to write a body for 204s.
 	if r.Code == http.StatusNoContent {
 		return nil
 	}
-
-	w.Header().Set("Content-Type", "application/json")
 
 	j, err := json.Marshal(r)
 	if err != nil {
@@ -207,6 +206,11 @@ func NewPaginated(paginator *pagination.Paginator, code int, message string, dat
 func (p *PaginatedResponse) WriteTo(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(p.Code)
+
+	// Don't attempt to write a body for 204s.
+	if p.Code == http.StatusNoContent {
+		return nil
+	}
 
 	j, err := json.Marshal(p)
 	if err != nil {
