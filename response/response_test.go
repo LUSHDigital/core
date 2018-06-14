@@ -466,13 +466,13 @@ func TestDBError(t *testing.T) {
 		{
 			name: "internal error",
 			err:  errors.New("some error"),
-			want: New(http.StatusServiceUnavailable, "db error: some error", nil),
+			want: New(http.StatusInternalServerError, "db error: some error", nil),
 		},
 		{
 			name:   "internal error errorf",
 			format: "oh noes: %v",
 			err:    errors.New("some error"),
-			want:   New(http.StatusServiceUnavailable, "oh noes: some error", nil),
+			want:   New(http.StatusInternalServerError, "oh noes: some error", nil),
 		},
 	}
 	for _, tt := range tests {
