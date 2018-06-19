@@ -24,6 +24,9 @@ type Responder interface {
 
 	// GetCode returns the response code.
 	GetCode() int
+
+	// WriteTo writes back to the network connection.
+	WriteTo(w http.ResponseWriter) error
 }
 
 // Response - A standardised response format for a microservice.
