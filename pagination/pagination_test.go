@@ -5,7 +5,6 @@ import (
 	"testing"
 )
 
-// TestNewPaginator - Test basic creation of the paginator.
 func TestNewPaginator(t *testing.T) {
 	tt := []struct {
 		name             string
@@ -14,6 +13,7 @@ func TestNewPaginator(t *testing.T) {
 		total            int
 		expectedOffset   int
 		expectedLastPage int
+		expErr           error
 	}{
 		{
 			name:             "100 items. 10 per page. Page 1.",
@@ -39,27 +39,50 @@ func TestNewPaginator(t *testing.T) {
 			expectedOffset:   0,
 			expectedLastPage: 15,
 		},
+		{
+			name:             "0 items",
+			perPage:          5,
+			page:             1,
+			total:            0,
+			expectedOffset:   0,
+			expectedLastPage: 0,
+		},
+		{
+			name:    "100 items. 0 per page. Page 1",
+			perPage: 0,
+			page:    1,
+			total:   100,
+			expErr:  ErrCalculateOffset,
+		},
 	}
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			paginator, err := NewPaginator(tc.perPage, tc.page, tc.total)
 			if err != nil {
-				t.Errorf("failed to create paginator: %s", err)
+				if tc.expErr == nil {
+					t.Fatal(err)
+				} else if tc.expErr != err {
+					t.Fatalf(
+						"Expected (%[1]T) %[1]q got (%[2]T) %[2]q",
+						tc.expErr,
+						err,
+					)
+				}
+				return
 			}
 
 			if paginator.GetOffset() != tc.expectedOffset {
-				t.Errorf("offset: want: %v\ngot: %v", tc.expectedOffset, paginator.GetOffset())
+				t.Fatalf("offset: want: %v\ngot: %v", tc.expectedOffset, paginator.GetOffset())
 			}
 
 			if paginator.GetLastPage() != tc.expectedLastPage {
-				t.Errorf("last page: want: %v\ngot: %v", tc.expectedLastPage, paginator.GetLastPage())
+				t.Fatalf("last page: want: %v\ngot: %v", tc.expectedLastPage, paginator.GetLastPage())
 			}
 		})
 	}
 }
 
-// TestNewPaginator - Test changing the page of a paginator.
 func TestPaginator_SetPage(t *testing.T) {
 	tt := []struct {
 		name             string
@@ -69,6 +92,7 @@ func TestPaginator_SetPage(t *testing.T) {
 		total            int
 		expectedOffset   int
 		expectedLastPage int
+		expErr           error
 	}{
 		{
 			name:             "100 items. 10 per page. Page 1.",
@@ -97,29 +121,50 @@ func TestPaginator_SetPage(t *testing.T) {
 			expectedOffset:   20,
 			expectedLastPage: 10,
 		},
+		{
+			name:             "100 items. 10 per page. Page 0",
+			perPage:          10,
+			page:             1,
+			changePage:       0,
+			total:            100,
+			expectedOffset:   0,
+			expectedLastPage: 10,
+			expErr:           ErrCalculateOffset,
+		},
 	}
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			paginator, err := NewPaginator(tc.perPage, tc.page, tc.total)
 			if err != nil {
-				t.Errorf("failed to create paginator: %s", err)
+				t.Fatal(err)
 			}
 
-			paginator.SetPage(tc.changePage)
+			err = paginator.SetPage(tc.changePage)
+			if err != nil {
+				if tc.expErr == nil {
+					t.Fatal(err)
+				} else if tc.expErr != err {
+					t.Fatalf(
+						"Expected (%[1]T) %[1]q got (%[2]T) %[2]q",
+						tc.expErr,
+						err,
+					)
+				}
+				return
+			}
 
 			if paginator.GetOffset() != tc.expectedOffset {
-				t.Errorf("%s: offset: want: %v\ngot: %v", tc.name, tc.expectedOffset, paginator.GetOffset())
+				t.Fatalf("%s: offset: want: %v\ngot: %v", tc.name, tc.expectedOffset, paginator.GetOffset())
 			}
 
 			if paginator.GetLastPage() != tc.expectedLastPage {
-				t.Errorf("%s: last page: want: %v\ngot: %v", tc.name, tc.expectedLastPage, paginator.GetLastPage())
+				t.Fatalf("%s: last page: want: %v\ngot: %v", tc.name, tc.expectedLastPage, paginator.GetLastPage())
 			}
 		})
 	}
 }
 
-// TestPaginator_SetPerPage - Test changing the page of a paginator.
 func TestPaginator_SetPerPage(t *testing.T) {
 	tt := []struct {
 		name             string
@@ -129,6 +174,7 @@ func TestPaginator_SetPerPage(t *testing.T) {
 		total            int
 		expectedOffset   int
 		expectedLastPage int
+		expErr           error
 	}{
 		{
 			name:             "100 items. 20 per page. Page 1.",
@@ -157,29 +203,50 @@ func TestPaginator_SetPerPage(t *testing.T) {
 			expectedOffset:   0,
 			expectedLastPage: 3,
 		},
+		{
+			name:             "100 items. 0 per page. Page 1.",
+			perPage:          20,
+			changePerPage:    0,
+			page:             1,
+			total:            100,
+			expectedOffset:   0,
+			expectedLastPage: 5,
+			expErr:           ErrCalculateOffset,
+		},
 	}
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			paginator, err := NewPaginator(tc.perPage, tc.page, tc.total)
 			if err != nil {
-				t.Errorf("failed to create paginator: %s", err)
+				t.Fatal(err)
 			}
 
-			paginator.SetPerPage(tc.changePerPage)
+			err = paginator.SetPerPage(tc.changePerPage)
+			if err != nil {
+				if tc.expErr == nil {
+					t.Fatal(err)
+				} else if tc.expErr != err {
+					t.Fatalf(
+						"Expected (%[1]T) %[1]q got (%[2]T) %[2]q",
+						tc.expErr,
+						err,
+					)
+				}
+				return
+			}
 
 			if paginator.GetOffset() != tc.expectedOffset {
-				t.Errorf("%s: offset: want: %v\ngot: %v", tc.name, tc.expectedOffset, paginator.GetOffset())
+				t.Fatalf("%s: offset: want: %v\ngot: %v", tc.name, tc.expectedOffset, paginator.GetOffset())
 			}
 
 			if paginator.GetLastPage() != tc.expectedLastPage {
-				t.Errorf("%s: last page: want: %v\ngot: %v", tc.name, tc.expectedLastPage, paginator.GetLastPage())
+				t.Fatalf("%s: last page: want: %v\ngot: %v", tc.name, tc.expectedLastPage, paginator.GetLastPage())
 			}
 		})
 	}
 }
 
-// TestPaginator_SetTotal - Test changing the page of a paginator.
 func TestPaginator_SetTotal(t *testing.T) {
 	tt := []struct {
 		name             string
@@ -217,29 +284,39 @@ func TestPaginator_SetTotal(t *testing.T) {
 			expectedOffset:   0,
 			expectedLastPage: 1,
 		},
+		{
+			name:             "0 items. 10 per page. Page 1.",
+			perPage:          10,
+			page:             1,
+			total:            100,
+			changeTotal:      0,
+			expectedOffset:   0,
+			expectedLastPage: 10,
+		},
 	}
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			paginator, err := NewPaginator(tc.perPage, tc.page, tc.total)
 			if err != nil {
-				t.Errorf("failed to create paginator: %s", err)
+				t.Fatalf("failed to create paginator: %s", err)
 			}
 
-			paginator.SetTotal(tc.changeTotal)
+			if err = paginator.SetTotal(tc.changeTotal); err != nil {
+				t.Fatal(err)
+			}
 
 			if paginator.GetOffset() != tc.expectedOffset {
-				t.Errorf("%s: offset: want: %v\ngot: %v", tc.name, tc.expectedOffset, paginator.GetOffset())
+				t.Fatalf("%s: offset: want: %v\ngot: %v", tc.name, tc.expectedOffset, paginator.GetOffset())
 			}
 
 			if paginator.GetLastPage() != tc.expectedLastPage {
-				t.Errorf("%s: last page: want: %v\ngot: %v", tc.name, tc.expectedLastPage, paginator.GetLastPage())
+				t.Fatalf("%s: last page: want: %v\ngot: %v", tc.name, tc.expectedLastPage, paginator.GetLastPage())
 			}
 		})
 	}
 }
 
-// TestPaginator_PrepareResponse - Test the paginator response.
 func TestPaginator_PrepareResponse(t *testing.T) {
 	tt := []struct {
 		name     string
@@ -274,6 +351,18 @@ func TestPaginator_PrepareResponse(t *testing.T) {
 				LastPage:    10,
 				NextPage:    func(i int) *int { return &i }(3),
 				PrevPage:    func(i int) *int { return &i }(1),
+			},
+		},
+		{
+			name:    "0 items. 10 per page. Page 1.",
+			perPage: 10,
+			page:    1,
+			total:   0,
+			response: Response{
+				Total:       0,
+				PerPage:     10,
+				CurrentPage: 1,
+				LastPage:    0,
 			},
 		},
 	}

@@ -1,6 +1,6 @@
 package pagination
 
-// Response - Represents a pagination response.
+// Response represents a pagination response.
 type Response struct {
 	Total       int  `json:"total"`        // The total number of items.
 	PerPage     int  `json:"per_page"`     //  Number of items displayed per page.
@@ -10,16 +10,7 @@ type Response struct {
 	PrevPage    *int `json:"prev_page"`    // The number of the previous page (if possible).
 }
 
-// newResponse - Instantiate a new pagination response.
-//
-// Params:
-//     total int - Number of items there are in total.
-//     perPage int - Number of items to display per page.
-//     currentPage int - Which page are we on?
-//     lastPage int - The number of the last possible page.
-//
-// Return:
-//     *Response - The instantiated pagination response.
+// newResponse returns a new paginated Response for a microservice endpoint.
 func newResponse(total, perPage, currentPage, lastPage int) *Response {
 	r := &Response{
 		Total:       total,
