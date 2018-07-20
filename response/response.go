@@ -79,7 +79,7 @@ func DBErrorf(format string, err error) *Response {
 	default:
 		msg = fmt.Sprintf(format, err)
 	}
-	return New(http.StatusInternalServerError, msg, nil)
+	return New(http.StatusServiceUnavailable, msg, nil)
 }
 
 // SQLError - currently only wraps DBError
