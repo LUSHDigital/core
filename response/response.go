@@ -64,12 +64,12 @@ func New(code int, message string, data *Data) *Response {
 	}
 }
 
-// DBError returns a prepared 503 Service Unavailable response.
+// DBError returns a prepared 500 Internal Server Error response.
 func DBError(err error) *Response {
 	return DBErrorf("", err)
 }
 
-// DBErrorf returns a prepared 503 Service Unavailable response,
+// DBErrorf returns a prepared 500 Internal Server Error response,
 // using the user provided formatted message.
 func DBErrorf(format string, err error) *Response {
 	var msg string
@@ -79,7 +79,7 @@ func DBErrorf(format string, err error) *Response {
 	default:
 		msg = fmt.Sprintf(format, err)
 	}
-	return New(http.StatusServiceUnavailable, msg, nil)
+	return New(http.StatusInternalServerError, msg, nil)
 }
 
 // SQLError - currently only wraps DBError
