@@ -31,7 +31,7 @@ func (r *Resource) DNSPath() string {
 	// Determine the service namespace to use based on the service version.
 	serviceNamespace := r.Name
 	if r.Version != 0 {
-		serviceNamespace = fmt.Sprintf("%r-%d", serviceNamespace, r.Version)
+		serviceNamespace = fmt.Sprintf("%s-%d", serviceNamespace, r.Version)
 	}
 	return serviceNamespace
 }
