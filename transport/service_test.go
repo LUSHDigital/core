@@ -9,8 +9,9 @@ import (
 	"net/url"
 	"testing"
 	"time"
-	"github.com/LUSHDigital/microservice-core-golang/transport/config"
+
 	"github.com/LUSHDigital/microservice-core-golang/response"
+	"github.com/LUSHDigital/microservice-core-golang/transport/config"
 )
 
 func TestService_Dial(t *testing.T) {
@@ -25,10 +26,12 @@ func TestService_Dial(t *testing.T) {
 
 			name: "name has agg- prefix",
 			service: Service{
-				Branch:      "master",
-				Environment: "staging",
-				Namespace:   "services",
-				Name:        "agg-myservice",
+				Resource: Resource{
+					Branch:      "master",
+					Environment: "staging",
+					Namespace:   "services",
+					Name:        "agg-myservice",
+				},
 			},
 			request: &Request{
 				Method:   http.MethodGet,
@@ -40,10 +43,12 @@ func TestService_Dial(t *testing.T) {
 		{
 			name: "GET HTTP",
 			service: Service{
-				Branch:      "master",
-				Environment: "staging",
-				Namespace:   "services",
-				Name:        "myservice",
+				Resource: Resource{
+					Branch:      "master",
+					Environment: "staging",
+					Namespace:   "services",
+					Name:        "myservice",
+				},
 			},
 			request: &Request{
 				Method:   http.MethodGet,
@@ -55,10 +60,12 @@ func TestService_Dial(t *testing.T) {
 		{
 			name: "GET HTTPS",
 			service: Service{
-				Branch:      "master",
-				Environment: "staging",
-				Namespace:   "services",
-				Name:        "myservice",
+				Resource: Resource{
+					Branch:      "master",
+					Environment: "staging",
+					Namespace:   "services",
+					Name:        "myservice",
+				},
 			},
 			request: &Request{
 				Method:   http.MethodGet,
@@ -70,10 +77,12 @@ func TestService_Dial(t *testing.T) {
 		{
 			name: "GET with query HTTP",
 			service: Service{
-				Branch:      "master",
-				Environment: "staging",
-				Namespace:   "services",
-				Name:        "myservice",
+				Resource: Resource{
+					Branch:      "master",
+					Environment: "staging",
+					Namespace:   "services",
+					Name:        "myservice",
+				},
 			},
 			request: &Request{
 				Method:   http.MethodGet,
@@ -89,10 +98,12 @@ func TestService_Dial(t *testing.T) {
 		{
 			name: "GET with query HTTPS",
 			service: Service{
-				Branch:      "master",
-				Environment: "staging",
-				Namespace:   "services",
-				Name:        "myservice",
+				Resource: Resource{
+					Branch:      "master",
+					Environment: "staging",
+					Namespace:   "services",
+					Name:        "myservice",
+				},
 			},
 			request: &Request{
 				Method:   http.MethodGet,
@@ -108,10 +119,12 @@ func TestService_Dial(t *testing.T) {
 		{
 			name: "POST HTTP",
 			service: Service{
-				Branch:      "master",
-				Environment: "staging",
-				Namespace:   "services",
-				Name:        "myservice",
+				Resource: Resource{
+					Branch:      "master",
+					Environment: "staging",
+					Namespace:   "services",
+					Name:        "myservice",
+				},
 			},
 			postData: map[string]string{
 				"foo": "bar",
@@ -127,10 +140,12 @@ func TestService_Dial(t *testing.T) {
 		{
 			name: "POST HTTPS",
 			service: Service{
-				Branch:      "master",
-				Environment: "staging",
-				Namespace:   "services",
-				Name:        "myservice",
+				Resource: Resource{
+					Branch:      "master",
+					Environment: "staging",
+					Namespace:   "services",
+					Name:        "myservice",
+				},
 			},
 			postData: map[string]string{
 				"foo": "bar",
@@ -146,10 +161,12 @@ func TestService_Dial(t *testing.T) {
 		{
 			name: "POST with query HTTP",
 			service: Service{
-				Branch:      "master",
-				Environment: "staging",
-				Namespace:   "services",
-				Name:        "myservice",
+				Resource: Resource{
+					Branch:      "master",
+					Environment: "staging",
+					Namespace:   "services",
+					Name:        "myservice",
+				},
 			},
 			postData: map[string]string{
 				"foo": "bar",
@@ -169,10 +186,12 @@ func TestService_Dial(t *testing.T) {
 		{
 			name: "POST with query HTTPS",
 			service: Service{
-				Branch:      "master",
-				Environment: "staging",
-				Namespace:   "services",
-				Name:        "myservice",
+				Resource: Resource{
+					Branch:      "master",
+					Environment: "staging",
+					Namespace:   "services",
+					Name:        "myservice",
+				},
 			},
 			postData: map[string]string{
 				"foo": "bar",
@@ -192,10 +211,12 @@ func TestService_Dial(t *testing.T) {
 		{
 			name: "POST with headers",
 			service: Service{
-				Branch:      "master",
-				Environment: "staging",
-				Namespace:   "services",
-				Name:        "myservice",
+				Resource: Resource{
+					Branch:      "master",
+					Environment: "staging",
+					Namespace:   "services",
+					Name:        "myservice",
+				},
 			},
 			postData: map[string]string{
 				"foo": "bar",
@@ -255,20 +276,24 @@ func TestService_GetName(t *testing.T) {
 		{
 			name: "Normal",
 			service: Service{
-				Branch:      "master",
-				Environment: "staging",
-				Namespace:   "services",
-				Name:        "myservice",
+				Resource: Resource{
+					Branch:      "master",
+					Environment: "staging",
+					Namespace:   "services",
+					Name:        "myservice",
+				},
 			},
 			expectedName: "myservice",
 		},
 		{
 			name: "Crazy",
 			service: Service{
-				Branch:      "massdsdfsdjf89uter",
-				Environment: "sdfsdf34341",
-				Namespace:   "l1j2312klj3k21j3",
-				Name:        "-sf9s9f9ds0f9-",
+				Resource: Resource{
+					Branch:      "massdsdfsdjf89uter",
+					Environment: "sdfsdf34341",
+					Namespace:   "l1j2312klj3k21j3",
+					Name:        "-sf9s9f9ds0f9-",
+				},
 			},
 			expectedName: "-sf9s9f9ds0f9-",
 		},

@@ -34,11 +34,13 @@ type CloudService struct {
 func NewCloudService(client *http.Client, branch, env, namespace, name string, credentials *AuthCredentials) *CloudService {
 	return &CloudService{
 		Service: Service{
-			Branch:      branch,
-			Environment: env,
-			Namespace:   namespace,
-			Name:        name,
-			Client:      client,
+			Resource: Resource{
+				Branch:      branch,
+				Environment: env,
+				Namespace:   namespace,
+				Name:        name,
+			},
+			Client: client,
 		},
 		Client:      client,
 		Credentials: credentials,
@@ -47,7 +49,7 @@ func NewCloudService(client *http.Client, branch, env, namespace, name string, c
 
 // authenticate - Authenticate against the API gateway and return an auth token.
 func (c *CloudService) authenticate(request *Request) (*models.Token, error) {
-	//loginBody := new(bytes.Buffer)
+	// loginBody := new(bytes.Buffer)
 	loginBody, err := json.Marshal(c.Credentials)
 	if err != nil {
 		return nil, fmt.Errorf("cannot encode json: %s", err)
