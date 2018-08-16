@@ -49,11 +49,13 @@ func TestCloudService_Dial(t *testing.T) {
 			name: "GET HTTP",
 			service: CloudService{
 				Service: Service{
-					Branch:      "master",
-					Environment: "staging",
-					Namespace:   "services",
-					Name:        "myservice",
-					Client:      DefaultHTTPClient(),
+					Resource: Resource{
+						Branch:      "master",
+						Environment: "staging",
+						Namespace:   "services",
+						Name:        "myservice",
+					},
+					Client: DefaultHTTPClient(),
 				},
 				Client: DefaultHTTPClient(),
 				Credentials: &AuthCredentials{
@@ -72,11 +74,13 @@ func TestCloudService_Dial(t *testing.T) {
 			name: "GET HTTPS",
 			service: CloudService{
 				Service: Service{
-					Branch:      "master",
-					Environment: "staging",
-					Namespace:   "services",
-					Name:        "myservice",
-					Client:      DefaultHTTPClient(),
+					Resource: Resource{
+						Branch:      "master",
+						Environment: "staging",
+						Namespace:   "services",
+						Name:        "myservice",
+					},
+					Client: DefaultHTTPClient(),
 				},
 				Client: DefaultHTTPClient(),
 				Credentials: &AuthCredentials{
@@ -95,11 +99,13 @@ func TestCloudService_Dial(t *testing.T) {
 			name: "GET with query HTTP",
 			service: CloudService{
 				Service: Service{
-					Branch:      "master",
-					Environment: "staging",
-					Namespace:   "services",
-					Name:        "myservice",
-					Client:      DefaultHTTPClient(),
+					Resource: Resource{
+						Branch:      "master",
+						Environment: "staging",
+						Namespace:   "services",
+						Name:        "myservice",
+					},
+					Client: DefaultHTTPClient(),
 				},
 				Client: DefaultHTTPClient(),
 				Credentials: &AuthCredentials{
@@ -122,11 +128,13 @@ func TestCloudService_Dial(t *testing.T) {
 			name: "GET with query HTTPS",
 			service: CloudService{
 				Service: Service{
-					Branch:      "master",
-					Environment: "staging",
-					Namespace:   "services",
-					Name:        "myservice",
-					Client:      DefaultHTTPClient(),
+					Resource: Resource{
+						Branch:      "master",
+						Environment: "staging",
+						Namespace:   "services",
+						Name:        "myservice",
+					},
+					Client: DefaultHTTPClient(),
 				},
 				Client: DefaultHTTPClient(),
 				Credentials: &AuthCredentials{
@@ -149,11 +157,13 @@ func TestCloudService_Dial(t *testing.T) {
 			name: "POST HTTP",
 			service: CloudService{
 				Service: Service{
-					Branch:      "master",
-					Environment: "staging",
-					Namespace:   "services",
-					Name:        "myservice",
-					Client:      DefaultHTTPClient(),
+					Resource: Resource{
+						Branch:      "master",
+						Environment: "staging",
+						Namespace:   "services",
+						Name:        "myservice",
+					},
+					Client: DefaultHTTPClient(),
 				},
 				Client: DefaultHTTPClient(),
 				Credentials: &AuthCredentials{
@@ -176,11 +186,13 @@ func TestCloudService_Dial(t *testing.T) {
 			name: "POST HTTPS",
 			service: CloudService{
 				Service: Service{
-					Branch:      "master",
-					Environment: "staging",
-					Namespace:   "services",
-					Name:        "myservice",
-					Client:      DefaultHTTPClient(),
+					Resource: Resource{
+						Branch:      "master",
+						Environment: "staging",
+						Namespace:   "services",
+						Name:        "myservice",
+					},
+					Client: DefaultHTTPClient(),
 				},
 				Client: DefaultHTTPClient(),
 				Credentials: &AuthCredentials{
@@ -203,11 +215,13 @@ func TestCloudService_Dial(t *testing.T) {
 			name: "POST with query HTTP",
 			service: CloudService{
 				Service: Service{
-					Branch:      "master",
-					Environment: "staging",
-					Namespace:   "services",
-					Name:        "myservice",
-					Client:      DefaultHTTPClient(),
+					Resource: Resource{
+						Branch:      "master",
+						Environment: "staging",
+						Namespace:   "services",
+						Name:        "myservice",
+					},
+					Client: DefaultHTTPClient(),
 				},
 				Client: DefaultHTTPClient(),
 				Credentials: &AuthCredentials{
@@ -234,11 +248,13 @@ func TestCloudService_Dial(t *testing.T) {
 			name: "POST with query HTTPS",
 			service: CloudService{
 				Service: Service{
-					Branch:      "master",
-					Environment: "staging",
-					Namespace:   "services",
-					Name:        "myservice",
-					Client:      DefaultHTTPClient(),
+					Resource: Resource{
+						Branch:      "master",
+						Environment: "staging",
+						Namespace:   "services",
+						Name:        "myservice",
+					},
+					Client: DefaultHTTPClient(),
 				},
 				Client: DefaultHTTPClient(),
 				Credentials: &AuthCredentials{
@@ -300,10 +316,12 @@ func TestCloudService_GetName(t *testing.T) {
 			name: "Normal",
 			service: CloudService{
 				Service: Service{
-					Branch:      "master",
-					Environment: "staging",
-					Namespace:   "services",
-					Name:        "myservice",
+					Resource: Resource{
+						Branch:      "master",
+						Environment: "staging",
+						Namespace:   "services",
+						Name:        "myservice",
+					},
 				},
 				Credentials: &AuthCredentials{
 					Email:    "test@test.com",
@@ -316,10 +334,12 @@ func TestCloudService_GetName(t *testing.T) {
 			name: "Crazy",
 			service: CloudService{
 				Service: Service{
-					Branch:      "massdsdfsdjf89uter",
-					Environment: "sdfsdf34341",
-					Namespace:   "l1j2312klj3k21j3",
-					Name:        "-sf9s9f9ds0f9-",
+					Resource: Resource{
+						Branch:      "massdsdfsdjf89uter",
+						Environment: "sdfsdf34341",
+						Namespace:   "l1j2312klj3k21j3",
+						Name:        "-sf9s9f9ds0f9-",
+					},
 				},
 				Credentials: &AuthCredentials{
 					Email:    "test@test.com",
@@ -370,10 +390,12 @@ func TestCloudService_GetApiGatewayUrl(t *testing.T) {
 	// Instantiate the service.
 	myService := &CloudService{
 		Service: Service{
-			Branch:      "master",
-			Environment: "staging",
-			Namespace:   "services",
-			Name:        "myservice",
+			Resource: Resource{
+				Branch:      "master",
+				Environment: "staging",
+				Namespace:   "services",
+				Name:        "myservice",
+			},
 		},
 		Credentials: &AuthCredentials{
 			Email:    "test@test.com",
