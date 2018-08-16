@@ -11,12 +11,11 @@ import (
 
 // Resource - Useful for defining a remote resource without an attached transport.
 type Resource struct {
-	Branch         string        // VCS branch the service is built from.
-	CurrentRequest *http.Request // Current HTTP request being actioned.
-	Environment    string        // CI environment the service operates in.
-	Namespace      string        // Namespace of the service.
-	Name           string        // Name of the service.
-	Version        int           // Major API version of the service.
+	Branch      string // VCS branch the service is built from.
+	Environment string // CI environment the service operates in.
+	Namespace   string // Namespace of the service.
+	Name        string // Name of the service.
+	Version     int    // Major API version of the service.
 }
 
 // DNSPath returns internal dns path for the resource
@@ -39,7 +38,8 @@ func (r *Resource) DNSPath() string {
 // Service - Responsible for communication with a service.
 type Service struct {
 	Resource
-	Client *http.Client // http client implementation
+	CurrentRequest *http.Request // Current HTTP request being actioned.
+	Client         *http.Client  // http client implementation
 }
 
 // NewService - prepares a new service with the provided parameters and client.
