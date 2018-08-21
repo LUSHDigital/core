@@ -167,7 +167,9 @@ func (r *Response) ExtractData(srcKey string, dst interface{}) error {
 		}
 
 		// Decode the raw JSON.
-		json.Unmarshal(rawJSON, &dst)
+		if err := json.Unmarshal(rawJSON, &dst); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -240,7 +242,9 @@ func (p *PaginatedResponse) ExtractData(srcKey string, dst interface{}) error {
 		}
 
 		// Decode the raw JSON.
-		json.Unmarshal(rawJSON, &dst)
+		if err := json.Unmarshal(rawJSON, &dst); err != nil {
+			return err
+		}
 	}
 
 	return nil
