@@ -14,7 +14,7 @@ type Grant string
 func HandlerGrants(grants []Grant, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		consumer := ConsumerFromContext(r.Context())
-		if consumer.HasGrants(grants...) {
+		if consumer.HasAnyGrant(grants...) {
 			next.ServeHTTP(w, r)
 			return
 		}
