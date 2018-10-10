@@ -13,9 +13,6 @@ import (
 
 var (
 	signingKey = []byte("this is my secret key, shhhh")
-	okHandler  = func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}
 )
 
 func TestHandlerValidateJWT_ValidToken(t *testing.T) {
@@ -53,10 +50,15 @@ func TestHandlerValidateJWT_ValidToken(t *testing.T) {
 	// make a response writer that will record return status codes and things
 	rr := httptest.NewRecorder()
 
+	// call the handler
 	handler := auth.HandlerValidateJWT(signingKey, okHandler)
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler did not return 200 OK: got %v", status)
 	}
+}
+
+func okHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }
