@@ -2,7 +2,6 @@ package auth
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
@@ -43,8 +42,6 @@ func HandlerValidateJWT(authSecret []byte, next http.HandlerFunc) http.HandlerFu
 
 		// Bail out if the token could not be parsed.
 		if err != nil {
-			log.Printf("invalid token: %s\n", err)
-
 			if _, ok := err.(*jwt.ValidationError); ok {
 				// Handle any token specific errors.
 				var errorMessage string
