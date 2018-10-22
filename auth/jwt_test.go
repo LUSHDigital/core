@@ -13,12 +13,41 @@ import (
 	"github.com/LUSHDigital/microservice-core-golang/response"
 )
 
-var signingKey = []byte("this is my secret key, shhhh")
+var (
+	testPrivateKey = `-----BEGIN RSA PRIVATE KEY-----
+MIICWwIBAAKBgQDx6dqtEuyEf7Mpviqa/rYl316fOoPozRgG8msH03tC9+exMGUN
+lExmdMZKgY8LnYF6cA7j4lBwnjOJ3Omts5CXwtVS2rsFqvITfh0XNQq6W1JB2igT
+zezpybvpY3M157NImF0ijRPMcxP2qAjP7YgWjuDXW+kIFfkbaZVWbkUYAwIDAQAB
+AoGAQZnU/xIeqV+nyi4Th6yC4IpOMoe/taXIWjnq5FhpGKP5ZIdnH+OTREVucE3p
+6JBxyC4TG6EHh0KfX0dU5xHGp5ncts8QOhzZ3uJNwKsG6OAaNXI9pkhxty8EHhC9
+GPP+fZdAmEtQhzpN2wfMxO1Q6vub6c7HmAkFh7cYFHlwWcECQQD/z8LOR2G6G7PR
+AWBcyML4nWPPFagf9Rl37hoHd75Vy9wXKQOW6b9lkg2XjETj7dR+/Aha0xy28f/x
+A/v77ECJAkEA8hd48l1Ec3WT/dKrIw2I4xgfQtwi4H/qH0hKtWsqWFnU8T2TssvO
+yKMx3uExS4yn3eWJiO4t+Dah1C88Hgn5KwJATv3LrMDUB5D4VKi1JdGEixqmsFKC
+qOOZarQma3npVzrtCmXKyvYA+Q9BjTNuLmfJPzD6L3mTG1bc7oKJdAA+6QJAFzdz
+DOMu5le3SpdCfEkXAJhWnyXXXmpF/JwFNiLB29k5l60NFg9/lDQ6WyKDhLhHfPs/
+VldpJy2uFVg2TrcsIwJAJw/vz25NbLxibdJ6cqZKF30411tgufDIjgzVr9MQX3np
+2elP0lxdJ9FzNP+q6BV4J48/yrDJZLtSGJkFExr2fA==
+-----END RSA PRIVATE KEY-----`
+	testPublicKey = `-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDx6dqtEuyEf7Mpviqa/rYl316f
+OoPozRgG8msH03tC9+exMGUNlExmdMZKgY8LnYF6cA7j4lBwnjOJ3Omts5CXwtVS
+2rsFqvITfh0XNQq6W1JB2igTzezpybvpY3M157NImF0ijRPMcxP2qAjP7YgWjuDX
+W+kIFfkbaZVWbkUYAwIDAQAB
+-----END PUBLIC KEY-----`
+	testIncorrectPublicKey = `-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDx6dqtEuyEf7Mpviqa/rYl316f
+OoPozRgG8msH03tC9+esdfseftddfsefes8LnYF6cA7j4lBwnjOJ3Omts5CXwtVS
+2rsFqvITfh0XNQq6W1JB2igTzezpybvpY3M157NImF0ijRPMcxP2qAjP7YgWjuDX
+W+kIFfkbaZVWbkUYAwIDAQAB
+-----END PUBLIC KEY-----`
+)
 
 func TestHandlerValidateJWT(t *testing.T) {
 	tt := []struct {
 		name                 string
-		signingSecret        []byte
+		privateKey           string
+		publicKey            string
 		verifiyingSecret     []byte
 		issuedAt             int64
 		notBefore            int64
@@ -28,8 +57,8 @@ func TestHandlerValidateJWT(t *testing.T) {
 	}{
 		{
 			name:                 "token is good",
-			signingSecret:        signingKey,
-			verifiyingSecret:     signingKey,
+			privateKey:           testPrivateKey,
+			publicKey:            testPublicKey,
 			issuedAt:             time.Now().Add(-2 * time.Hour).Unix(),
 			notBefore:            time.Now().Add(-1 * time.Hour).Unix(),
 			expiresAt:            time.Now().Add(1 * time.Hour).Unix(),
@@ -38,8 +67,8 @@ func TestHandlerValidateJWT(t *testing.T) {
 		},
 		{
 			name:                 "token has expired",
-			signingSecret:        signingKey,
-			verifiyingSecret:     signingKey,
+			privateKey:           testPrivateKey,
+			publicKey:            testPublicKey,
 			issuedAt:             time.Now().Add(-2 * time.Hour).Unix(),
 			notBefore:            time.Now().Add(-1 * time.Hour).Unix(),
 			expiresAt:            time.Now().Add(-1 * time.Minute).Unix(),
@@ -48,8 +77,8 @@ func TestHandlerValidateJWT(t *testing.T) {
 		},
 		{
 			name:                 "token is not ready yet",
-			signingSecret:        signingKey,
-			verifiyingSecret:     signingKey,
+			privateKey:           testPrivateKey,
+			publicKey:            testPublicKey,
 			issuedAt:             time.Now().Add(-2 * time.Hour).Unix(),
 			notBefore:            time.Now().Add(1 * time.Minute).Unix(),
 			expiresAt:            time.Now().Add(1 * time.Hour).Unix(),
@@ -58,8 +87,8 @@ func TestHandlerValidateJWT(t *testing.T) {
 		},
 		{
 			name:                 "issuedAt is in the future",
-			signingSecret:        signingKey,
-			verifiyingSecret:     signingKey,
+			privateKey:           testPrivateKey,
+			publicKey:            testPublicKey,
 			issuedAt:             time.Now().Add(1 * time.Hour).Unix(),
 			notBefore:            time.Now().Add(1 * time.Minute).Unix(),
 			expiresAt:            time.Now().Add(1 * time.Hour).Unix(),
@@ -68,8 +97,8 @@ func TestHandlerValidateJWT(t *testing.T) {
 		},
 		{
 			name:                 "token not signed with matching key",
-			signingSecret:        signingKey,
-			verifiyingSecret:     []byte("not my key"),
+			privateKey:           testPrivateKey,
+			publicKey:            testIncorrectPublicKey,
 			issuedAt:             time.Now().Add(-2 * time.Hour).Unix(),
 			notBefore:            time.Now().Add(-1 * time.Hour).Unix(),
 			expiresAt:            time.Now().Add(1 * time.Hour).Unix(),
@@ -79,6 +108,16 @@ func TestHandlerValidateJWT(t *testing.T) {
 	}
 
 	for _, tc := range tt {
+		privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(tc.privateKey))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(tc.publicKey))
+		if err != nil {
+			t.Fatal(err)
+		}
+
 		// create our test consumer
 		consumer := auth.Consumer{
 			ID:     5,
@@ -86,7 +125,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 		}
 
 		// create a JWT for the consumer
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, auth.JWTClaims{
+		token := jwt.NewWithClaims(jwt.SigningMethodRS256, auth.JWTClaims{
 			StandardClaims: jwt.StandardClaims{
 				IssuedAt:  tc.issuedAt,
 				NotBefore: tc.notBefore,
@@ -96,7 +135,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 		})
 
 		// sign the JWT
-		signedToken, err := token.SignedString(tc.signingSecret)
+		signedToken, err := token.SignedString(privateKey)
 		if err != nil {
 			t.Fatalf("Test '%s' failed with %v", tc.name, err)
 		}
@@ -114,7 +153,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 		rr := httptest.NewRecorder()
 
 		// call the handler
-		handler := auth.HandlerValidateJWT(tc.verifiyingSecret, okHandler)
+		handler := auth.HandlerValidateJWT(publicKey, okHandler)
 		handler.ServeHTTP(rr, req)
 
 		if status := rr.Code; status != tc.expectedStatusCode {

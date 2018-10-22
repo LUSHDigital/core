@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"crypto/rsa"
 	"fmt"
 	"net/http"
 	"strings"
@@ -26,18 +27,18 @@ type JWTClaims struct {
 }
 
 // HandlerValidateJWT takes a JWT from the request headers, attempts validation and returns a http handler.
-func HandlerValidateJWT(authSecret []byte, next http.HandlerFunc) http.HandlerFunc {
+func HandlerValidateJWT(publicKey *rsa.PublicKey, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token := strings.TrimPrefix(r.Header.Get(authHeader), authHeaderPrefix)
 
 		// Parse the JWT token.
 		authToken, err := jwt.ParseWithClaims(token, &JWTClaims{}, func(aToken *jwt.Token) (interface{}, error) {
 			// Ensure the signing method was not changed.
-			if _, ok := aToken.Method.(*jwt.SigningMethodHMAC); !ok {
+			if _, ok := aToken.Method.(*jwt.SigningMethodRSA); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", aToken.Header["alg"])
 			}
 
-			return authSecret, nil
+			return publicKey, nil
 		})
 
 		// Bail out if the token could not be parsed.
