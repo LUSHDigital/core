@@ -6,10 +6,26 @@ import (
 	"strings"
 
 	"github.com/LUSHDigital/microservice-core-golang/transport/config"
-	"github.com/LUSHDigital/microservice-core-golang/transport/domain"
 )
 
-// Resource - Useful for defining a remote resource without an attached transport.
+// NewResource returns a new service
+func NewResource(branch, env, namespace, name string) *Resource {
+	// Make any alterations based upon the namespace
+	switch namespace {
+	case "aggregators":
+		if !strings.HasPrefix(name, config.AggregatorDomainPrefix) {
+			name = strings.Join([]string{config.AggregatorDomainPrefix, name}, "-")
+		}
+	}
+	return &Resource{
+		Branch:      branch,
+		Name:        name,
+		Environment: env,
+		Namespace:   namespace,
+	}
+}
+
+// Resource defines a remote service
 type Resource struct {
 	Branch      string // VCS branch the service is built from.
 	Environment string // CI environment the service operates in.
@@ -18,21 +34,14 @@ type Resource struct {
 	Version     int    // Major API version of the service.
 }
 
-// DNSPath returns internal dns path for the resource
-func (r *Resource) DNSPath() string {
-	// Make any alterations based upon the namespace.
-	switch r.Namespace {
-	case "aggregators":
-		if !strings.HasPrefix(r.Name, config.AggregatorDomainPrefix) {
-			r.Name = strings.Join([]string{config.AggregatorDomainPrefix, r.Name}, "-")
-		}
+// DomainName returns the resource domain name for the internal DNS
+func (s *Service) DomainName() string {
+	name := s.Name
+	// Determine the service namespace to use based on the service version
+	if s.Version != 0 {
+		name = fmt.Sprintf("%s-%d", name, s.Version)
 	}
-	// Determine the service namespace to use based on the service version.
-	serviceNamespace := r.Name
-	if r.Version != 0 {
-		serviceNamespace = fmt.Sprintf("%s-%d", serviceNamespace, r.Version)
-	}
-	return serviceNamespace
+	return fmt.Sprintf("%s-%s-%s.%s", s.Name, s.Branch, s.Environment, name)
 }
 
 // Service - Responsible for communication with a service.
@@ -45,13 +54,8 @@ type Service struct {
 // NewService - prepares a new service with the provided parameters and client.
 func NewService(client *http.Client, branch, env, namespace, name string) *Service {
 	return &Service{
-		Resource: Resource{
-			Branch:      branch,
-			Name:        name,
-			Environment: env,
-			Namespace:   namespace,
-		},
-		Client: client,
+		Resource: *NewResource(branch, env, namespace, name),
+		Client:   client,
 	}
 }
 
@@ -64,12 +68,8 @@ func (s *Service) Call() (*http.Response, error) {
 func (s *Service) Dial(request *Request) error {
 	var err error
 
-	serviceNamespace := s.DNSPath()
-	// Get the name of the service.
-	dnsName := domain.BuildServiceDNSName(s.Name, s.Branch, s.Environment, serviceNamespace)
-
 	// Build the resource URL.
-	resourceURL := fmt.Sprintf("%s://%s/%s", request.getProtocol(), dnsName, request.Resource)
+	resourceURL := fmt.Sprintf("%s://%s/%s", request.getProtocol(), s.DomainName(), request.Resource)
 
 	// Append the query string if we have any.
 	if len(request.Query) > 0 {
