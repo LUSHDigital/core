@@ -18,3 +18,8 @@ func (c *Consumer) HasAnyGrant(grants ...Grant) bool {
 
 	return false
 }
+
+// IsUser checks if a consumer has the same ID as a user
+func (c *Consumer) IsUser(userID int64) bool {
+	return c.ID == userID
+}
