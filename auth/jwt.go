@@ -20,6 +20,11 @@ const (
 	errorMessageClaimsInvalid = "invalid token claims"
 )
 
+// ConsumerFor derives the Consumer from the JWT claims
+func ConsumerFor(token *jwt.Token) *Consumer {
+	return &token.Claims.(*JWTClaims).Consumer
+}
+
 // JWTClaims represents the claims within the JWT.
 type JWTClaims struct {
 	Consumer Consumer `json:"consumer"`
