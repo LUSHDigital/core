@@ -7,10 +7,9 @@ import (
 	"testing"
 	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
-
 	"github.com/LUSHDigital/microservice-core-golang/auth"
 	"github.com/LUSHDigital/microservice-core-golang/response"
+	jwt "github.com/dgrijalva/jwt-go"
 )
 
 var (
@@ -121,7 +120,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 		// create our test consumer
 		consumer := auth.Consumer{
 			ID:     5,
-			Grants: []auth.Grant{"test.grant"},
+			Grants: []string{"test.grant"},
 		}
 
 		// create a JWT for the consumer
