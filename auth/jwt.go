@@ -21,8 +21,11 @@ const (
 )
 
 // ConsumerFor derives the Consumer from the JWT claims
-func ConsumerFor(token *jwt.Token) *Consumer {
-	return &token.Claims.(*JWTClaims).Consumer
+func ConsumerFor(token *jwt.Token) (*Consumer, error) {
+	if claims, ok := token.Claims.(*JWTClaims); ok {
+		return &claims.Consumer, nil
+	}
+	return nil, fmt.Errorf("cannot assert claims for type %T", token.Claims)
 }
 
 // JWTClaims represents the claims within the JWT.
