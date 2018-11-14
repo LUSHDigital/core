@@ -7,10 +7,9 @@ import (
 	"testing"
 	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
-
 	"github.com/LUSHDigital/microservice-core-golang/auth"
 	"github.com/LUSHDigital/microservice-core-golang/response"
+	jwt "github.com/dgrijalva/jwt-go"
 )
 
 var (
