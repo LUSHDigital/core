@@ -120,7 +120,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 		// create our test consumer
 		consumer := auth.Consumer{
 			ID:     5,
-			Grants: []auth.Grant{"test.grant"},
+			Grants: []string{"test.grant"},
 		}
 
 		// create a JWT for the consumer
