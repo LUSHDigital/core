@@ -31,41 +31,42 @@ func NewMockTokeniser() (*Tokeniser, error) {
 		return nil, err
 	}
 	publicKey := &privateKey.PublicKey
-	name, err := os.Hostname()
+	issuer, err := os.Hostname()
 	if err != nil {
 		return nil, err
 	}
-	return &Tokeniser{
-		privateKey: privateKey,
-		publicKey:  publicKey,
-		authIssuer: name,
-	}, nil
+	return NewTokeniser(privateKey, publicKey, issuer), nil
 }
 
-// NewPublicTokeniser returns a new JWT instance
-func NewPublicTokeniser(bPublicKey string) (*Tokeniser, error) {
-	publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(bPublicKey))
+// NewTokaniserFromPublicKey parses a public key to
+func NewTokaniserFromPublicKey(pkb []byte) (*Tokeniser, error) {
+	publicKey, err := jwt.ParseRSAPublicKeyFromPEM(pkb)
 	if err != nil {
 		return nil, err
 	}
 	return &Tokeniser{publicKey: publicKey}, nil
 }
 
+// NewTokaniserFromKeyPair parses a public key to
+func NewTokaniserFromKeyPair(privateKeyB, publicKeyB []byte, issuer string) (*Tokeniser, error) {
+	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKeyB)
+	if err != nil {
+		return nil, err
+	}
+	publicKey, err := jwt.ParseRSAPublicKeyFromPEM(publicKeyB)
+	if err != nil {
+		return nil, err
+	}
+	return NewTokeniser(privateKey, publicKey, issuer), nil
+}
+
 // NewTokeniser returns a new JWT instance
-func NewTokeniser(bPrivateKey, bPublicKey, issuer string) (*Tokeniser, error) {
-	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(bPrivateKey))
-	if err != nil {
-		return nil, err
-	}
-	publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(bPublicKey))
-	if err != nil {
-		return nil, err
-	}
+func NewTokeniser(privateKey *rsa.PrivateKey, publicKey *rsa.PublicKey, issuer string) *Tokeniser {
 	return &Tokeniser{
 		privateKey: privateKey,
 		publicKey:  publicKey,
 		authIssuer: issuer,
-	}, nil
+	}
 }
 
 // GenerateToken generates and returns an authentication token.
