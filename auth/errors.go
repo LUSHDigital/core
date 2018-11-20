@@ -3,6 +3,8 @@ package auth
 import (
 	"errors"
 	"fmt"
+
+	jwt "github.com/dgrijalva/jwt-go"
 )
 
 var (
@@ -33,4 +35,18 @@ type ErrAssertClaims struct {
 
 func (e *ErrAssertClaims) Error() string {
 	return fmt.Sprintf("cannot assert claims for type %T", e.claims)
+}
+
+func handleParseErr(err error) error {
+	if _, ok := err.(*jwt.ValidationError); ok {
+		// Handle any token specific errors.
+		if err.(*jwt.ValidationError).Errors&jwt.ValidationErrorMalformed != 0 {
+			err = ErrTokenMalformed
+		} else if err.(*jwt.ValidationError).Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
+			err = ErrTokenExpired
+		} else {
+			err = ErrTokenInvalid
+		}
+	}
+	return err
 }
