@@ -38,8 +38,8 @@ func NewMockTokeniser() (*Tokeniser, error) {
 	return NewTokeniser(privateKey, publicKey, issuer), nil
 }
 
-// NewTokaniserFromPublicKey parses a public key to
-func NewTokaniserFromPublicKey(pkb []byte) (*Tokeniser, error) {
+// NewTokeniserFromPublicKey parses a public key to
+func NewTokeniserFromPublicKey(pkb []byte) (*Tokeniser, error) {
 	publicKey, err := jwt.ParseRSAPublicKeyFromPEM(pkb)
 	if err != nil {
 		return nil, err
@@ -47,8 +47,8 @@ func NewTokaniserFromPublicKey(pkb []byte) (*Tokeniser, error) {
 	return &Tokeniser{publicKey: publicKey}, nil
 }
 
-// NewTokaniserFromKeyPair parses a public key to
-func NewTokaniserFromKeyPair(privateKeyB, publicKeyB []byte, issuer string) (*Tokeniser, error) {
+// NewTokeniserFromKeyPair parses a public key to
+func NewTokeniserFromKeyPair(privateKeyB, publicKeyB []byte, issuer string) (*Tokeniser, error) {
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKeyB)
 	if err != nil {
 		return nil, err
