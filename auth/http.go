@@ -28,7 +28,7 @@ func (r *jwtHTTPResponder) OnUnauthorizedErr(err error) {
 }
 
 func (r *jwtHTTPResponder) OnComplete(token *jwt.Token) {
-	ctx := ContextWithConsumer(r.r.Context(), token.Claims.(*JWTClaims).Consumer)
+	ctx := ContextWithConsumer(r.r.Context(), token.Claims.(*Claims).Consumer)
 	r.next.ServeHTTP(r.w, r.r.WithContext(ctx))
 }
 
