@@ -1,5 +1,13 @@
 package auth_test
 
+import (
+	"log"
+	"os"
+	"testing"
+
+	"github.com/LUSHDigital/microservice-core-golang/auth"
+)
+
 var (
 	testPrivateKey = `-----BEGIN RSA PRIVATE KEY-----
 MIICWwIBAAKBgQDx6dqtEuyEf7Mpviqa/rYl316fOoPozRgG8msH03tC9+exMGUN
@@ -29,3 +37,11 @@ OoPozRgG8msH03tC9+esdfseftddfsefes8LnYF6cA7j4lBwnjOJ3Omts5CXwtVS
 W+kIFfkbaZVWbkUYAwIDAQAB
 -----END PUBLIC KEY-----`
 )
+
+func TestMain(m *testing.M) {
+	if tokeniser, err = auth.NewTokeniser(testPrivateKey, testPublicKey, "testing"); err != nil {
+		log.Fatalf("could not parse JWT keys: %s", err)
+	}
+
+	os.Exit(m.Run())
+}
