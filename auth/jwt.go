@@ -58,11 +58,11 @@ func ParseJWT(pk *rsa.PublicKey, raw string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func checkSignatureFunc(pk *rsa.PublicKey) func(t *jwt.Token) (interface{}, error) {
-	return func(t *jwt.Token) (interface{}, error) {
+func checkSignatureFunc(pk *rsa.PublicKey) func(token *jwt.Token) (interface{}, error) {
+	return func(token *jwt.Token) (interface{}, error) {
 		// Ensure the signing method was not changed
-		if _, ok := t.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			return nil, &ErrUnexpectedSigningMethod{token.Header["alg"]}
 		}
 		return pk, nil
 	}
