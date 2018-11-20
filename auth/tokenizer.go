@@ -8,7 +8,11 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pborman/uuid"
-	"gitlab.com/LUSHDigital/soa/first-class/api-gateway/service/config"
+)
+
+const (
+	// TokenValidPeriod is the default amount of minutes a token is valid
+	TokenValidPeriod = 60
 )
 
 // Tokeniser is the auth tokeniser for JSON Web Tokens
@@ -71,7 +75,7 @@ func (t *Tokeniser) GenerateToken(consumer *Consumer) (token string, err error) 
 	claims := Claims{
 		Consumer: *consumer,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Duration(config.TokenValidPeriod) * time.Minute).Unix(),
+			ExpiresAt: time.Now().Add(time.Duration(TokenValidPeriod) * time.Minute).Unix(),
 			Issuer:    t.authIssuer,
 			Id:        uuid.New(),
 		},

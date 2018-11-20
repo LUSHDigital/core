@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/LUSHDigital/microservice-core-golang/auth"
-	"gitlab.platformserviceaccount.com/lush-soa/service/markets/service/test"
 )
 
 var (
@@ -36,7 +35,7 @@ func TestTokeniser_GenerateToken(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	test.DeepEquals(t, testConsumer, &parsedToken.Claims.(*auth.Claims).Consumer)
+	deepEqual(t, testConsumer, &parsedToken.Claims.(*auth.Claims).Consumer)
 }
 
 func TestTokeniser_ValidateToken(t *testing.T) {
@@ -62,7 +61,7 @@ func TestTokeniser_ValidateToken(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	test.Equals(t, true, ok)
+	deepEqual(t, true, ok)
 }
 
 func TestTokeniser_ValidateToken2(t *testing.T) {
@@ -114,11 +113,10 @@ func TestTokeniser_ValidateToken2(t *testing.T) {
 		t.Run(c.name, func(t *testing.T) {
 			ok, err := tokeniser.ValidateToken(c.authToken)
 			if err != nil {
-				test.Equals(t, c.expectedErr, err)
+				deepEqual(t, c.expectedErr, err)
 				return
 			}
-
-			test.Equals(t, c.expectedOk, ok)
+			deepEqual(t, c.expectedOk, ok)
 		})
 	}
 }
@@ -141,5 +139,5 @@ func TestTokeniser_GetTokenConsumer(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	test.DeepEquals(t, testConsumer, tokeniser.GetTokenConsumer(authToken))
+	deepEqual(t, testConsumer, tokeniser.GetTokenConsumer(authToken))
 }
