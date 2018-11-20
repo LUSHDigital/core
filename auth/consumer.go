@@ -1,9 +1,12 @@
 package auth
 
-// Consumer represents an API consumer.
+// Consumer represents an API user
 type Consumer struct {
-	ID     int64    `json:"id"`
-	Grants []string `json:"grants"`
+	ID        int64    `json:"id"`
+	FirstName string   `json:"first_name"`
+	LastName  string   `json:"last_name"`
+	Language  string   `json:"language"`
+	Grants    []string `json:"grants"`
 }
 
 // HasAnyGrant checks if a consumer possess any of a given set of grants
