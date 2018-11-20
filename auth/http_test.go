@@ -94,7 +94,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 		}
 
 		// create a JWT for the consumer
-		token := jwt.NewWithClaims(jwt.SigningMethodRS256, auth.JWTClaims{
+		token := jwt.NewWithClaims(jwt.SigningMethodRS256, auth.Claims{
 			StandardClaims: jwt.StandardClaims{
 				IssuedAt:  tc.issuedAt,
 				NotBefore: tc.notBefore,
