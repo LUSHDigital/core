@@ -40,7 +40,7 @@ W+kIFfkbaZVWbkUYAwIDAQAB
 )
 
 func TestMain(m *testing.M) {
-	if tokeniser, err = auth.NewTokaniserFromKeyPair([]byte(testPrivateKey), []byte(testPublicKey), "testing"); err != nil {
+	if tokeniser, err = auth.NewTokeniserFromKeyPair([]byte(testPrivateKey), []byte(testPublicKey), "testing"); err != nil {
 		log.Fatalf("could not parse JWT keys: %s", err)
 	}
 
