@@ -1,7 +1,9 @@
 package auth
 
 import (
+	"crypto/rand"
 	"crypto/rsa"
+	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -14,6 +16,35 @@ type Tokeniser struct {
 	privateKey *rsa.PrivateKey
 	publicKey  *rsa.PublicKey
 	authIssuer string
+}
+
+// NewMockTokeniser creates a new tokeniser with a random key pair
+func NewMockTokeniser() (*Tokeniser, error) {
+	reader := rand.Reader
+	bitSize := 2048
+	privateKey, err := rsa.GenerateKey(reader, bitSize)
+	if err != nil {
+		return nil, err
+	}
+	publicKey := &privateKey.PublicKey
+	name, err := os.Hostname()
+	if err != nil {
+		return nil, err
+	}
+	return &Tokeniser{
+		privateKey: privateKey,
+		publicKey:  publicKey,
+		authIssuer: name,
+	}, nil
+}
+
+// NewPublicTokeniser returns a new JWT instance
+func NewPublicTokeniser(bPublicKey string) (*Tokeniser, error) {
+	publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(bPublicKey))
+	if err != nil {
+		return nil, err
+	}
+	return &Tokeniser{publicKey: publicKey}, nil
 }
 
 // NewTokeniser returns a new JWT instance
