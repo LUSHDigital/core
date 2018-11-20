@@ -69,7 +69,7 @@ func NewTokeniser(bPrivateKey, bPublicKey, issuer string) (*Tokeniser, error) {
 }
 
 // GenerateToken generates and returns an authentication token.
-func (t *Tokeniser) GenerateToken(consumer *Consumer) (token string, err error) {
+func (t *Tokeniser) GenerateToken(consumer *Consumer) (string, error) {
 	// Create our claims
 	// NOTE: The consumer is sanitised
 	claims := Claims{
@@ -82,9 +82,9 @@ func (t *Tokeniser) GenerateToken(consumer *Consumer) (token string, err error) 
 	}
 	// Create the token
 	newToken := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+
 	// Sign the token
-	token, err = newToken.SignedString(t.privateKey)
-	return
+	return newToken.SignedString(t.privateKey)
 }
 
 // ValidateToken validates an authentication token and returns true/false
