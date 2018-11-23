@@ -32,7 +32,7 @@ var (
 )
 
 // BrokerRSAPublicKey will broker a public key from a source on an interval
-func BrokerRSAPublicKey(ctx context.Context, source Source, tick time.Duration) (*RSAPublicKeyBroker, func()) {
+func BrokerRSAPublicKey(ctx context.Context, source Source, tick time.Duration) (RSAPublicKeyCopierRenewer, func()) {
 	broker := &RSAPublicKeyBroker{
 		source:    source,
 		ticker:    time.NewTicker(tick),
