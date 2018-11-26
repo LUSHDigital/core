@@ -19,3 +19,14 @@ type ErrReadResponse struct {
 func (e ErrReadResponse) Error() string {
 	return fmt.Sprintf("failed to read the key response: %v", e.msg)
 }
+
+var (
+	// ErrNoSourcesResolved represents an error for when no sources could be resolved at all
+	ErrNoSourcesResolved = ErrGetKeySource{"no sources could be resolved"}
+
+	// ErrEmptyURL represents an error for when an expected url is an empty string
+	ErrEmptyURL = ErrGetKeySource{"url cannot be empty"}
+
+	// ErrEmptyFilePath represents an error for when an expected file path is an empty string
+	ErrEmptyFilePath = ErrGetKeySource{"file path cannot be empty"}
+)

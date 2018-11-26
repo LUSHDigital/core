@@ -24,7 +24,7 @@ func (sources Sources) Get(ctx context.Context) ([]byte, error) {
 			return bts, nil
 		}
 	}
-	return nil, ErrGetKeySource{"no sources could be resolved"}
+	return nil, ErrNoSourcesResolved
 }
 
 // HTTPSource defines a source with a URL to resolve over HTTP
@@ -33,7 +33,7 @@ type HTTPSource string
 // Get retrieves data from the URL over HTTP
 func (source HTTPSource) Get(ctx context.Context) ([]byte, error) {
 	if source == "" {
-		return nil, ErrGetKeySource{"url cannot be empty"}
+		return nil, ErrEmptyURL
 	}
 	req, err := http.NewRequest(http.MethodGet, string(source), nil)
 	if err != nil {
@@ -62,7 +62,7 @@ type FileSource string
 // Get retrieves data from the path to a file on disk
 func (source FileSource) Get(ctx context.Context) ([]byte, error) {
 	if source == "" {
-		return nil, ErrGetKeySource{"file path cannot be empty"}
+		return nil, ErrEmptyFilePath
 	}
 	f, err := os.Open(string(source))
 	if err != nil {
