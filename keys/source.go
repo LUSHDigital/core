@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"time"
 )
 
 // Source represents one or a chain of sources
@@ -27,6 +28,10 @@ func (sources Sources) Get(ctx context.Context) ([]byte, error) {
 	return nil, ErrNoSourcesResolved
 }
 
+const (
+	httpTimeout = 10 * time.Second
+)
+
 // HTTPSource defines a source with a URL to resolve over HTTP
 type HTTPSource string
 
@@ -40,7 +45,9 @@ func (source HTTPSource) Get(ctx context.Context) ([]byte, error) {
 		return nil, ErrGetKeySource{err}
 	}
 	req = req.WithContext(ctx)
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: httpTimeout,
+	}
 	res, err := client.Do(req)
 	if err != nil {
 		return nil, ErrGetKeySource{err}
