@@ -2,6 +2,8 @@ package keys_test
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/rsa"
 	"reflect"
 	"testing"
 	"time"
@@ -20,17 +22,16 @@ W+kIFfkbaZVWbkUYAwIDAQAB
 )
 
 func Test_MockRSAPublicKey(t *testing.T) {
-	ctx := context.Background()
-	source := keys.StringSource(sourceString)
-	broker, err := keys.MockRSAPublicKey(ctx, source)
+	private, err := rsa.GenerateKey(rand.Reader, 128)
 	if err != nil {
 		t.Fatal(err)
 	}
-	pk, err := jwt.ParseRSAPublicKeyFromPEM([]byte(sourceString))
+	public := private.PublicKey
+	mock := keys.MockRSAPublicKey(public)
 	if err != nil {
 		t.Fatal(err)
 	}
-	deepEqual(t, *pk, broker.Copy())
+	deepEqual(t, public, mock.Copy())
 }
 
 func Test_BrokerRSAPublicKey(t *testing.T) {
