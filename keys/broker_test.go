@@ -19,6 +19,20 @@ W+kIFfkbaZVWbkUYAwIDAQAB
 -----END PUBLIC KEY-----`
 )
 
+func Test_MockRSAPublicKey(t *testing.T) {
+	ctx := context.Background()
+	source := keys.StringSource(sourceString)
+	broker, err := keys.MockRSAPublicKey(ctx, source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pk, err := jwt.ParseRSAPublicKeyFromPEM([]byte(sourceString))
+	if err != nil {
+		t.Fatal(err)
+	}
+	deepEqual(t, *pk, broker.Copy())
+}
+
 func Test_BrokerRSAPublicKey(t *testing.T) {
 	ctx := context.Background()
 	source := keys.StringSource(sourceString)
