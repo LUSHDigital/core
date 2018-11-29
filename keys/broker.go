@@ -116,3 +116,30 @@ func (b *RSAPublicKeyBroker) get(ctx context.Context) error {
 	}
 	return nil
 }
+
+// MockRSAPublicKey resolves any source and returns a mocked RSAPublicKeyCopier and Renewer
+func MockRSAPublicKey(ctx context.Context, source Source) (RSAPublicKeyCopierRenewer, error) {
+	bts, err := source.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+	key, err := jwt.ParseRSAPublicKeyFromPEM(bts)
+	return &RSAPublicKeyBrokerMock{
+		key: key,
+	}, err
+}
+
+// RSAPublicKeyBrokerMock defines the implementation for brokering an RSA public key during testing
+type RSAPublicKeyBrokerMock struct {
+	key *rsa.PublicKey
+}
+
+// Copy returns a shallow copy o the RSA public key
+func (b *RSAPublicKeyBrokerMock) Copy() rsa.PublicKey {
+	return *b.key
+}
+
+// Renew is a no-op
+func (b *RSAPublicKeyBrokerMock) Renew() {
+	// no-op
+}
