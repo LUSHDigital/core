@@ -28,7 +28,8 @@ type RSAPublicKeyCopierRenewer interface {
 }
 
 var (
-	defaultRSA = &rsa.PublicKey{E: 0, N: big.NewInt(0)}
+	// DefaultRSA is an empty RSA public key
+	DefaultRSA = &rsa.PublicKey{E: 0, N: big.NewInt(0)}
 )
 
 // BrokerRSAPublicKey will broker a public key from a source on an interval
@@ -36,7 +37,7 @@ func BrokerRSAPublicKey(ctx context.Context, source Source, tick time.Duration) 
 	broker := &RSAPublicKeyBroker{
 		source:    source,
 		ticker:    time.NewTicker(tick),
-		key:       defaultRSA,
+		key:       DefaultRSA,
 		renew:     make(chan struct{}, 1),
 		cancelled: make(chan struct{}, 1),
 	}
@@ -110,10 +111,11 @@ func (b *RSAPublicKeyBroker) get(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("cannot get key: %v", err)
 	}
-	b.key, err = jwt.ParseRSAPublicKeyFromPEM(bts)
+	key, err := jwt.ParseRSAPublicKeyFromPEM(bts)
 	if err != nil {
 		return fmt.Errorf("cannot parse key: %v", err)
 	}
+	b.key = key
 	return nil
 }
 
