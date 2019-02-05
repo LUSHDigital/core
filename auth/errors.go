@@ -18,13 +18,13 @@ var (
 	ErrTokenInvalid = errors.New("invalid token")
 )
 
-// ErrUnexpectedSigningMethod is thrown when parsing a JWT encounters an
+// UnexpectedSigningMethodError is thrown when parsing a JWT encounters an
 // unexpected signature method.
-type ErrUnexpectedSigningMethod struct {
+type UnexpectedSigningMethodError struct {
 	alg interface{}
 }
 
-func (e *ErrUnexpectedSigningMethod) Error() string {
+func (e UnexpectedSigningMethodError) Error() string {
 	return fmt.Sprintf("unexpected signing method: %v", e.alg)
 }
 

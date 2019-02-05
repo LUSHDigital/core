@@ -26,7 +26,7 @@ func checkSignatureFunc(pk *rsa.PublicKey) func(token *jwt.Token) (interface{}, 
 	return func(token *jwt.Token) (interface{}, error) {
 		// Ensure the signing method was not changed
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, &ErrUnexpectedSigningMethod{token.Header["alg"]}
+			return nil, UnexpectedSigningMethodError{token.Header["alg"]}
 		}
 		return pk, nil
 	}
