@@ -3,6 +3,7 @@ package auth
 import (
 	"crypto/rand"
 	"crypto/rsa"
+	"fmt"
 	"os"
 	"time"
 
@@ -14,6 +15,23 @@ const (
 	// TokenValidPeriod is the default amount of minutes a token is valid
 	TokenValidPeriod = 60
 )
+
+var (
+	// ErrTokenInvalid happens when a token could not be validated because of an unknown reason
+	ErrTokenInvalid = TokenInvalidError{fmt.Errorf("token invalid")}
+)
+
+// TokenInvalidError happens when a token could not be validated because of an unknown reason
+type TokenInvalidError struct{ error }
+
+// TokenSignatureError happens when the signature could not be verified with the given public key
+type TokenSignatureError struct{ error }
+
+// TokenExpiredError happens when the token has expired or is not yet valid
+type TokenExpiredError struct{ error }
+
+// TokenMalformedError happens when the token is not the correct format
+type TokenMalformedError struct{ error }
 
 // Tokeniser is the auth tokeniser for JSON Web Tokens
 type Tokeniser struct {
@@ -137,4 +155,20 @@ func (t *Tokeniser) GetTokenExpiry(raw string) time.Time {
 		expiry = time.Unix(claims.ExpiresAt, 0)
 	}
 	return expiry
+}
+
+func handleParseErr(err error) error {
+	if _, ok := err.(*jwt.ValidationError); ok {
+		// Handle any token specific errors.
+		if err.(*jwt.ValidationError).Errors&jwt.ValidationErrorMalformed != 0 {
+			return TokenMalformedError{fmt.Errorf("token malformed: %v", err)}
+		} else if err.(*jwt.ValidationError).Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
+			return TokenExpiredError{fmt.Errorf("%v", err)}
+		} else if err.(*jwt.ValidationError).Errors&jwt.ValidationErrorSignatureInvalid != 0 {
+			return TokenSignatureError{fmt.Errorf("token signature invalid: %v", err)}
+		} else {
+			return TokenInvalidError{fmt.Errorf("token invalid: %v", err)}
+		}
+	}
+	return err
 }
