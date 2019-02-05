@@ -91,16 +91,18 @@ func (b *RSAPublicKeyBroker) run(ctx context.Context) {
 	for {
 		select {
 		case <-b.cancelled:
+			log.Printf("rsa public key broker cancelled\n")
 			return
 		case <-b.ticker.C:
 			select {
 			case <-b.renew:
 				if err := b.get(ctx); err != nil {
-					log.Printf("RSA broker interval error: %v\n", err)
+					log.Printf("rsa public key broker interval error: %v\n", err)
 				}
 			default:
 			}
 		case <-ctx.Done():
+			log.Printf("rsa public key broker quit due to context timeout\n")
 			return
 		}
 	}
