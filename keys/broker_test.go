@@ -21,6 +21,12 @@ W+kIFfkbaZVWbkUYAwIDAQAB
 -----END PUBLIC KEY-----`
 )
 
+type badSource struct{}
+
+func (s *badSource) Get(ctx context.Context) ([]byte, error) {
+	return []byte{}, nil
+}
+
 func Test_MockRSAPublicKey(t *testing.T) {
 	private, err := rsa.GenerateKey(rand.Reader, 128)
 	if err != nil {
@@ -44,11 +50,15 @@ func Test_BrokerRSAPublicKey(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	broker, cancel := keys.BrokerRSAPublicKey(ctx, source, tick)
-	defer cancel()
-
+	b1, c1 := keys.BrokerRSAPublicKey(ctx, source, tick)
+	defer c1()
 	time.Sleep(10 * time.Millisecond)
-	deepEqual(t, *pk, broker.Copy())
+	deepEqual(t, *pk, b1.Copy())
+
+	b2, c2 := keys.BrokerRSAPublicKey(ctx, &badSource{}, tick)
+	defer c2()
+	time.Sleep(10 * time.Millisecond)
+	deepEqual(t, *keys.DefaultRSA, b2.Copy())
 }
 
 func deepEqual(tb testing.TB, expected, actual interface{}) {
