@@ -106,22 +106,6 @@ func (t *Tokeniser) GenerateToken(consumer *Consumer) (string, error) {
 	return newToken.SignedString(t.privateKey)
 }
 
-// ValidateToken validates an authentication token and returns true/false
-// based upon the result.
-func (t *Tokeniser) ValidateToken(raw string) (bool, error) {
-	token, err := jwt.ParseWithClaims(raw, &Claims{}, checkSignatureFunc(t.publicKey))
-	// Bail out if the token could not be parsed
-	if err != nil {
-		return false, handleParseErr(err)
-	}
-	// Check the claims and token are valid.
-	if _, ok := token.Claims.(*Claims); !ok || !token.Valid {
-		return false, ErrTokenInvalid
-	}
-
-	return true, nil
-}
-
 // ParseToken takes a string and returns a valid jwt token
 func (t *Tokeniser) ParseToken(raw string) (*jwt.Token, error) {
 	// Parse the JWT token
