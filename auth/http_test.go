@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/LUSHDigital/microservice-core-golang/keys"
+
 	"github.com/LUSHDigital/microservice-core-golang/auth"
 	"github.com/LUSHDigital/microservice-core-golang/response"
 	jwt "github.com/dgrijalva/jwt-go"
@@ -42,7 +44,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 			notBefore:            time.Now().Add(-1 * time.Hour).Unix(),
 			expiresAt:            time.Now().Add(-1 * time.Minute).Unix(),
 			expectedStatusCode:   http.StatusUnauthorized,
-			expectedErrorMessage: "token expired or not yet valid",
+			expectedErrorMessage: "token is expired by 1m0s",
 		},
 		{
 			name:                 "token is not ready yet",
@@ -52,7 +54,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 			notBefore:            time.Now().Add(1 * time.Minute).Unix(),
 			expiresAt:            time.Now().Add(1 * time.Hour).Unix(),
 			expectedStatusCode:   http.StatusUnauthorized,
-			expectedErrorMessage: "token expired or not yet valid",
+			expectedErrorMessage: "token is not valid yet",
 		},
 		{
 			name:                 "issuedAt is in the future",
@@ -62,7 +64,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 			notBefore:            time.Now().Add(1 * time.Minute).Unix(),
 			expiresAt:            time.Now().Add(1 * time.Hour).Unix(),
 			expectedStatusCode:   http.StatusUnauthorized,
-			expectedErrorMessage: "token expired or not yet valid",
+			expectedErrorMessage: "token is not valid yet",
 		},
 		{
 			name:                 "token not signed with matching key",
@@ -72,7 +74,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 			notBefore:            time.Now().Add(-1 * time.Hour).Unix(),
 			expiresAt:            time.Now().Add(1 * time.Hour).Unix(),
 			expectedStatusCode:   http.StatusUnauthorized,
-			expectedErrorMessage: "invalid token",
+			expectedErrorMessage: "token signature invalid: crypto/rsa: verification error",
 		},
 	}
 
@@ -86,6 +88,8 @@ func TestHandlerValidateJWT(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+
+		brk := keys.MockRSAPublicKey(*publicKey)
 
 		// create our test consumer
 		consumer := auth.Consumer{
@@ -122,7 +126,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 		rr := httptest.NewRecorder()
 
 		// call the handler
-		handler := auth.HandlerValidateJWT(publicKey, okHandler)
+		handler := auth.HandlerValidateJWT(brk, okHandler)
 		handler.ServeHTTP(rr, req)
 
 		if status := rr.Code; status != tc.expectedStatusCode {
@@ -160,6 +164,5 @@ func TestHandlerValidateJWT(t *testing.T) {
 
 func okHandler(w http.ResponseWriter, r *http.Request) {
 	consumer := auth.ConsumerFromContext(r.Context())
-
 	response.New(http.StatusOK, "", &response.Data{Type: "consumer", Content: consumer}).WriteTo(w)
 }

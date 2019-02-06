@@ -17,7 +17,7 @@ var (
 	// JWTPublicKeyDefaultFileSource represents the source of an RSA public key on disk
 	JWTPublicKeyDefaultFileSource = FileSource("/usr/local/var/jwt.pub")
 
-	// JWTPublicKeySources represents a chain of sources for JWT Public Keys
+	// JWTPublicKeySources represents a chain of sources for JWT Public Keys in order of priority
 	JWTPublicKeySources = Sources{
 		JWTPublicKeyEnvStringSource,
 		JWTPublicKeyEnvFileSource,
