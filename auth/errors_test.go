@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func TestErrUnexpectedSigningMethod_Error(t *testing.T) {
-	e := ErrUnexpectedSigningMethod{alg: "test"}
+func TestUnexpectedSigningMethodError_Error(t *testing.T) {
+	e := UnexpectedSigningMethodError{alg: "test"}
 	deepEqual(t, "unexpected signing method: test", e.Error())
 }
 
