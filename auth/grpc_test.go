@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"google.golang.org/grpc"
+
 	"google.golang.org/grpc/metadata"
 
 	"google.golang.org/grpc/status"
@@ -15,6 +17,20 @@ import (
 
 	"github.com/LUSHDigital/microservice-core-golang/auth"
 )
+
+func TestGRPCMiddleware(t *testing.T) {
+	token := "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJjb25zdW1lciI6eyJpZCI6OTk5LCJmaXJzdF9uYW1lIjoiVGVzdHkiLCJsYXN0X25hbWUiOiJNY1Rlc3QiLCJsYW5ndWFnZSI6IiIsImdyYW50cyI6WyJ0ZXN0aW5nLnJlYWQiLCJ0ZXN0aW5nLmNyZWF0ZSJdfSwiZXhwIjoxNTE4NjAzNzIwLCJqdGkiOiIyNTAwYjk3MS0wNTcxLTQ4Y2UtYmUzOS1jNWJhNGQwZmU0MGIiLCJpc3MiOiJ0ZXN0aW5nIn0."
+	pk, err := jwt.ParseRSAPublicKeyFromPEM([]byte(testPublicKey))
+	if err != nil {
+		t.Fatal(err)
+	}
+	brk := keys.MockRSAPublicKey(*pk)
+	grpc.StreamInterceptor(auth.StreamServerInterceptor(brk))
+	grpc.UnaryInterceptor(auth.UnaryServerInterceptor(brk))
+
+	grpc.WithStreamInterceptor(auth.StreamClientInterceptor(token))
+	grpc.WithUnaryInterceptor(auth.UnaryClientInterceptor(token))
+}
 
 func TestInterceptServerJWT(t *testing.T) {
 	cases := []struct {
