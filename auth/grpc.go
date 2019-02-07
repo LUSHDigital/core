@@ -70,8 +70,8 @@ func InterceptServerJWT(ctx context.Context, brk keys.RSAPublicKeyCopierRenewer)
 	raw := tokens[0]
 	pk := brk.Copy()
 
-	tokeniser := &Tokeniser{publicKey: &pk}
-	token, err := tokeniser.ParseToken(raw)
+	parser := Parser{publicKey: &pk}
+	claims, err := parser.Claims(raw)
 	if err != nil {
 		if err != nil {
 			switch err.(type) {
@@ -83,8 +83,7 @@ func InterceptServerJWT(ctx context.Context, brk keys.RSAPublicKeyCopierRenewer)
 			return consumer, status.Error(codes.Unauthenticated, err.Error())
 		}
 	}
-	consumer = token.Claims.(*Claims).Consumer
-	return consumer, nil
+	return claims.Consumer, nil
 }
 
 // UnaryServerInterceptor is a gRPC server-side interceptor that checks that JWT provided is valid for unary procedures

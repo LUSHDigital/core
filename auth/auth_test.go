@@ -1,10 +1,13 @@
 package auth_test
 
 import (
+	"crypto/rsa"
 	"log"
 	"os"
 	"reflect"
 	"testing"
+
+	"github.com/dgrijalva/jwt-go"
 
 	"github.com/LUSHDigital/microservice-core-golang/auth"
 )
@@ -37,17 +40,35 @@ OoPozRgG8msH03tC9+esdfseftddfsefes8LnYF6cA7j4lBwnjOJ3Omts5CXwtVS
 2rsFqvITfh0XNQq6W1JB2igTzezpybvpY3M157NImF0ijRPMcxP2qAjP7YgWjuDX
 W+kIFfkbaZVWbkUYAwIDAQAB
 -----END PUBLIC KEY-----`
+
+	issuer *auth.Issuer
+	parser *auth.Parser
+
+	correctPK   *rsa.PublicKey
+	incorrectPK *rsa.PublicKey
 )
 
 func TestMain(m *testing.M) {
-	if tokeniser, err = auth.NewTokeniserFromKeyPair([]byte(testPrivateKey), []byte(testPublicKey), "testing"); err != nil {
-		log.Fatalf("could not parse JWT keys: %s", err)
+	var err error
+	issuer, err = auth.NewIssuerFromPrivateKeyPEM(auth.IssuerConfig{
+		Name: "test",
+	}, []byte(testPrivateKey))
+	if err != nil {
+		log.Fatalln(err)
 	}
-
+	parser = issuer.Parser()
+	correctPK, err = jwt.ParseRSAPublicKeyFromPEM([]byte(testPublicKey))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	incorrectPK, err = jwt.ParseRSAPublicKeyFromPEM([]byte(testIncorrectPublicKey))
+	if err != nil {
+		log.Fatalln(err)
+	}
 	os.Exit(m.Run())
 }
 
-func deepEqual(tb testing.TB, expected, actual interface{}) {
+func equals(tb testing.TB, expected, actual interface{}) {
 	if !reflect.DeepEqual(expected, actual) {
 		tb.Fatalf("\n\texp: %#[1]v (%[1]T)\n\tgot: %#[2]v (%[2]T)\n", expected, actual)
 	}
