@@ -5,9 +5,7 @@ import (
 	"strings"
 
 	"github.com/LUSHDigital/microservice-core-golang/keys"
-
 	"github.com/LUSHDigital/microservice-core-golang/response"
-	"github.com/gofrs/uuid"
 )
 
 const (
@@ -21,8 +19,8 @@ func HandlerValidateJWT(brk keys.RSAPublicKeyCopierRenewer, next http.HandlerFun
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		raw := strings.TrimPrefix(r.Header.Get(authHeader), authHeaderPrefix)
 		pk := brk.Copy()
-		tokeniser := &Tokeniser{publicKey: &pk}
-		token, err := tokeniser.ParseToken(raw)
+		parser := Parser{publicKey: &pk}
+		claims, err := parser.Claims(raw)
 		if err != nil {
 			switch err.(type) {
 			case TokenSignatureError:
@@ -31,25 +29,8 @@ func HandlerValidateJWT(brk keys.RSAPublicKeyCopierRenewer, next http.HandlerFun
 			response.New(http.StatusUnauthorized, err.Error(), nil).WriteTo(w)
 			return
 		}
-		ctx := ContextWithConsumer(r.Context(), token.Claims.(*Claims).Consumer)
+		ctx := ContextWithConsumer(r.Context(), claims.Consumer)
 		next.ServeHTTP(w, r.WithContext(ctx))
-	})
-}
-
-// EnsureRequestID will create a Request ID header if one is not found.
-// It will then place the request ID into the request's context.
-func EnsureRequestID(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("x-request-id") == "" {
-			requestID, err := uuid.NewV4()
-			if err != nil {
-				response.InternalError(err).WriteTo(w)
-				return
-			}
-			r.Header.Add("x-request-id", requestID.String())
-		}
-		ctxWithReqID := NewContextWithRequestID(r.Context(), r)
-		next.ServeHTTP(w, r.WithContext(ctxWithReqID))
 	})
 }
 
