@@ -100,9 +100,9 @@ func TestInterceptServerJWT(t *testing.T) {
 				if !ok {
 					t.Errorf("unknown status from err: %v", err)
 				}
-				deepEqual(t, c.code, s.Code())
+				equals(t, c.code, s.Code())
 			} else {
-				deepEqual(t, nil, err)
+				equals(t, nil, err)
 			}
 		})
 	}
@@ -127,8 +127,8 @@ func TestContextWithJWTMetadata(t *testing.T) {
 			ctx := context.Background()
 			out := auth.ContextWithJWTMetadata(ctx, c.jwt)
 			md, ok := metadata.FromOutgoingContext(out)
-			deepEqual(t, true, ok)
-			deepEqual(t, c.jwt, md.Get("auth-token")[0])
+			equals(t, true, ok)
+			equals(t, c.jwt, md.Get("auth-token")[0])
 		})
 	}
 }
