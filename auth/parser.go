@@ -56,14 +56,16 @@ func (p *Parser) Token(raw string) (*jwt.Token, error) {
 		return p.publicKey, nil
 	})
 	if err != nil {
-		if err, ok := err.(*jwt.ValidationError); ok {
-			if err.Errors&jwt.ValidationErrorMalformed != 0 {
+		switch err := err.(type) {
+		case *jwt.ValidationError:
+			switch {
+			case err.Errors&jwt.ValidationErrorMalformed != 0:
 				return nil, TokenMalformedError{fmt.Errorf("token malformed: %v", err)}
-			} else if err.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
+			case err.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0:
 				return nil, TokenExpiredError{fmt.Errorf("%v", err)}
-			} else if err.Errors&jwt.ValidationErrorSignatureInvalid != 0 {
+			case err.Errors&jwt.ValidationErrorSignatureInvalid != 0:
 				return nil, TokenSignatureError{fmt.Errorf("token signature invalid: %v", err)}
-			} else {
+			default:
 				return nil, TokenInvalidError{fmt.Errorf("token invalid: %v", err)}
 			}
 		}
