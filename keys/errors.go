@@ -29,4 +29,7 @@ var (
 
 	// ErrEmptyFilePath represents an error for when an expected file path is an empty string
 	ErrEmptyFilePath = ErrGetKeySource{"file path cannot be empty"}
+
+	// ErrEmptyString represents an error for when an expected string should contain a public key
+	ErrEmptyString = ErrGetKeySource{"string cannot be empty"}
 )
