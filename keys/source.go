@@ -87,5 +87,8 @@ type StringSource string
 
 // Get converts the string to a byte slice
 func (source StringSource) Get(ctx context.Context) ([]byte, error) {
+	if source == "" {
+		return nil, ErrEmptyString
+	}
 	return []byte(source), nil
 }
