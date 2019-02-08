@@ -120,6 +120,12 @@ func TestStringSource(t *testing.T) {
 			expectedBytes: []byte("barbaz"),
 			expectedErr:   nil,
 		},
+		{
+			name:          "when source is empty",
+			source:        keys.StringSource(""),
+			expectedBytes: nil,
+			expectedErr:   keys.ErrEmptyString,
+		},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
