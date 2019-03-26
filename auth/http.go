@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/LUSHDigital/core/keys"
 	"github.com/LUSHDigital/core/response"
 )
 
@@ -15,7 +14,7 @@ const (
 )
 
 // HandlerValidateJWT takes a JWT from the request headers, attempts validation and returns a http handler.
-func HandlerValidateJWT(brk keys.RSAPublicKeyCopierRenewer, next http.HandlerFunc) http.HandlerFunc {
+func HandlerValidateJWT(brk RSAPublicKeyCopierRenewer, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		raw := strings.TrimPrefix(r.Header.Get(authHeader), authHeaderPrefix)
 		pk := brk.Copy()
