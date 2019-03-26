@@ -1,4 +1,5 @@
-// Package env provides functionality for ensuring we retrieve an environment variable
+// Package env provides functionality for ensuring we retrieve an environment
+// variable
 package env
 
 import (

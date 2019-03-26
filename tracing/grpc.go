@@ -15,7 +15,8 @@ const (
 )
 
 var (
-	// ErrNewRequestID happens when the application failed to generate a new request id
+	// ErrNewRequestID happens when the application failed to generate a new
+	// request id
 	ErrNewRequestID = status.Error(codes.InvalidArgument, "request id could not be generated")
 
 	// ErrMetadataMissing happens when there is no metadata with the request
@@ -39,7 +40,8 @@ func InterceptServerRequestID(ctx context.Context) (string, error) {
 	return rids[0], nil
 }
 
-// UnaryServerInterceptor is a gRPC server-side unary interceptor that checks that there is a request ID and ensures one gets set
+// UnaryServerInterceptor is a gRPC server-side unary interceptor that checks
+// that there is a request ID and ensures one gets set
 func UnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	rid, err := InterceptServerRequestID(ctx)
 	if err != nil {
@@ -48,7 +50,8 @@ func UnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.Una
 	return handler(ContextWithRequestID(ctx, rid), req)
 }
 
-// StreamServerInterceptor is a gRPC server-side streaming interceptor that checks that there is a request ID and ensures one gets set
+// StreamServerInterceptor is a gRPC server-side streaming interceptor that checks
+// that there is a request ID and ensures one gets set
 func StreamServerInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 	rid, err := InterceptServerRequestID(ss.Context())
 	if err != nil {
