@@ -4,7 +4,7 @@ It contains several middlewares for HTTP and GRPC to aid streamlining the authen
 
 ## Examples
 
-### HTTP Middleware
+### HTTP middleware
 
 ```go
 package main
@@ -31,5 +31,39 @@ func main() {
 			http.Error(w, "access denied", http.StatusUnauthorized)
 		}
 	}))
+}
+```
+
+### gRPC middleware
+
+```go
+package main
+
+import (
+	"context"
+	"log"
+	"net"
+	"time"
+
+	"github.com/LUSHDigital/core/auth"
+	"github.com/LUSHDigital/core/keys"
+
+	"google.golang.org/grpc"
+)
+
+func main() {
+	broker, cancel := keys.BrokerRSAPublicKey(context.Background(), keys.JWTPublicKeySources, 5*time.Second)
+	defer cancel()
+
+	srv := grpc.NewServer(
+		grpc.StreamInterceptor(auth.StreamServerInterceptor(broker)),
+		grpc.UnaryInterceptor(auth.UnaryServerInterceptor(broker)),
+	)
+
+	l, err := net.Listen("tpc", ":50051")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	srv.Serve(l)
 }
 ```
