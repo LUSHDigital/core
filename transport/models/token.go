@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/LUSHDigital/microservice-core-golang/transport/config"
+	"github.com/LUSHDigital/core/transport/config"
 	"fmt"
 )
 

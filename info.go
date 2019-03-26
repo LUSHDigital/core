@@ -2,7 +2,7 @@ package microservicecore
 
 import (
 	"net/http"
-	"github.com/LUSHDigital/microservice-core-golang/env"
+	"github.com/LUSHDigital/core/env"
 )
 
 // MicroserviceInfo - Represents information about this microservice.

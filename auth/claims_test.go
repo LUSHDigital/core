@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/LUSHDigital/microservice-core-golang/auth"
+	"github.com/LUSHDigital/core/auth"
 	"github.com/dgrijalva/jwt-go"
 )
 

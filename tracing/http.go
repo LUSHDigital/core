@@ -3,7 +3,7 @@ package tracing
 import (
 	"net/http"
 
-	"github.com/LUSHDigital/microservice-core-golang/response"
+	"github.com/LUSHDigital/core/response"
 	"github.com/gofrs/uuid"
 )
 

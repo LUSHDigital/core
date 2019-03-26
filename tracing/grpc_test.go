@@ -3,8 +3,7 @@ package tracing_test
 import (
 	"testing"
 
-	"github.com/LUSHDigital/microservice-core-golang/tracing"
-
+	"github.com/LUSHDigital/core/tracing"
 	"google.golang.org/grpc"
 )
 

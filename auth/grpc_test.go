@@ -12,10 +12,10 @@ import (
 
 	"google.golang.org/grpc/codes"
 
-	"github.com/LUSHDigital/microservice-core-golang/keys"
+	"github.com/LUSHDigital/core/keys"
 	jwt "github.com/dgrijalva/jwt-go"
 
-	"github.com/LUSHDigital/microservice-core-golang/auth"
+	"github.com/LUSHDigital/core/auth"
 )
 
 func TestGRPCMiddleware(t *testing.T) {

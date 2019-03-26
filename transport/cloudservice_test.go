@@ -12,9 +12,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/LUSHDigital/microservice-core-golang/response"
-	"github.com/LUSHDigital/microservice-core-golang/transport/models"
-	"github.com/LUSHDigital/microservice-core-golang/transport/config"
+	"github.com/LUSHDigital/core/response"
+	"github.com/LUSHDigital/core/transport/models"
+	"github.com/LUSHDigital/core/transport/config"
 )
 
 func TestCloudService_Dial(t *testing.T) {

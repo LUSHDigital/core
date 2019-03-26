@@ -9,7 +9,7 @@ import (
 	"path"
 	"testing"
 
-	"github.com/LUSHDigital/microservice-core-golang/keys"
+	"github.com/LUSHDigital/core/keys"
 )
 
 type SourceFunc func(ctx context.Context) ([]byte, error)

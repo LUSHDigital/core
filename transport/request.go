@@ -3,7 +3,7 @@ package transport
 import (
 	"io"
 	"net/url"
-	"github.com/LUSHDigital/microservice-core-golang/transport/config"
+	"github.com/LUSHDigital/core/transport/config"
 )
 
 // Request - Models a request to a service.

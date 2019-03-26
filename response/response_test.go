@@ -12,7 +12,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/LUSHDigital/microservice-core-golang/pagination"
+	"github.com/LUSHDigital/core/pagination"
 )
 
 func init() {

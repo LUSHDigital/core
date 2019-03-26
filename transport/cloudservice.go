@@ -9,11 +9,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/LUSHDigital/microservice-core-golang/response"
-	"github.com/LUSHDigital/microservice-core-golang/transport/models"
-	transportErrors "github.com/LUSHDigital/microservice-core-golang/transport/errors"
-	"github.com/LUSHDigital/microservice-core-golang/transport/config"
-	"github.com/LUSHDigital/microservice-core-golang/transport/domain"
+	"github.com/LUSHDigital/core/response"
+	"github.com/LUSHDigital/core/transport/models"
+	transportErrors "github.com/LUSHDigital/core/transport/errors"
+	"github.com/LUSHDigital/core/transport/config"
+	"github.com/LUSHDigital/core/transport/domain"
 	"io/ioutil"
 )
 

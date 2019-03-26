@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/LUSHDigital/microservice-core-golang/pagination"
+	"github.com/LUSHDigital/core/pagination"
 )
 
 // Standard response statuses.
