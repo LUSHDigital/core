@@ -2,8 +2,6 @@ package tracing
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/gofrs/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -21,9 +19,6 @@ var (
 
 	// ErrMetadataMissing happens when there is no metadata with the request
 	ErrMetadataMissing = status.Error(codes.InvalidArgument, "metadata missing")
-
-	// ErrRequestIDMissing happens when there is no request id in the metadata
-	ErrRequestIDMissing = status.Error(codes.InvalidArgument, fmt.Sprintf("metadata missing: %s", metaRequestIDKey))
 )
 
 // InterceptServerRequestID will derive a request id from the context
