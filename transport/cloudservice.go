@@ -9,12 +9,13 @@ import (
 	"strconv"
 	"strings"
 
+	"io/ioutil"
+
 	"github.com/LUSHDigital/core/response"
-	"github.com/LUSHDigital/core/transport/models"
-	transportErrors "github.com/LUSHDigital/core/transport/errors"
 	"github.com/LUSHDigital/core/transport/config"
 	"github.com/LUSHDigital/core/transport/domain"
-	"io/ioutil"
+	transportErrors "github.com/LUSHDigital/core/transport/errors"
+	"github.com/LUSHDigital/core/transport/models"
 )
 
 // AuthCredentials - Credentials needed to authenticate for a cloud service.

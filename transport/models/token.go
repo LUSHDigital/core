@@ -1,8 +1,9 @@
 package models
 
 import (
-	"github.com/LUSHDigital/core/transport/config"
 	"fmt"
+
+	"github.com/LUSHDigital/core/transport/config"
 )
 
 // Token - An authentication token.
