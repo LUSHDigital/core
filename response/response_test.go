@@ -136,10 +136,7 @@ func TestResponse_ExtractData(t *testing.T) {
 }
 
 func TestPaginatedResponse_ExtractData(t *testing.T) {
-	paginator, err := pagination.NewPaginator(1, 1, len(expectedResponseData))
-	if err != nil {
-		t.Errorf("TestPaginatedResponse_ExtractData: %s", err)
-	}
+	paginator := pagination.MakeResponse(pagination.Request{PerPage: 1, Page: 1}, uint64(len(expectedResponseData)))
 
 	resp := NewPaginated(paginator, http.StatusOK, "", preparedData)
 
