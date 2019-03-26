@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 	"path"
 	"testing"
 
@@ -31,14 +30,14 @@ var (
 	foobarStringSource = keys.StringSource("foobar")
 	barbazStringSource = keys.StringSource("barbaz")
 
-	onePubPath  = keys.FileSource(path.Join(wd(), "fixtures", "one.pub"))
+	onePubPath  = keys.FileSource(path.Join("testdata", "one.pub"))
 	onePubBytes = []byte(`-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCckVt+i52W4M6XuPyd3u40SPql
 YbhRB9XiOBZJztokBc5SJet0i9OsakKKnLbZevsM3MPI+Oj4hwsqp9oLDrJ1LXJy
 IqI0OfMqq0f+YiPc0A6Uou1HiMDGSt7grwHkPVF7PDYeiNIAFR6e+rdTdWGLulx3
 eCLysKk3KiS+JZF/twIDAQAB
 -----END PUBLIC KEY-----`)
-	twoPubPath  = keys.FileSource(path.Join(wd(), "fixtures", "two.pub"))
+	twoPubPath  = keys.FileSource(path.Join("testdata", "two.pub"))
 	twoPubBytes = []byte(`-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkeaMV5IrxxcoK6xpFaR6wBCTp
 1CZTOB3sCWuFG0YaGYo/4w4O2WVUUoYN4/dvZbHAyUAeeLT5+T4s6pLBebbzooU+
@@ -169,7 +168,7 @@ func TestHTTPSource(t *testing.T) {
 		panic(err)
 	}
 	port := l.Addr().(*net.TCPAddr).Port
-	fs := http.FileServer(http.Dir(path.Join(wd(), "fixtures")))
+	fs := http.FileServer(http.Dir(path.Join("testdata")))
 	go http.Serve(l, fs)
 
 	cases := []struct {
@@ -198,12 +197,4 @@ func TestHTTPSource(t *testing.T) {
 			deepEqual(t, c.expectedErr, err)
 		})
 	}
-}
-
-func wd() string {
-	pwd, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	return pwd
 }
