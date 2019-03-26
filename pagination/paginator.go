@@ -4,7 +4,7 @@ package pagination
 
 import "math"
 
-// PaginationRequest derives the requested pagination data given by the client.
+// Request derives the requested pagination data given by the client.
 type Request struct {
 	PerPage, Page uint64
 }
