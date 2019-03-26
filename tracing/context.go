@@ -10,7 +10,8 @@ const (
 	requestIDKey key = iota
 )
 
-// ContextWithRequestID takes a context and an *http.Request and returns a new context with the RequestID.
+// ContextWithRequestID takes a context and an *http.Request and returns a new
+// context with the RequestID.
 func ContextWithRequestID(ctx context.Context, rid string) context.Context {
 	return context.WithValue(ctx, requestIDKey, rid)
 }
