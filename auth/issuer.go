@@ -6,9 +6,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/google/uuid"
-
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gofrs/uuid"
 )
 
 const (
@@ -71,12 +70,16 @@ func NewMockIssuer() (*Issuer, error) {
 
 // Issue generates and returns a JWT authentication token for a private key
 func (i *Issuer) Issue(consumer *Consumer) (string, error) {
+	id, err := uuid.NewV4()
+	if err != nil {
+		return "", err
+	}
 	claims := Claims{
 		Consumer: *consumer,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Duration(i.tokenValidPeriod) * time.Minute).Unix(),
 			Issuer:    i.name,
-			Id:        uuid.New().String(),
+			Id:        id.String(),
 		},
 	}
 	return i.IssueWithClaims(claims)
