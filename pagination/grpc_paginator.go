@@ -13,7 +13,11 @@ import (
 	"strconv"
 )
 
-const consumerKey = iota
+type key int
+
+const (
+	consumerKey key = iota
+)
 
 // ErrMetadataMissing happens when there is no metadata with the request
 var ErrMetadataMissing = status.Error(codes.InvalidArgument, "metadata missing")
