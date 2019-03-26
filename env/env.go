@@ -1,3 +1,4 @@
+// Package env provides functionality for ensuring we retrieve an environment variable
 package env
 
 import (
@@ -5,8 +6,8 @@ import (
 	"os"
 )
 
-// MustGet - Return an environment variable by name.
-// If the requested variable does not exist, throw a fatal error.
+// MustGet returns an environment variable by name
+// If the requested variable does not exist, we throw a fatal error
 func MustGet(name string) string {
 	envVar, ok := os.LookupEnv(name)
 	if !ok {
