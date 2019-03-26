@@ -17,5 +17,8 @@ func ContextWithConsumer(parent context.Context, consumer Consumer) context.Cont
 
 // ConsumerFromContext extracts the consumer from the supplied context.
 func ConsumerFromContext(ctx context.Context) Consumer {
-	return ctx.Value(consumerKey).(Consumer)
+	if c, ok := ctx.Value(consumerKey).(Consumer); ok {
+		return c
+	}
+	return Consumer{}
 }
