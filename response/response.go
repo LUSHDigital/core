@@ -182,15 +182,15 @@ func (r *Response) GetCode() int {
 
 // PaginatedResponse - A paginated response format for a microservice.
 type PaginatedResponse struct {
-	Status     string               `json:"status"`         // Can be 'ok' or 'fail'
-	Code       int                  `json:"code"`           // Any valid HTTP response code
-	Message    string               `json:"message"`        // Any relevant message (optional)
-	Data       *Data                `json:"data,omitempty"` // Data to pass along to the response (optional)
-	Pagination *pagination.Response `json:"pagination"`     // Pagination data
+	Status     string              `json:"status"`         // Can be 'ok' or 'fail'
+	Code       int                 `json:"code"`           // Any valid HTTP response code
+	Message    string              `json:"message"`        // Any relevant message (optional)
+	Data       *Data               `json:"data,omitempty"` // Data to pass along to the response (optional)
+	Pagination pagination.Response `json:"pagination"`     // Pagination data
 }
 
 // NewPaginated returns a new PaginatedResponse for a microservice endpoint
-func NewPaginated(paginator *pagination.Paginator, code int, message string, data *Data) *PaginatedResponse {
+func NewPaginated(paginator pagination.Response, code int, message string, data *Data) *PaginatedResponse {
 	var status string
 	switch {
 	case code >= http.StatusOK && code < http.StatusBadRequest:
@@ -203,7 +203,7 @@ func NewPaginated(paginator *pagination.Paginator, code int, message string, dat
 		Status:     status,
 		Message:    message,
 		Data:       data,
-		Pagination: paginator.PrepareResponse(),
+		Pagination: paginator,
 	}
 }
 
