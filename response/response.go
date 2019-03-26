@@ -82,20 +82,6 @@ func DBErrorf(format string, err error) *Response {
 	return New(http.StatusInternalServerError, msg, nil)
 }
 
-// SQLError - currently only wraps DBError
-//
-// Deprecated: This function has been made redundant by the more generic DBError
-func SQLError(err error) *Response {
-	return DBError(err)
-}
-
-// SQLErrorf - currently only wraps DBErrorf
-//
-// Deprecated: This function has been made redundant by the more generic DBErrorf
-func SQLErrorf(format string, err error) *Response {
-	return DBErrorf(format, err)
-}
-
 // JSONError returns a prepared 422 Unprocessable Entity response if the JSON is found to
 // contain syntax errors, or invalid values for types.
 func JSONError(err error) *Response {
@@ -182,15 +168,15 @@ func (r *Response) GetCode() int {
 
 // PaginatedResponse - A paginated response format for a microservice.
 type PaginatedResponse struct {
-	Status     string               `json:"status"`         // Can be 'ok' or 'fail'
-	Code       int                  `json:"code"`           // Any valid HTTP response code
-	Message    string               `json:"message"`        // Any relevant message (optional)
-	Data       *Data                `json:"data,omitempty"` // Data to pass along to the response (optional)
-	Pagination *pagination.Response `json:"pagination"`     // Pagination data
+	Status     string              `json:"status"`         // Can be 'ok' or 'fail'
+	Code       int                 `json:"code"`           // Any valid HTTP response code
+	Message    string              `json:"message"`        // Any relevant message (optional)
+	Data       *Data               `json:"data,omitempty"` // Data to pass along to the response (optional)
+	Pagination pagination.Response `json:"pagination"`     // Pagination data
 }
 
 // NewPaginated returns a new PaginatedResponse for a microservice endpoint
-func NewPaginated(paginator *pagination.Paginator, code int, message string, data *Data) *PaginatedResponse {
+func NewPaginated(paginator pagination.Response, code int, message string, data *Data) *PaginatedResponse {
 	var status string
 	switch {
 	case code >= http.StatusOK && code < http.StatusBadRequest:
@@ -203,7 +189,7 @@ func NewPaginated(paginator *pagination.Paginator, code int, message string, dat
 		Status:     status,
 		Message:    message,
 		Data:       data,
-		Pagination: paginator.PrepareResponse(),
+		Pagination: paginator,
 	}
 }
 
