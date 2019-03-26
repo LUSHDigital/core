@@ -3,8 +3,6 @@ package auth
 import (
 	"context"
 
-	"github.com/LUSHDigital/core/keys"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -57,7 +55,7 @@ func (s *authenticatedClientStream) Context() context.Context {
 }
 
 // InterceptServerJWT will check the context metadata for a JWT
-func InterceptServerJWT(ctx context.Context, brk keys.RSAPublicKeyCopierRenewer) (Consumer, error) {
+func InterceptServerJWT(ctx context.Context, brk RSAPublicKeyCopierRenewer) (Consumer, error) {
 	var consumer Consumer
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
@@ -87,7 +85,7 @@ func InterceptServerJWT(ctx context.Context, brk keys.RSAPublicKeyCopierRenewer)
 }
 
 // UnaryServerInterceptor is a gRPC server-side interceptor that checks that JWT provided is valid for unary procedures
-func UnaryServerInterceptor(brk keys.RSAPublicKeyCopierRenewer) func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+func UnaryServerInterceptor(brk RSAPublicKeyCopierRenewer) func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		consumer, err := InterceptServerJWT(ctx, brk)
 		if err != nil {
@@ -99,7 +97,7 @@ func UnaryServerInterceptor(brk keys.RSAPublicKeyCopierRenewer) func(ctx context
 }
 
 // StreamServerInterceptor is a gRPC server-side interceptor that checks that JWT provided is valid for streaming procedures
-func StreamServerInterceptor(brk keys.RSAPublicKeyCopierRenewer) func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+func StreamServerInterceptor(brk RSAPublicKeyCopierRenewer) func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		consumer, err := InterceptServerJWT(ss.Context(), brk)
 		if err != nil {

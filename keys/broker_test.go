@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/LUSHDigital/core/keys"
+	"github.com/LUSHDigital/core/keys/keysmock"
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -33,7 +34,7 @@ func Test_MockRSAPublicKey(t *testing.T) {
 		t.Fatal(err)
 	}
 	public := private.PublicKey
-	mock := keys.MockRSAPublicKey(public)
+	mock := keysmock.MockRSAPublicKey(public)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,13 +51,15 @@ func Test_BrokerRSAPublicKey(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	b1, c1 := keys.BrokerRSAPublicKey(ctx, source, tick)
-	defer c1()
+	b1 := keys.BrokerRSAPublicKey(ctx, source, tick)
+	defer b1.Close()
+
 	time.Sleep(10 * time.Millisecond)
 	deepEqual(t, *pk, b1.Copy())
 
-	b2, c2 := keys.BrokerRSAPublicKey(ctx, &badSource{}, tick)
-	defer c2()
+	b2 := keys.BrokerRSAPublicKey(ctx, &badSource{}, tick)
+	defer b2.Close()
+
 	time.Sleep(10 * time.Millisecond)
 	deepEqual(t, *keys.DefaultRSA, b2.Copy())
 }

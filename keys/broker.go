@@ -16,15 +16,14 @@ type Renewer interface {
 	Renew()
 }
 
+// Closer represents behaviour for closing a broker
+type Closer interface {
+	Close()
+}
+
 // RSAPublicKeyCopier represents behaviour for distributing copies of public keys
 type RSAPublicKeyCopier interface {
 	Copy() rsa.PublicKey
-}
-
-// RSAPublicKeyCopierRenewer represents the combination of a Copier and Renewer interface
-type RSAPublicKeyCopierRenewer interface {
-	RSAPublicKeyCopier
-	Renewer
 }
 
 var (
@@ -33,10 +32,10 @@ var (
 )
 
 // BrokerRSAPublicKey will broker a public key from a source on an interval
-func BrokerRSAPublicKey(ctx context.Context, source Source, tick time.Duration) (RSAPublicKeyCopierRenewer, func()) {
+func BrokerRSAPublicKey(ctx context.Context, source Source, interval time.Duration) *RSAPublicKeyBroker {
 	broker := &RSAPublicKeyBroker{
 		source:    source,
-		ticker:    time.NewTicker(tick),
+		ticker:    time.NewTicker(interval),
 		key:       DefaultRSA,
 		renew:     make(chan struct{}, 1),
 		cancelled: make(chan struct{}, 1),
@@ -44,12 +43,13 @@ func BrokerRSAPublicKey(ctx context.Context, source Source, tick time.Duration) 
 
 	// Make sure the broker is marked for renewal immediately
 	broker.Renew()
+
 	// Begin the key renewal
 	go broker.run(ctx)
 
 	// Return the broker together with a separate cancel function
 	// We do this to ensure cancellation is handeled correctly
-	return broker, broker.cancel
+	return broker
 }
 
 // RSAPublicKeyBroker defines the implementation for brokering an RSA public key
@@ -79,7 +79,7 @@ func (b *RSAPublicKeyBroker) Renew() {
 }
 
 // Close stops the ticker and releases resources
-func (b *RSAPublicKeyBroker) cancel() {
+func (b *RSAPublicKeyBroker) Close() {
 	// Close the cancelled channel first to stop all select switches
 	close(b.cancelled)
 	b.ticker.Stop()
@@ -119,26 +119,4 @@ func (b *RSAPublicKeyBroker) get(ctx context.Context) error {
 	}
 	b.key = key
 	return nil
-}
-
-// MockRSAPublicKey resolves any source and returns a mocked RSAPublicKeyCopier and Renewer
-func MockRSAPublicKey(key rsa.PublicKey) RSAPublicKeyCopierRenewer {
-	return &RSAPublicKeyBrokerMock{
-		key: &key,
-	}
-}
-
-// RSAPublicKeyBrokerMock defines the implementation for brokering an RSA public key during testing
-type RSAPublicKeyBrokerMock struct {
-	key *rsa.PublicKey
-}
-
-// Copy returns a shallow copy o the RSA public key
-func (b *RSAPublicKeyBrokerMock) Copy() rsa.PublicKey {
-	return *b.key
-}
-
-// Renew is a no-op
-func (b *RSAPublicKeyBrokerMock) Renew() {
-	// no-op
 }

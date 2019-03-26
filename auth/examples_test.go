@@ -6,14 +6,13 @@ import (
 	"net/http"
 
 	"github.com/LUSHDigital/core/auth"
-	"github.com/LUSHDigital/core/keys"
 
 	"github.com/gorilla/mux"
 	"google.golang.org/grpc"
 )
 
 var (
-	broker keys.RSAPublicKeyCopierRenewer
+	broker auth.RSAPublicKeyCopierRenewer
 )
 
 func ExampleStreamServerInterceptor() {
