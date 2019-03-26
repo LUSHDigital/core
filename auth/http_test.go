@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/LUSHDigital/microservice-core-golang/keys"
+	"github.com/LUSHDigital/core/keys"
 
-	"github.com/LUSHDigital/microservice-core-golang/auth"
-	"github.com/LUSHDigital/microservice-core-golang/response"
+	"github.com/LUSHDigital/core/auth"
+	"github.com/LUSHDigital/core/response"
 	jwt "github.com/dgrijalva/jwt-go"
 )
 

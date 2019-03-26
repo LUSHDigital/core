@@ -3,7 +3,7 @@ package auth_test
 import (
 	"testing"
 
-	"github.com/LUSHDigital/microservice-core-golang/auth"
+	"github.com/LUSHDigital/core/auth"
 )
 
 var (

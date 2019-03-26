@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/LUSHDigital/microservice-core-golang/transport/config"
+	"github.com/LUSHDigital/core/transport/config"
 )
 
 // NewResource returns a new service

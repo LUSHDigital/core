@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/LUSHDigital/microservice-core-golang/keys"
+	"github.com/LUSHDigital/core/keys"
 	"github.com/dgrijalva/jwt-go"
 )
 

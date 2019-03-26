@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/LUSHDigital/microservice-core-golang/auth"
+	"github.com/LUSHDigital/core/auth"
 )
 
 func TestContext(t *testing.T) {

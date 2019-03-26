@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 
-	"github.com/LUSHDigital/microservice-core-golang/keys"
+	"github.com/LUSHDigital/core/keys"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

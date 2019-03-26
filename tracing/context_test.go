@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/LUSHDigital/microservice-core-golang/tracing"
+	"github.com/LUSHDigital/core/tracing"
 )
 
 func TestContext(t *testing.T) {

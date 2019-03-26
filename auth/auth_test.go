@@ -9,7 +9,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 
-	"github.com/LUSHDigital/microservice-core-golang/auth"
+	"github.com/LUSHDigital/core/auth"
 )
 
 var (

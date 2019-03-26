@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/LUSHDigital/microservice-core-golang/keys"
-	"github.com/LUSHDigital/microservice-core-golang/response"
+	"github.com/LUSHDigital/core/keys"
+	"github.com/LUSHDigital/core/response"
 )
 
 const (

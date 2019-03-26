@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/LUSHDigital/microservice-core-golang/response"
-	"github.com/LUSHDigital/microservice-core-golang/transport/config"
+	"github.com/LUSHDigital/core/response"
+	"github.com/LUSHDigital/core/transport/config"
 )
 
 func TestService_Dial(t *testing.T) {
