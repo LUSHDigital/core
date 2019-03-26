@@ -7,63 +7,26 @@ It contains several middlewares for HTTP and GRPC to aid streamlining the authen
 ### HTTP middleware
 
 ```go
-package main
-
-import (
-	"context"
-	"net/http"
-	"time"
-
-	"github.com/LUSHDigital/core/auth"
-	"github.com/LUSHDigital/core/keys"
-
-	"github.com/gorilla/mux"
-)
-
-func main() {
-	r := mux.NewRouter()
-	broker, cancel := keys.BrokerRSAPublicKey(context.Background(), keys.JWTPublicKeySources, 5*time.Second)
-	defer cancel()
-
-	r.Handle("/", auth.HandlerValidateJWT(broker, func(w http.ResponseWriter, r *http.Request) {
-		consumer := auth.ConsumerFromContext(r.Context())
-		if !consumer.HasAnyGrant("users.read") {
-			http.Error(w, "access denied", http.StatusUnauthorized)
-		}
-	}))
-}
+r := mux.NewRouter()
+r.Handle("/users", auth.HandlerValidateJWT(broker, func(w http.ResponseWriter, r *http.Request) {
+	consumer := auth.ConsumerFromContext(r.Context())
+	if !consumer.HasAnyGrant("users.read") {
+		http.Error(w, "access denied", http.StatusUnauthorized)
+	}
+}))
 ```
 
 ### gRPC middleware
 
 ```go
-package main
-
-import (
-	"context"
-	"log"
-	"net"
-	"time"
-
-	"github.com/LUSHDigital/core/auth"
-	"github.com/LUSHDigital/core/keys"
-
-	"google.golang.org/grpc"
+srv := grpc.NewServer(
+	grpc.StreamInterceptor(auth.StreamServerInterceptor(broker)),
+	grpc.UnaryInterceptor(auth.UnaryServerInterceptor(broker)),
 )
 
-func main() {
-	broker, cancel := keys.BrokerRSAPublicKey(context.Background(), keys.JWTPublicKeySources, 5*time.Second)
-	defer cancel()
-
-	srv := grpc.NewServer(
-		grpc.StreamInterceptor(auth.StreamServerInterceptor(broker)),
-		grpc.UnaryInterceptor(auth.UnaryServerInterceptor(broker)),
-	)
-
-	l, err := net.Listen("tpc", ":50051")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	srv.Serve(l)
+l, err := net.Listen("tpc", ":50051")
+if err != nil {
+	log.Fatalln(err)
 }
+log.Fatalln(srv.Serve(l))
 ```
