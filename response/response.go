@@ -82,20 +82,6 @@ func DBErrorf(format string, err error) *Response {
 	return New(http.StatusInternalServerError, msg, nil)
 }
 
-// SQLError - currently only wraps DBError
-//
-// Deprecated: This function has been made redundant by the more generic DBError
-func SQLError(err error) *Response {
-	return DBError(err)
-}
-
-// SQLErrorf - currently only wraps DBErrorf
-//
-// Deprecated: This function has been made redundant by the more generic DBErrorf
-func SQLErrorf(format string, err error) *Response {
-	return DBErrorf(format, err)
-}
-
 // JSONError returns a prepared 422 Unprocessable Entity response if the JSON is found to
 // contain syntax errors, or invalid values for types.
 func JSONError(err error) *Response {
