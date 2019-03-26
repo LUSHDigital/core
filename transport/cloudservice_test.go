@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/LUSHDigital/core/response"
-	"github.com/LUSHDigital/core/transport/models"
 	"github.com/LUSHDigital/core/transport/config"
+	"github.com/LUSHDigital/core/transport/models"
 )
 
 func TestCloudService_Dial(t *testing.T) {
