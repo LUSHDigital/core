@@ -44,5 +44,4 @@ func HandlerGrants(grants []string, next http.HandlerFunc) http.HandlerFunc {
 		}
 		response.New(http.StatusUnauthorized, msgMissingRequiredGrants, nil).WriteTo(w)
 	})
-
 }
