@@ -5,17 +5,14 @@ import (
 	"testing"
 
 	"google.golang.org/grpc"
-
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
-
 	"google.golang.org/grpc/status"
 
-	"google.golang.org/grpc/codes"
-
-	"github.com/LUSHDigital/core/keys"
 	jwt "github.com/dgrijalva/jwt-go"
 
 	"github.com/LUSHDigital/core/auth"
+	"github.com/LUSHDigital/core/keys/keysmock"
 )
 
 func TestGRPCMiddleware(t *testing.T) {
@@ -24,7 +21,7 @@ func TestGRPCMiddleware(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	brk := keys.MockRSAPublicKey(*pk)
+	brk := keysmock.MockRSAPublicKey(*pk)
 	grpc.StreamInterceptor(auth.StreamServerInterceptor(brk))
 	grpc.UnaryInterceptor(auth.UnaryServerInterceptor(brk))
 
@@ -93,7 +90,7 @@ func TestInterceptServerJWT(t *testing.T) {
 				md.Set("auth-token", c.jwt)
 			}
 			ctx := metadata.NewIncomingContext(context.Background(), md)
-			brk := keys.MockRSAPublicKey(*pk)
+			brk := keysmock.MockRSAPublicKey(*pk)
 			_, err = auth.InterceptServerJWT(ctx, brk)
 			if c.errors {
 				s, ok := status.FromError(err)

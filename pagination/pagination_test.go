@@ -1,6 +1,7 @@
 package pagination_test
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/LUSHDigital/core/pagination"
@@ -59,15 +60,20 @@ func TestMakeResponse(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			paginator := pagination.MakeResponse(pagination.Request{PerPage: tc.perPage, Page: tc.page}, tc.total)
-			if paginator.Offset != tc.expectedOffset {
-				t.Fatalf("offset: want: %v\ngot: %v", tc.expectedOffset, paginator.Offset)
+			res := pagination.MakeResponse(pagination.Request{PerPage: tc.perPage, Page: tc.page}, tc.total)
+			if res.Offset != tc.expectedOffset {
+				t.Fatalf("offset: want: %v\ngot: %v", tc.expectedOffset, res.Offset)
 			}
 
-			if paginator.LastPage != tc.expectedLastPage {
-				t.Fatalf("last page: want: %v\ngot: %v", tc.expectedLastPage, paginator.LastPage)
+			if res.LastPage != tc.expectedLastPage {
+				t.Fatalf("last page: want: %v\ngot: %v", tc.expectedLastPage, res.LastPage)
 			}
 		})
 	}
 }
 
+func equals(tb testing.TB, expected, actual interface{}) {
+	if !reflect.DeepEqual(expected, actual) {
+		tb.Fatalf("\n\texp: %#[1]v (%[1]T)\n\tgot: %#[2]v (%[2]T)\n", expected, actual)
+	}
+}
