@@ -7,9 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/LUSHDigital/core/keys"
-
 	"github.com/LUSHDigital/core/auth"
+	"github.com/LUSHDigital/core/keys/keysmock"
 	"github.com/LUSHDigital/core/response"
 	jwt "github.com/dgrijalva/jwt-go"
 )
@@ -22,14 +21,14 @@ func TestHandlerValidateJWT(t *testing.T) {
 
 	cases := []struct {
 		name                 string
-		broker               keys.RSAPublicKeyCopierRenewer
+		broker               auth.RSAPublicKeyCopierRenewer
 		claims               auth.Claims
 		expectedStatusCode   int
 		expectedErrorMessage string
 	}{
 		{
 			name:   "token is good",
-			broker: keys.MockRSAPublicKey(*correctPK),
+			broker: keysmock.MockRSAPublicKey(*correctPK),
 			claims: auth.Claims{
 				StandardClaims: jwt.StandardClaims{
 					IssuedAt:  time.Now().Add(-2 * time.Hour).Unix(),
@@ -43,7 +42,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 		},
 		{
 			name:   "token has expired",
-			broker: keys.MockRSAPublicKey(*correctPK),
+			broker: keysmock.MockRSAPublicKey(*correctPK),
 			claims: auth.Claims{
 				StandardClaims: jwt.StandardClaims{
 					IssuedAt:  time.Now().Add(-2 * time.Hour).Unix(),
@@ -57,7 +56,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 		},
 		{
 			name:   "token is not ready yet",
-			broker: keys.MockRSAPublicKey(*correctPK),
+			broker: keysmock.MockRSAPublicKey(*correctPK),
 			claims: auth.Claims{
 				StandardClaims: jwt.StandardClaims{
 					IssuedAt:  time.Now().Add(-2 * time.Hour).Unix(),
@@ -71,7 +70,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 		},
 		{
 			name:   "issuedAt is in the future",
-			broker: keys.MockRSAPublicKey(*correctPK),
+			broker: keysmock.MockRSAPublicKey(*correctPK),
 			claims: auth.Claims{
 				StandardClaims: jwt.StandardClaims{
 					IssuedAt:  time.Now().Add(1 * time.Hour).Unix(),
@@ -85,7 +84,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 		},
 		{
 			name:   "token not signed with matching key",
-			broker: keys.MockRSAPublicKey(*incorrectPK),
+			broker: keysmock.MockRSAPublicKey(*incorrectPK),
 			claims: auth.Claims{
 				StandardClaims: jwt.StandardClaims{
 					IssuedAt:  time.Now().Add(-2 * time.Hour).Unix(),
