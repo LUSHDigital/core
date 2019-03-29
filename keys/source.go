@@ -3,7 +3,9 @@ package keys
 import (
 	"context"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -52,7 +54,11 @@ func (source HTTPSource) Get(ctx context.Context) ([]byte, error) {
 	if err != nil {
 		return nil, ErrGetKeySource{err}
 	}
-	defer res.Body.Close()
+	defer func(c io.Closer) {
+		if err := c.Close(); err != nil {
+			log.Println(err)
+		}
+	}(res.Body)
 	if res.StatusCode != http.StatusOK {
 		return nil, ErrGetKeySource{fmt.Sprintf("got status code %d got %d", http.StatusOK, res.StatusCode)}
 	}
