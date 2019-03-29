@@ -25,6 +25,15 @@ func (s *badSource) Get(ctx context.Context) ([]byte, error) {
 	return []byte{}, nil
 }
 
+func ExampleBrokerRSAPublicKey() {
+	broker := keys.BrokerRSAPublicKey(context.Background(), keys.JWTPublicKeySources, 5*time.Second)
+	defer broker.Close()
+
+	// Queue retrieval of new key
+	broker.Renew()
+
+	// Copy the current public key held by the broker
+	broker.Copy()
 }
 
 func Test_BrokerRSAPublicKey(t *testing.T) {
