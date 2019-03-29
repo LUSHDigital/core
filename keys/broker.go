@@ -48,7 +48,7 @@ func BrokerRSAPublicKey(ctx context.Context, source Source, interval time.Durati
 	go broker.run(ctx)
 
 	// Return the broker together with a separate cancel function
-	// We do this to ensure cancellation is handeled correctly
+	// We do this to ensure cancellation is handled correctly
 	return broker
 }
 
