@@ -5,11 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
-
-	"io/ioutil"
 
 	"github.com/LUSHDigital/core/response"
 	"github.com/LUSHDigital/core/transport/config"

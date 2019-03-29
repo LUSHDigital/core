@@ -1,3 +1,5 @@
+// Package transport defines a set of interface and methods for communicating
+// with services and aggregators.
 package transport
 
 import "net/http"
