@@ -3,7 +3,7 @@ Package keys implements a background broker conmtinous retrieval of public keys 
 
 ## Examples
 
-```
+```go
 broker := keys.BrokerRSAPublicKey(context.Background(), keys.JWTPublicKeySources, 5*time.Second)
 defer broker.Close()
 
