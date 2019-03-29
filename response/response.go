@@ -11,6 +11,60 @@ import (
 	"github.com/LUSHDigital/core/pagination"
 )
 
+type data struct {
+	Type    string `json:"type"`
+	Content json.RawMessage
+}
+
+func (d *data) UnmarshalJSON(b []byte) error {
+	var data = make(map[string]interface{})
+	if err := json.Unmarshal(b, &data); err != nil {
+		log.Printf("cannot unmarshal data: %v", err)
+	}
+	var count int
+	for _, value := range data {
+		switch value.(type) {
+		case map[string]interface{}, []interface{}:
+			count++
+		}
+	}
+	if count > 1 {
+		return nil
+	}
+	for key, value := range data {
+		switch value.(type) {
+		case map[string]interface{}, []interface{}:
+			b, err := json.Marshal(data[key])
+			if err != nil {
+				return nil
+			}
+			d.Type = key
+			d.Content = b
+		}
+	}
+
+	return nil
+}
+
+// UnmarshalResponseJSON returns a particular item of data from the response.
+func UnmarshalResponseJSON(d []byte, dst interface{}) error {
+	type envelope struct {
+		Data *data `json:"data"`
+	}
+	var e envelope
+	if err := json.Unmarshal(d, &e); err != nil {
+		return err
+	}
+	if e.Data == nil {
+		return nil
+	}
+	err := json.Unmarshal(e.Data.Content, dst)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // Responder defines the behaviour of a response for JSON over HTTP.
 type Responder interface {
 	WriteTo(w http.ResponseWriter) error
@@ -25,16 +79,21 @@ type Response struct {
 }
 
 // WriteTo writes a JSON response to a HTTP writer.
-func (r *Response) WriteTo(w http.ResponseWriter) error {
+func (r Response) WriteTo(w http.ResponseWriter) error {
+	return WriteTo(r.Code, r, w)
+}
+
+// WriteTo writes any JSON response to a HTTP writer.
+func WriteTo(code int, i interface{}, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(r.Code)
+	w.WriteHeader(code)
 
 	// Don't attempt to write a body for 204s.
-	if r.Code == http.StatusNoContent {
+	if code == http.StatusNoContent {
 		return nil
 	}
 
-	return json.NewEncoder(w).Encode(r)
+	return json.NewEncoder(w).Encode(i)
 }
 
 // Data represents the collection data the the response will return to the consumer.
