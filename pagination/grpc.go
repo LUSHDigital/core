@@ -46,7 +46,7 @@ func InterceptServerRequest(ctx context.Context) (Request, error) {
 
 // UnaryServerInterceptor is a gRPC server-side interceptor that checks that JWT
 // provided is valid for unary procedures
-func UnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+func UnaryServerInterceptor(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	pr, err := InterceptServerRequest(ctx)
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func UnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.Una
 }
 
 // StreamServerInterceptor is a gRPC server-side interceptor that checks that JWT provided is valid for streaming procedures
-func StreamServerInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+func StreamServerInterceptor(srv interface{}, ss grpc.ServerStream, _ *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 	pr, err := InterceptServerRequest(ss.Context())
 	if err != nil {
 		return err
