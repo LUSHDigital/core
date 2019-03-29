@@ -2,7 +2,6 @@ package pagination
 
 import (
 	"context"
-	"errors"
 	"strconv"
 
 	"google.golang.org/grpc"
@@ -11,20 +10,19 @@ import (
 
 // InterceptServerRequest returns a new Response instance from the provided
 // context, or returns an error if it fails, or finds the context to be invalid.
-func InterceptServerRequest(ctx context.Context) (pr Request, err error) {
+func InterceptServerRequest(ctx context.Context) (Request, error) {
+	var (
+		req Request
+		err error
+	)
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return pr, ErrMetadataMissing
+		return req, nil
 	}
-
-	var (
-		perPage, page uint64
-	)
-
 	extract := func(key string, md metadata.MD) (uint64, error) {
 		val := md.Get(key)
 		if len(val) < 1 {
-			return 0, ErrMetadataInvalid(key, errors.New("invalid length"))
+			return 0, nil
 		}
 		n, err := strconv.ParseUint(val[0], 10, 64)
 		if err != nil {
@@ -33,15 +31,17 @@ func InterceptServerRequest(ctx context.Context) (pr Request, err error) {
 		return n, nil
 	}
 
-	perPage, err = extract("per_page", md)
+	req.PerPage, err = extract("per_page", md)
 	if err != nil {
-		return pr, err
+		return req, err
 	}
-	page, err = extract("page", md)
+
+	req.Page, err = extract("page", md)
 	if err != nil {
-		return pr, err
+		return req, err
 	}
-	return Request{PerPage: perPage, Page: page}, nil
+
+	return req, nil
 }
 
 // UnaryServerInterceptor is a gRPC server-side interceptor that checks that JWT
