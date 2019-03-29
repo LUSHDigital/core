@@ -1,3 +1,4 @@
+// Package keysmock implements no-op mocks for the keys package
 package keysmock
 
 import "crypto/rsa"
