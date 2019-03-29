@@ -1,3 +1,5 @@
+// Package domain contains domain specific code helpful when using the transport
+// package.
 package domain
 
 // BuildServiceDNSName - Build the full DNS name for a service.

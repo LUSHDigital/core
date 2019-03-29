@@ -1,3 +1,4 @@
+// Package models defines common data types used with the transport package.
 package models
 
 // Consumer - Holds information about an API consumer.

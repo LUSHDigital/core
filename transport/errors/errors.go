@@ -1,3 +1,5 @@
+// Package errors defines common error types used throughout the transport
+// package.
 package errors
 
 // LoginUnauthorisedError - Error to throw when a login was unauthorised.

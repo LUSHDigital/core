@@ -7,6 +7,7 @@ import (
 	"github.com/LUSHDigital/core/pagination"
 )
 
+// TestMakeResponse tests that the response is being tested
 func TestMakeResponse(t *testing.T) {
 	tt := []struct {
 		name             string

@@ -1,3 +1,5 @@
+// Package config defines a set of config options and defaults useful when
+// utilizing the transport package.
 package config
 
 import "os"
