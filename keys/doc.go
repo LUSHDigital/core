@@ -1,3 +1,3 @@
-// Package keys implements a broker allowing the retrieval of public key
-// information from many different possible sources.
+// Package keys implements a background broker conmtinous retrieval of public keys
+// from multiple different type of sources.
 package keys
