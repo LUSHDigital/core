@@ -3,7 +3,7 @@ package response
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -83,16 +83,15 @@ func (d *Data) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-var invalidDataError = errors.New("invalid data provided")
+var errInvalidKeyName = func(key string) error { return fmt.Errorf("invalid key name: %q", key) }
+
 // MarshalJSON implements the Marshaler interface and is there to ensure the output
 // is correct when we return data to the consumer
 func (d *Data) MarshalJSON() ([]byte, error) {
 	if d.Type == "" || strings.Contains(d.Type, " ") {
-		return nil, invalidDataError
+		return nil, errInvalidKeyName(d.Type)
 	}
-
-	m := map[string]interface{}{
+	return json.Marshal(map[string]interface{}{
 		d.Type: d.Content,
-	}
-	return json.Marshal(m)
+	})
 }
