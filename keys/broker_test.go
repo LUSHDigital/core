@@ -2,14 +2,11 @@ package keys_test
 
 import (
 	"context"
-	"crypto/rand"
-	"crypto/rsa"
 	"reflect"
 	"testing"
 	"time"
 
 	"github.com/LUSHDigital/core/keys"
-	"github.com/LUSHDigital/core/keys/keysmock"
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -28,17 +25,15 @@ func (s *badSource) Get(ctx context.Context) ([]byte, error) {
 	return []byte{}, nil
 }
 
-func Test_MockRSAPublicKey(t *testing.T) {
-	private, err := rsa.GenerateKey(rand.Reader, 128)
-	if err != nil {
-		t.Fatal(err)
-	}
-	public := private.PublicKey
-	mock := keysmock.MockRSAPublicKey(public)
-	if err != nil {
-		t.Fatal(err)
-	}
-	deepEqual(t, public, mock.Copy())
+func ExampleBrokerRSAPublicKey() {
+	broker := keys.BrokerRSAPublicKey(context.Background(), keys.JWTPublicKeySources, 5*time.Second)
+	defer broker.Close()
+
+	// Queue retrieval of new key
+	broker.Renew()
+
+	// Copy the current public key held by the broker
+	broker.Copy()
 }
 
 func Test_BrokerRSAPublicKey(t *testing.T) {
