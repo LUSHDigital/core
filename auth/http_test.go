@@ -1,7 +1,6 @@
 package auth_test
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -65,8 +64,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 				},
 				Consumer: defaultConsumer,
 			},
-			expectedStatusCode:   http.StatusUnauthorized,
-			expectedErrorMessage: "token is not valid yet",
+			expectedStatusCode: http.StatusUnauthorized,
 		},
 		{
 			name:   "issuedAt is in the future",
@@ -79,8 +77,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 				},
 				Consumer: defaultConsumer,
 			},
-			expectedStatusCode:   http.StatusUnauthorized,
-			expectedErrorMessage: "token is not valid yet",
+			expectedStatusCode: http.StatusUnauthorized,
 		},
 		{
 			name:   "token not signed with matching key",
@@ -93,8 +90,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 				},
 				Consumer: defaultConsumer,
 			},
-			expectedStatusCode:   http.StatusUnauthorized,
-			expectedErrorMessage: "token signature invalid: crypto/rsa: verification error",
+			expectedStatusCode: http.StatusUnauthorized,
 		},
 	}
 
@@ -113,26 +109,14 @@ func TestHandlerValidateJWT(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			handler := auth.HandlerValidateJWT(c.broker, func(w http.ResponseWriter, r *http.Request) {
 				consumer := auth.ConsumerFromContext(r.Context())
-				response.New(http.StatusOK, "", &response.Data{Type: "consumer", Content: consumer}).WriteTo(w)
+				response.Response{Code: http.StatusOK, Message: "", Data: &response.Data{Type: "consumer", Content: consumer}}.WriteTo(w)
 			})
 			handler.ServeHTTP(recorder, req)
-
 			equals(t, c.expectedStatusCode, recorder.Code)
-
-			var body response.Response
-			if err := json.Unmarshal(recorder.Body.Bytes(), &body); err != nil {
-				t.Fatal(err)
-			}
-
-			equals(t, body.Code, c.expectedStatusCode)
-			equals(t, body.Message, c.expectedErrorMessage)
 
 			if c.expectedStatusCode == http.StatusOK {
 				var consumer auth.Consumer
-				err := body.ExtractData("consumer", &consumer)
-				if err != nil {
-					t.Fatal(err)
-				}
+				response.UnmarshalResponseJSON(recorder.Body.Bytes(), &consumer)
 				equals(t, c.claims.Consumer.ID, consumer.ID)
 			}
 		})
