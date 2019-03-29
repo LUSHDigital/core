@@ -3,12 +3,9 @@ package response
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"reflect"
 	"testing"
 
@@ -19,193 +16,101 @@ func init() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
 }
 
-// An example data type.
-var (
-	// An example data set for testing with.
-	expectedResponseData = map[string]interface{}{
-		"tests":    "ok",
-		"language": "golang",
-	}
-
-	// example Data struct
-	preparedData = &Data{
-		Type:    "tests",
-		Content: expectedResponseData,
-	}
-
-	// An example response object for testing with.
-	expectedResponse = &Response{
-		Status:  StatusOk,
-		Code:    http.StatusOK,
-		Message: "",
-		Data: &Data{
-			Type:    "tests",
-			Content: expectedResponseData,
-		},
-	}
-
-	// An example response object (with data), for a failed response
-	expectedResponseFail = &Response{
-		Status:  StatusFail,
-		Code:    http.StatusBadRequest,
-		Message: "",
-		Data: &Data{
-			Type:    "tests",
-			Content: expectedResponseData,
-		},
-	}
-
-	// An example response object (with no data) for testing with.
-	expectedResponseNoData = &Response{
-		Status:  StatusOk,
-		Code:    http.StatusOK,
-		Message: "",
-	}
-
-	// the expected error in case type is missing
-	errorTypeEmptyWhenDataProvided = "data provided, type cannot be empty"
-)
-
-func TestNew(t *testing.T) {
-	tt := []struct {
-		name     string
-		code     int
-		message  string
-		data     *Data
-		expected *Response
-	}{
-		{
-			name:     "response valid",
-			code:     http.StatusOK,
-			message:  "",
-			data:     preparedData,
-			expected: expectedResponse,
-		},
-		{
-			name:     "response valid",
-			code:     http.StatusBadRequest,
-			message:  "",
-			data:     preparedData,
-			expected: expectedResponseFail,
-		},
-		{
-			name:     "response no data",
-			code:     http.StatusOK,
-			message:  "",
-			data:     nil,
-			expected: expectedResponseNoData,
-		},
-	}
-
-	for _, tc := range tt {
-		t.Run(tc.name, func(t *testing.T) {
-			resp := New(tc.code, tc.message, tc.data)
-
-			if !reflect.DeepEqual(resp, tc.expected) {
-				t.Errorf("want: %v\ngot: %v", tc.expected, resp)
-			}
-		})
-	}
-}
-
-func TestResponse_ExtractData(t *testing.T) {
-	resp := New(http.StatusOK, "", preparedData)
-	//
-	// Extract the data.
-	var dst map[string]interface{}
-	extractedData := resp.ExtractData("tests", dst)
-	//
-	// Compare the data.
-	if reflect.DeepEqual(dst, resp.Data.Map()["test"]) {
-		t.Errorf("TestExtractData: Expected %v got %v", resp.Data.Map()["tests"], extractedData)
-	}
-
-	// test with broken data as well
-	resp = New(http.StatusOK, "", &Data{
-		Content: expectedResponseData,
-	})
-	//
-	// Extract the data.
-	dst = nil
-	extractedData = resp.ExtractData("tests", dst)
-	//
-	// Compare the data.
-	if reflect.DeepEqual(dst, nil) {
-		t.Errorf("TestExtractData: Expected %v got %v", resp.Data.Map()["tests"], extractedData)
-	}
-}
-
-func TestPaginatedResponse_ExtractData(t *testing.T) {
-	paginator := pagination.MakeResponse(pagination.Request{PerPage: 1, Page: 1}, uint64(len(expectedResponseData)))
-
-	resp := NewPaginated(paginator, http.StatusOK, "", preparedData)
-
-	// Extract the data.
-	var dst map[string]interface{}
-	extractedData := resp.ExtractData("tests", dst)
-
-	// Compare the data.
-	if reflect.DeepEqual(dst, resp.Data.Map()["test"]) {
-		t.Errorf("TestExtractData: Expected %v got %v", resp.Data.Map()["tests"], extractedData)
-	}
-
-	// test with broken data as well
-	resp = NewPaginated(paginator, http.StatusOK, "", &Data{
-		Content: expectedResponseData,
-	})
-
-	// Extract the data.
-	dst = nil
-	extractedData = resp.ExtractData("tests", dst)
-
-	// Compare the data.
-	if reflect.DeepEqual(dst, nil) {
-		t.Errorf("TestExtractData: Expected %v got %v", resp.Data.Map()["tests"], extractedData)
-	}
-}
-
 func TestData_MarshalJSON(t *testing.T) {
-	tt := []struct {
-		name string
-		data Data
+	cases := []struct {
+		name     string
+		response *Response
+		expected []byte
+		wantsErr bool
 	}{
 		{
-			name: "correct data",
-			data: Data{
-				Type:    "testCollection",
-				Content: map[string]interface{}{"test": "test"},
+			name: "valid response with pagination",
+			response: &Response{
+				Code:    200,
+				Message: "",
+				Data: &Data{
+					Type:    "test",
+					Content: map[string]interface{}{"test": "test"},
+				},
+				Pagination: &pagination.Response{
+					PerPage:  1,
+					Page:     1,
+					Offset:   0,
+					Total:    1,
+					LastPage: 1,
+				},
 			},
+			expected: []byte(`{"code":200,"message":"","data":{"test":{"test":"test"}},"pagination":{"per_page":1,"page":1,"offset":0,"total":1,"last_page":1}}`),
+			wantsErr: false,
 		},
 		{
-			name: "missing data",
-			data: Data{
-				Type:    "testCollection",
-				Content: map[string]interface{}{},
+			name: "valid response without pagination",
+			response: &Response{
+				Code:    200,
+				Message: "",
+				Data: &Data{
+					Type:    "test",
+					Content: map[string]interface{}{"test": "test"},
+				},
 			},
+			expected: []byte(`{"code":200,"message":"","data":{"test":{"test":"test"}}}`),
+			wantsErr: false,
 		},
 		{
-			name: "missing type",
-			data: Data{
-				Type:    "",
-				Content: map[string]interface{}{"test": "test"},
+			name: "valid response without data",
+			response: &Response{
+				Code:    200,
+				Message: "",
 			},
+			expected: []byte(`{"code":200,"message":""}`),
+			wantsErr: false,
 		},
 		{
-			name: "missing all data",
-			data: Data{
-				Type:    "",
-				Content: nil,
+			name: "invalid response with empty type",
+			response: &Response{
+				Code:    200,
+				Message: "",
+				Data: &Data{
+					Type:    "",
+					Content: map[string]interface{}{"test": "test"},
+				},
 			},
+			expected: []byte(`{"code":200,"message":"","data":{"test":{"test":"test"}}}`),
+			wantsErr: true,
+		},
+		{
+			name: "invalid response with empty type",
+			response: &Response{
+				Code:    200,
+				Message: "",
+				Data: &Data{
+					Type:    "ha ha",
+					Content: map[string]interface{}{"test": "test"},
+				},
+			},
+			expected: []byte(`{"code":200,"message":"","data":{"test":{"test":"test"}}}`),
+			wantsErr: true,
 		},
 	}
-
-	for _, tc := range tt {
-		t.Run(tc.name, func(t *testing.T) {
-			_, err := tc.data.MarshalJSON()
-			if err != nil && err.Error() != errorTypeEmptyWhenDataProvided {
-				t.Errorf("test '%v' failed with error: %v", tc.name, err)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			raw, err := json.Marshal(tt.response)
+			if err != nil && !tt.wantsErr || err == nil && tt.wantsErr {
+				t.Fatal(err)
 			}
+			// in this case, we don't need to compare the data,
+			// we do want to return early.
+			if tt.wantsErr && err != nil {
+				return
+			}
+			equals(t, raw, tt.expected)
 		})
+	}
+}
+
+func equals(tb testing.TB, expected, actual interface{}) {
+	if !reflect.DeepEqual(expected, actual) {
+		tb.Fatalf("\n\texp: %#[1]v (%[1]T)\n\tgot: %#[2]v (%[2]T)\n", expected, actual)
 	}
 }
 
@@ -272,59 +177,6 @@ func TestData_UnmarshalJSON(t *testing.T) {
 	}
 }
 
-func BenchmarkData_UnmarshalJSON(b *testing.B) {
-	log.SetOutput(ioutil.Discard)
-	defer log.SetOutput(os.Stderr)
-	b.ReportAllocs()
-	body := []byte(`{"status":"ok","code":200,"message":"","data":{"collection":{"language":"golang","tests":"ok"}}}`)
-	for i := 0; i < b.N; i++ {
-		var resp *Response
-		json.Unmarshal(body, &resp)
-	}
-}
-
-func TestData_Map(t *testing.T) {
-	tt := []struct {
-		name     string
-		data     Data
-		expected map[string]interface{}
-	}{
-		{
-			name: "map valid data",
-			data: Data{
-				Type: "things",
-				Content: map[string]interface{}{
-					"thing_one": "a thing",
-					"thing_two": "another thing",
-				},
-			},
-			expected: map[string]interface{}{
-				"things": map[string]interface{}{
-					"thing_one": "a thing",
-					"thing_two": "another thing",
-				},
-			},
-		},
-		{
-			name: "map invalid data",
-			data: Data{
-				Content: map[string]interface{}{
-					"thing_one": "a thing",
-					"thing_two": "another thing",
-				},
-			},
-			expected: nil,
-		},
-	}
-	for _, tc := range tt {
-		t.Run(tc.name, func(t *testing.T) {
-			if !reflect.DeepEqual(tc.expected, tc.data.Map()) {
-				t.Errorf("want: %v, got: %v", tc.expected, tc.data.Map())
-			}
-		})
-	}
-}
-
 func TestResponse_WriteTo(t *testing.T) {
 	h := httptest.NewRecorder()
 	type fields struct {
@@ -350,7 +202,6 @@ func TestResponse_WriteTo(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &Response{
-				Status:  tt.fields.Status,
 				Code:    tt.fields.Code,
 				Message: tt.fields.Message,
 				Data:    tt.fields.Data,
@@ -362,7 +213,6 @@ func TestResponse_WriteTo(t *testing.T) {
 
 func TestResponse_WriteTo204(t *testing.T) {
 	r := &Response{
-		Status:  "status",
 		Code:    http.StatusNoContent,
 		Message: "message",
 		Data:    &Data{Type: "type", Content: "content"},
@@ -381,78 +231,6 @@ func TestResponse_WriteTo204(t *testing.T) {
 	}
 }
 
-func BenchmarkData_MarshalJSON(b *testing.B) {
-	log.SetOutput(ioutil.Discard)
-	defer log.SetOutput(os.Stderr)
-	data := Data{
-		Type: "test",
-		Content: map[string]interface{}{
-			"test1": "test1",
-			"test2": "test2",
-			"test3": "test3",
-		},
-	}
-
-	for i := 0; i < b.N; i++ {
-		data.MarshalJSON()
-	}
-}
-
-func BenchmarkData_MarshalJSON_MissingType(b *testing.B) {
-	log.SetOutput(ioutil.Discard)
-	defer log.SetOutput(os.Stderr)
-	data := Data{
-		Content: map[string]interface{}{
-			"test1": "test1",
-			"test2": "test2",
-			"test3": "test3",
-		},
-	}
-
-	for i := 0; i < b.N; i++ {
-		data.MarshalJSON()
-	}
-}
-
-func BenchmarkData_Map(b *testing.B) {
-	log.SetOutput(ioutil.Discard)
-	defer log.SetOutput(os.Stderr)
-	data := Data{
-		Content: map[string]interface{}{
-			"thing_one": "a thing",
-			"thing_two": "another thing",
-		},
-	}
-
-	for i := 0; i < b.N; i++ {
-		data.Map()
-	}
-}
-
-func BenchmarkResponse_ExtractData(b *testing.B) {
-	log.SetOutput(ioutil.Discard)
-	defer log.SetOutput(os.Stderr)
-	resp := New(http.StatusOK, "", preparedData)
-	for i := 0; i < b.N; i++ {
-		var dst map[string]interface{}
-		resp.ExtractData("tests", dst)
-	}
-}
-
-// ExampleNew - Example usage for the New function.
-func ExampleNew() {
-	data := &Data{
-		Type: "things",
-		Content: map[string]interface{}{
-			"thing_one": "a thing",
-			"thing_two": "another thing",
-		},
-	}
-
-	resp := New(http.StatusOK, "test message", data)
-	fmt.Printf("%+v", resp)
-}
-
 func TestDBError(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -463,13 +241,13 @@ func TestDBError(t *testing.T) {
 		{
 			name: "internal error",
 			err:  errors.New("some error"),
-			want: New(http.StatusInternalServerError, "db error: some error", nil),
+			want: &Response{Code: http.StatusInternalServerError, Message: "db error: some error"},
 		},
 		{
 			name:   "internal error errorf",
 			format: "oh noes: %v",
 			err:    errors.New("some error"),
-			want:   New(http.StatusInternalServerError, "oh noes: some error", nil),
+			want:   &Response{Code: http.StatusInternalServerError, Message: "oh noes: some error"},
 		},
 	}
 	for _, tt := range tests {
@@ -504,12 +282,12 @@ func TestJSONError(t *testing.T) {
 					Offset: 99,
 				},
 			},
-			want: New(http.StatusUnprocessableEntity, "json error: ", nil),
+			want: &Response{Code: http.StatusUnprocessableEntity, Message: "json error: "},
 		},
 		{
 			name: "any other error",
 			args: args{err: errors.New("some error")},
-			want: New(http.StatusUnprocessableEntity, "json error: some error", nil),
+			want: &Response{Code: http.StatusUnprocessableEntity, Message: "json error: some error"},
 		},
 	}
 	for _, tt := range tests {
