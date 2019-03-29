@@ -16,7 +16,7 @@ type Responder interface {
 	WriteTo(w http.ResponseWriter) error
 }
 
-// Response - A standardised response format for a microservice.
+// Response defines a JSON response body over HTTP.
 type Response struct {
 	Code       int                  `json:"code"`                 // Any valid HTTP response code
 	Message    string               `json:"message"`              // Any relevant message (optional)
@@ -24,7 +24,7 @@ type Response struct {
 	Pagination *pagination.Response `json:"pagination,omitempty"` // Pagination data
 }
 
-// WriteTo - pick a response writer to write the default json response to.
+// WriteTo writes a JSON response to a HTTP writer.
 func (r *Response) WriteTo(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(r.Code)
