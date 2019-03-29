@@ -46,8 +46,8 @@ func (d *data) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// UnmarshalResponseJSON returns a particular item of data from the response.
-func UnmarshalResponseJSON(d []byte, dst interface{}) error {
+// UnmarshalJSONResponse will unmarshal the data from legacy response envelope.
+func UnmarshalJSONResponse(d []byte, dst interface{}) error {
 	type envelope struct {
 		Data *data `json:"data"`
 	}
