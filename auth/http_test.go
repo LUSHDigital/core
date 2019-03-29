@@ -116,7 +116,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 
 			if c.expectedStatusCode == http.StatusOK {
 				var consumer auth.Consumer
-				response.UnmarshalResponseJSON(recorder.Body.Bytes(), &consumer)
+				response.UnmarshalJSONResponse(recorder.Body.Bytes(), &consumer)
 				equals(t, c.claims.Consumer.ID, consumer.ID)
 			}
 		})
