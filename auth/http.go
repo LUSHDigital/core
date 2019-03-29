@@ -25,7 +25,8 @@ func HandlerValidateJWT(brk RSAPublicKeyCopierRenewer, next http.HandlerFunc) ht
 			case TokenSignatureError:
 				brk.Renew() // Renew the public key if there's an error validating the token signature
 			}
-			response.New(http.StatusUnauthorized, err.Error(), nil).WriteTo(w)
+			res := &response.Response{Code: http.StatusUnauthorized, Message: err.Error()}
+			res.WriteTo(w)
 			return
 		}
 		ctx := ContextWithConsumer(r.Context(), claims.Consumer)
@@ -37,10 +38,11 @@ func HandlerValidateJWT(brk RSAPublicKeyCopierRenewer, next http.HandlerFunc) ht
 func HandlerGrants(grants []string, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		consumer := ConsumerFromContext(r.Context())
-		if consumer.HasAnyGrant(grants...) {
-			next.ServeHTTP(w, r)
+		if !consumer.HasAnyGrant(grants...) {
+			res := &response.Response{Code: http.StatusUnauthorized, Message: msgMissingRequiredGrants}
+			res.WriteTo(w)
 			return
 		}
-		response.New(http.StatusUnauthorized, msgMissingRequiredGrants, nil).WriteTo(w)
+		next.ServeHTTP(w, r)
 	})
 }
