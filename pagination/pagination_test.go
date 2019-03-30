@@ -83,7 +83,7 @@ func equals(tb testing.TB, expected, actual interface{}) {
 	}
 }
 
-func ExamplePagination() {
+func ExampleMakeResponse() {
 	preq := pagination.Request{
 		PerPage: 10,
 		Page:    1,
@@ -93,7 +93,7 @@ func ExamplePagination() {
 	// Output: {PerPage:10 Page:1 Offset:0 Total:100 LastPage:10}
 }
 
-func ExampleOffsetPagination() {
+func ExampleMakeResponse_withOffset() {
 	preq := pagination.Request{
 		PerPage: 10,
 		Page:    2,
@@ -103,7 +103,7 @@ func ExampleOffsetPagination() {
 	// Output: {PerPage:10 Page:2 Offset:10 Total:100 LastPage:10}
 }
 
-func ExamplePaginationResponse() {
+func ExampleMakeResponse_withinResponse() {
 	preq := pagination.Request{
 		PerPage: 10,
 		Page:    2,
