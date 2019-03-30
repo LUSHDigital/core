@@ -1,10 +1,14 @@
 package pagination_test
 
 import (
+	"encoding/json"
+	"fmt"
+	"net/http"
 	"reflect"
 	"testing"
 
 	"github.com/LUSHDigital/core/pagination"
+	"github.com/LUSHDigital/core/response"
 )
 
 // TestMakeResponse tests that the response is being tested
@@ -77,4 +81,61 @@ func equals(tb testing.TB, expected, actual interface{}) {
 	if !reflect.DeepEqual(expected, actual) {
 		tb.Fatalf("\n\texp: %#[1]v (%[1]T)\n\tgot: %#[2]v (%[2]T)\n", expected, actual)
 	}
+}
+
+func ExamplePagination() {
+	preq := pagination.Request{
+		PerPage: 10,
+		Page:    1,
+	}
+	presp := pagination.MakeResponse(preq, 100)
+	fmt.Printf("%+v\n", presp)
+	// Output: {PerPage:10 Page:1 Offset:0 Total:100 LastPage:10}
+}
+
+func ExampleOffsetPagination() {
+	preq := pagination.Request{
+		PerPage: 10,
+		Page:    2,
+	}
+	presp := pagination.MakeResponse(preq, 100)
+	fmt.Printf("%+v\n", presp)
+	// Output: {PerPage:10 Page:2 Offset:10 Total:100 LastPage:10}
+}
+
+func ExamplePaginationResponse() {
+	preq := pagination.Request{
+		PerPage: 10,
+		Page:    2,
+	}
+	presp := pagination.MakeResponse(preq, 100)
+
+	resp := response.Response{
+		Code:    http.StatusOK,
+		Message: "some helpful message",
+		Data: &response.Data{
+			Type:    "some_data",
+			Content: map[string]interface{}{"hello": "world"},
+		},
+		Pagination: &presp,
+	}
+	raw, _ := json.MarshalIndent(resp, "", "\t")
+	fmt.Println(string(raw))
+	// Output:
+	// {
+	// 	"code": 200,
+	// 	"message": "some helpful message",
+	// 	"data": {
+	// 		"some_data": {
+	// 			"hello": "world"
+	// 		}
+	// 	},
+	// 	"pagination": {
+	// 		"per_page": 10,
+	// 		"page": 2,
+	// 		"offset": 10,
+	// 		"total": 100,
+	// 		"last_page": 10
+	// 	}
+	// }
 }
