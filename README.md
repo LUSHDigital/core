@@ -13,3 +13,4 @@ Documentation and examples are provided in README files in each pacakge.
 - [core/pagination](https://github.com/LUSHDigital/core/tree/master/pagination#pagination)
 - [core/response](https://github.com/LUSHDigital/core/tree/master/response#response)
 - [core/tracing](https://github.com/LUSHDigital/core/tree/master/tracing)
+- [core/metrics](https://github.com/LUSHDigital/core/tree/master/metrics)
