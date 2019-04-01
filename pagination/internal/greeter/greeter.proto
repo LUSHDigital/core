@@ -1,0 +1,8 @@
+// Regenerate with:
+// protoc -I pagination/ pagination/testdata/greeter.proto --go_out=plugins=grpc:paginationd
+syntax = "proto3";
+service Greeter {
+    rpc SayHello (Empty) returns (Empty) {
+    }
+}
+message Empty {}
