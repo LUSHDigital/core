@@ -96,7 +96,6 @@ func TestGRPCInterceptor(t *testing.T) {
 		PerPage: 10,
 		Page:    1,
 	})
-	spew.Dump(ctx)
 	if _, err := client.SayHello(ctx, &greeter.Empty{}); err != nil {
 		t.Fatal(err)
 	}
@@ -106,11 +105,9 @@ func TestGRPCInterceptor(t *testing.T) {
 type GreeterServer struct{}
 
 func (*GreeterServer) SayHello(ctx context2.Context, _ *greeter.Empty) (*greeter.Empty, error) {
-	spew.Dump(ctx)
 	req := pagination.RequestFromContext(ctx)
 	if req.Page != 1 && req.PerPage != 10 {
 		return &greeter.Empty{}, errors.New("failed to intercept")
 	}
-
 	return &greeter.Empty{}, nil
 }
