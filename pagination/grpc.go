@@ -2,8 +2,11 @@ package pagination
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"strconv"
 
+	"github.com/davecgh/go-spew/spew"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
@@ -16,6 +19,7 @@ func InterceptServerRequest(ctx context.Context) (Request, error) {
 		err error
 	)
 	md, ok := metadata.FromIncomingContext(ctx)
+	fmt.Printf("found metadata: %v\n", ok)
 	if !ok {
 		return req, nil
 	}
@@ -44,18 +48,21 @@ func InterceptServerRequest(ctx context.Context) (Request, error) {
 	return req, nil
 }
 
-// UnaryServerInterceptor is a gRPC server-side interceptor that checks that JWT
-// provided is valid for unary procedures
+// UnaryServerInterceptor is a gRPC server-side interceptor that checks that
+// pagination is provided is valid for unary procedures
 func UnaryServerInterceptor(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	spew.Dump(ctx)
 	pr, err := InterceptServerRequest(ctx)
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("%#+v\n", pr)
 	resp, err := handler(ContextWithRequest(ctx, pr), req)
 	return resp, err
 }
 
-// StreamServerInterceptor is a gRPC server-side interceptor that checks that JWT provided is valid for streaming procedures
+// StreamServerInterceptor is a gRPC server-side interceptor that checks that
+// pagination provided is valid for streaming procedures
 func StreamServerInterceptor(srv interface{}, ss grpc.ServerStream, _ *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 	pr, err := InterceptServerRequest(ss.Context())
 	if err != nil {
