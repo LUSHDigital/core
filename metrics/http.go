@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -70,8 +71,22 @@ func Register() {
 	prometheus.MustRegister(All...)
 }
 
-// InterceptRequests returns a middleware for collecting metrics on http requests.
-func InterceptRequests(next http.HandlerFunc) http.HandlerFunc {
+// MeasureRequestsMiddleware wraps the measure requests handler in a gorilla mux middleware.
+var MeasureRequestsMiddleware = mux.MiddlewareFunc(MeasureRequestsHandler)
+
+// MeasureRequestsHandler wraps the measure requests handler in a http handler.
+func MeasureRequestsHandler(next http.Handler) http.Handler {
+	switch nxt := next.(type) {
+	case http.HandlerFunc:
+		return MeasureRequests(nxt)
+	default:
+		log.Printf("could not create measure requests handler: invalid handler function\n")
+		return next
+	}
+}
+
+// MeasureRequests returns a middleware for collecting metrics on http requests.
+func MeasureRequests(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var (
 			now = time.Now()
