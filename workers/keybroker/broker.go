@@ -53,6 +53,7 @@ func NewRSA(config ...Config) *RSAPublicKeyBroker {
 	}
 
 	broker := &RSAPublicKeyBroker{
+		interval:  cfg.Interval,
 		source:    cfg.Source,
 		ticker:    time.NewTicker(cfg.Interval),
 		key:       DefaultRSA,
@@ -67,6 +68,7 @@ func NewRSA(config ...Config) *RSAPublicKeyBroker {
 
 // RSAPublicKeyBroker defines the implementation for brokering an RSA public key
 type RSAPublicKeyBroker struct {
+	interval  time.Duration
 	source    Source
 	ticker    *time.Ticker
 	key       *rsa.PublicKey
@@ -101,6 +103,7 @@ func (b *RSAPublicKeyBroker) Close() {
 
 // Run will periodically try and the public key.
 func (b *RSAPublicKeyBroker) Run(ctx context.Context, out io.Writer) error {
+	fmt.Fprintf(out, "running rsa public key broker checking for new key every %d second(s)\n", b.interval/time.Second)
 	for {
 		select {
 		case <-b.cancelled:
