@@ -3,12 +3,16 @@ package authmw_test
 import (
 	"crypto/rsa"
 	"log"
+	"net"
+	"net/http"
 	"os"
 	"reflect"
 	"testing"
 
 	"github.com/LUSHDigital/core/auth"
+	"github.com/LUSHDigital/core/middleware/authmw"
 	jwt "github.com/dgrijalva/jwt-go"
+	"google.golang.org/grpc"
 )
 
 var (
@@ -43,6 +47,7 @@ W+kIFfkbaZVWbkUYAwIDAQAB
 	issuer      *auth.Issuer
 	correctPK   *rsa.PublicKey
 	incorrectPK *rsa.PublicKey
+	broker      auth.RSAPublicKeyCopierRenewer
 )
 
 func TestMain(m *testing.M) {
@@ -62,6 +67,39 @@ func TestMain(m *testing.M) {
 		log.Fatalln(err)
 	}
 	os.Exit(m.Run())
+}
+
+func ExampleStreamServerInterceptor() {
+	srv := grpc.NewServer(
+		grpc.StreamInterceptor(authmw.StreamServerInterceptor(broker)),
+	)
+
+	l, err := net.Listen("tpc", ":50051")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Fatalln(srv.Serve(l))
+}
+
+func ExampleUnaryServerInterceptor() {
+	srv := grpc.NewServer(
+		grpc.UnaryInterceptor(authmw.UnaryServerInterceptor(broker)),
+	)
+
+	l, err := net.Listen("tpc", ":50051")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Fatalln(srv.Serve(l))
+}
+
+func ExampleHandlerValidateJWT() {
+	http.Handle("/users", authmw.HandlerValidateJWT(broker, func(w http.ResponseWriter, r *http.Request) {
+		consumer := auth.ConsumerFromContext(r.Context())
+		if !consumer.HasAnyGrant("users.read") {
+			http.Error(w, "access denied", http.StatusUnauthorized)
+		}
+	}))
 }
 
 func equals(tb testing.TB, expected, actual interface{}) {
