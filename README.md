@@ -18,6 +18,7 @@ Documentation and examples are provided in README files in each pacakge.
 - [core/middleware/tracingmw](https://github.com/LUSHDigital/core/tree/master/middleware/tracingmw)
 - [core/middleware/paginationmw](https://github.com/LUSHDigital/core/tree/master/middleware/paginationmw)
 - [core/middleware/authmw](https://github.com/LUSHDigital/core/tree/master/middleware/authmw)
+- [core/middleware/metricsmw](https://github.com/LUSHDigital/core/tree/master/middleware/metricsmw)
 
 ### Service Workers
 - [core/workers/grpcsrv](https://github.com/LUSHDigital/core/tree/master/workers/grpcsrv)
