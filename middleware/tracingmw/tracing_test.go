@@ -1,4 +1,4 @@
-package tracing_test
+package tracingmw_test
 
 import (
 	"reflect"

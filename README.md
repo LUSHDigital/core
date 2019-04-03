@@ -14,6 +14,9 @@ Documentation and examples are provided in README files in each pacakge.
 - [core/tracing](https://github.com/LUSHDigital/core/tree/master/tracing)
 - [core/metrics](https://github.com/LUSHDigital/core/tree/master/metrics#metrics)
 
+### Middlewares
+- [core/middleware/tracingmw](https://github.com/LUSHDigital/core/tree/master/middleware/tracingmw)
+
 ### Service Workers
 - [core/workers/grpcsrv](https://github.com/LUSHDigital/core/tree/master/workers/grpcsrv)
 - [core/workers/httpsrv](https://github.com/LUSHDigital/core/tree/master/workers/httpsrv)
