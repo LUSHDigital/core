@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/LUSHDigital/core/auth"
+	"github.com/LUSHDigital/core/middleware/authmw"
 
 	"google.golang.org/grpc"
 )
@@ -16,7 +17,7 @@ var (
 
 func ExampleStreamServerInterceptor() {
 	srv := grpc.NewServer(
-		grpc.StreamInterceptor(auth.StreamServerInterceptor(broker)),
+		grpc.StreamInterceptor(authmw.StreamServerInterceptor(broker)),
 	)
 
 	l, err := net.Listen("tpc", ":50051")
@@ -28,7 +29,7 @@ func ExampleStreamServerInterceptor() {
 
 func ExampleUnaryServerInterceptor() {
 	srv := grpc.NewServer(
-		grpc.UnaryInterceptor(auth.UnaryServerInterceptor(broker)),
+		grpc.UnaryInterceptor(authmw.UnaryServerInterceptor(broker)),
 	)
 
 	l, err := net.Listen("tpc", ":50051")
@@ -39,7 +40,7 @@ func ExampleUnaryServerInterceptor() {
 }
 
 func ExampleHandlerValidateJWT() {
-	http.Handle("/users", auth.HandlerValidateJWT(broker, func(w http.ResponseWriter, r *http.Request) {
+	http.Handle("/users", authmw.HandlerValidateJWT(broker, func(w http.ResponseWriter, r *http.Request) {
 		consumer := auth.ConsumerFromContext(r.Context())
 		if !consumer.HasAnyGrant("users.read") {
 			http.Error(w, "access denied", http.StatusUnauthorized)

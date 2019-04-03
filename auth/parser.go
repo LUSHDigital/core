@@ -38,6 +38,11 @@ type Parser struct {
 	publicKey *rsa.PublicKey
 }
 
+// NewParser returns a new parser with a public key.
+func NewParser(pk *rsa.PublicKey) *Parser {
+	return &Parser{publicKey: pk}
+}
+
 // NewParserFromPublicKeyPEM parses a public key to
 func NewParserFromPublicKeyPEM(pkb []byte) (*Parser, error) {
 	pk, err := jwt.ParseRSAPublicKeyFromPEM(pkb)

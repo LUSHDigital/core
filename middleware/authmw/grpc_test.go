@@ -1,4 +1,4 @@
-package auth_test
+package authmw_test
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 
-	"github.com/LUSHDigital/core/auth"
+	"github.com/LUSHDigital/core/middleware/authmw"
 	"github.com/LUSHDigital/core/workers/keybroker/keybrokermock"
 )
 
@@ -22,11 +22,11 @@ func TestGRPCMiddleware(t *testing.T) {
 		t.Fatal(err)
 	}
 	brk := keybrokermock.MockRSAPublicKey(*pk)
-	grpc.StreamInterceptor(auth.StreamServerInterceptor(brk))
-	grpc.UnaryInterceptor(auth.UnaryServerInterceptor(brk))
+	grpc.StreamInterceptor(authmw.StreamServerInterceptor(brk))
+	grpc.UnaryInterceptor(authmw.UnaryServerInterceptor(brk))
 
-	grpc.WithStreamInterceptor(auth.StreamClientInterceptor(token))
-	grpc.WithUnaryInterceptor(auth.UnaryClientInterceptor(token))
+	grpc.WithStreamInterceptor(authmw.StreamClientInterceptor(token))
+	grpc.WithUnaryInterceptor(authmw.UnaryClientInterceptor(token))
 }
 
 func TestInterceptServerJWT(t *testing.T) {
@@ -91,7 +91,7 @@ func TestInterceptServerJWT(t *testing.T) {
 			}
 			ctx := metadata.NewIncomingContext(context.Background(), md)
 			brk := keybrokermock.MockRSAPublicKey(*pk)
-			_, err = auth.InterceptServerJWT(ctx, brk)
+			_, err = authmw.InterceptServerJWT(ctx, brk)
 			if c.errors {
 				s, ok := status.FromError(err)
 				if !ok {
@@ -122,7 +122,7 @@ func TestContextWithJWTMetadata(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			ctx := context.Background()
-			out := auth.ContextWithJWTMetadata(ctx, c.jwt)
+			out := authmw.ContextWithJWTMetadata(ctx, c.jwt)
 			md, ok := metadata.FromOutgoingContext(out)
 			equals(t, true, ok)
 			equals(t, c.jwt, md.Get("auth-token")[0])
