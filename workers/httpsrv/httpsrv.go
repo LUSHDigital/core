@@ -8,10 +8,10 @@ import (
 	"net"
 	"net/http"
 	"runtime"
+	"strconv"
 	"time"
 
 	"github.com/LUSHDigital/core/response"
-	"github.com/LUSHDigital/core/workers/internal/portfmt"
 
 	"github.com/dustin/go-humanize"
 )
@@ -107,8 +107,7 @@ type Server struct {
 
 // Run will start the gRPC server and listen for requests.
 func (gs *Server) Run(ctx context.Context, out io.Writer) error {
-	port := portfmt.Port(gs.Port)
-	lis, err := net.Listen("tcp", port.String())
+	lis, err := net.Listen("tcp", strconv.Itoa(gs.Port))
 	if err != nil {
 		return err
 	}
