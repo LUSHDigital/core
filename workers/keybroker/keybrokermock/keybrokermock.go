@@ -1,4 +1,4 @@
-// package keybrokermock implements no-op mocks for the keys package
+// Package keybrokermock implements no-op mocks for the keys package
 package keybrokermock
 
 import "crypto/rsa"
