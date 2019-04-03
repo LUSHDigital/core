@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -71,8 +70,16 @@ func Register() {
 	prometheus.MustRegister(All...)
 }
 
+// MiddlewareFunc represents a middleware func for use with gorilla mux.
+type MiddlewareFunc func(http.Handler) http.Handler
+
+// Middleware allows MiddlewareFunc to implement the middleware interface.
+func (mw MiddlewareFunc) Middleware(handler http.Handler) http.Handler {
+	return mw(handler)
+}
+
 // MeasureRequestsMiddleware wraps the measure requests handler in a gorilla mux middleware.
-var MeasureRequestsMiddleware = mux.MiddlewareFunc(MeasureRequestsHandler)
+var MeasureRequestsMiddleware = MiddlewareFunc(MeasureRequestsHandler)
 
 // MeasureRequestsHandler wraps the measure requests handler in a http handler.
 func MeasureRequestsHandler(next http.Handler) http.Handler {
