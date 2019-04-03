@@ -1,18 +1,19 @@
-package pagination
+package paginationmw
 
 import (
 	"context"
 	"strconv"
 
+	"github.com/LUSHDigital/core/pagination"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
 // InterceptServerRequest returns a new Response instance from the provided
 // context, or returns an error if it fails, or finds the context to be invalid.
-func InterceptServerRequest(ctx context.Context) (Request, error) {
+func InterceptServerRequest(ctx context.Context) (pagination.Request, error) {
 	var (
-		req Request
+		req pagination.Request
 		err error
 	)
 	md, ok := metadata.FromIncomingContext(ctx)
@@ -26,7 +27,7 @@ func InterceptServerRequest(ctx context.Context) (Request, error) {
 		}
 		n, err := strconv.ParseUint(val[0], 10, 64)
 		if err != nil {
-			return 0, ErrMetadataInvalid(key, err)
+			return 0, pagination.ErrMetadataInvalid(key, err)
 		}
 		return n, nil
 	}
@@ -51,7 +52,7 @@ func UnaryServerInterceptor(ctx context.Context, req interface{}, _ *grpc.UnaryS
 	if err != nil {
 		return nil, err
 	}
-	resp, err := handler(ContextWithRequest(ctx, pr), req)
+	resp, err := handler(pagination.ContextWithRequest(ctx, pr), req)
 	return resp, err
 }
 
@@ -68,9 +69,9 @@ func StreamServerInterceptor(srv interface{}, ss grpc.ServerStream, _ *grpc.Stre
 
 type paginatedServerStream struct {
 	grpc.ServerStream
-	pr Request
+	pr pagination.Request
 }
 
 func (s *paginatedServerStream) Context() context.Context {
-	return ContextWithRequest(s.ServerStream.Context(), s.pr)
+	return pagination.ContextWithRequest(s.ServerStream.Context(), s.pr)
 }
