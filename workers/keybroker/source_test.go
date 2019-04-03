@@ -1,4 +1,4 @@
-package keys_test
+package keybroker_test
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"path"
 	"testing"
 
-	"github.com/LUSHDigital/core/keys"
+	"github.com/LUSHDigital/core/workers/keybroker"
 )
 
 type SourceFunc func(ctx context.Context) ([]byte, error)
@@ -27,17 +27,17 @@ var (
 	oneByteSource = SourceFunc(func(ctx context.Context) ([]byte, error) {
 		return []byte{1}, nil
 	})
-	foobarStringSource = keys.StringSource("foobar")
-	barbazStringSource = keys.StringSource("barbaz")
+	foobarStringSource = keybroker.StringSource("foobar")
+	barbazStringSource = keybroker.StringSource("barbaz")
 
-	onePubPath  = keys.FileSource(path.Join("testdata", "one.pub"))
+	onePubPath  = keybroker.FileSource(path.Join("testdata", "one.pub"))
 	onePubBytes = []byte(`-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCckVt+i52W4M6XuPyd3u40SPql
 YbhRB9XiOBZJztokBc5SJet0i9OsakKKnLbZevsM3MPI+Oj4hwsqp9oLDrJ1LXJy
 IqI0OfMqq0f+YiPc0A6Uou1HiMDGSt7grwHkPVF7PDYeiNIAFR6e+rdTdWGLulx3
 eCLysKk3KiS+JZF/twIDAQAB
 -----END PUBLIC KEY-----`)
-	twoPubPath  = keys.FileSource(path.Join("testdata", "two.pub"))
+	twoPubPath  = keybroker.FileSource(path.Join("testdata", "two.pub"))
 	twoPubBytes = []byte(`-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkeaMV5IrxxcoK6xpFaR6wBCTp
 1CZTOB3sCWuFG0YaGYo/4w4O2WVUUoYN4/dvZbHAyUAeeLT5+T4s6pLBebbzooU+
@@ -49,13 +49,13 @@ Iy0Bo6vikx7871xzuwIDAQAB
 func TestSources(t *testing.T) {
 	cases := []struct {
 		name          string
-		source        keys.Source
+		source        keybroker.Source
 		expectedErr   error
 		expectedBytes []byte
 	}{
 		{
 			name: "when first source is healthy and correct",
-			source: keys.Sources{
+			source: keybroker.Sources{
 				zeroByteSource,
 			},
 			expectedBytes: []byte{0},
@@ -63,7 +63,7 @@ func TestSources(t *testing.T) {
 		},
 		{
 			name: "when all sources are healthy and correct",
-			source: keys.Sources{
+			source: keybroker.Sources{
 				oneByteSource,
 				zeroByteSource,
 			},
@@ -72,7 +72,7 @@ func TestSources(t *testing.T) {
 		},
 		{
 			name: "when first source is faulty and the next is healthy and correct",
-			source: keys.Sources{
+			source: keybroker.Sources{
 				faultySource,
 				zeroByteSource,
 			},
@@ -81,21 +81,21 @@ func TestSources(t *testing.T) {
 		},
 		{
 			name: "when all sources are faulty",
-			source: keys.Sources{
+			source: keybroker.Sources{
 				faultySource,
 				faultySource,
 				faultySource,
 			},
 			expectedBytes: nil,
-			expectedErr:   keys.ErrNoSourcesResolved,
+			expectedErr:   keybroker.ErrNoSourcesResolved,
 		},
 	}
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			bts, err := c.source.Get(context.Background())
-			deepEqual(t, c.expectedBytes, bts)
-			deepEqual(t, c.expectedErr, err)
+			equals(t, c.expectedBytes, bts)
+			equals(t, c.expectedErr, err)
 		})
 	}
 
@@ -103,7 +103,7 @@ func TestSources(t *testing.T) {
 func TestStringSource(t *testing.T) {
 	cases := []struct {
 		name          string
-		source        keys.Source
+		source        keybroker.Source
 		expectedErr   error
 		expectedBytes []byte
 	}{
@@ -121,23 +121,23 @@ func TestStringSource(t *testing.T) {
 		},
 		{
 			name:          "when source is empty",
-			source:        keys.StringSource(""),
+			source:        keybroker.StringSource(""),
 			expectedBytes: nil,
-			expectedErr:   keys.ErrEmptyString,
+			expectedErr:   keybroker.ErrEmptyString,
 		},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			bts, err := c.source.Get(context.Background())
-			deepEqual(t, c.expectedBytes, bts)
-			deepEqual(t, c.expectedErr, err)
+			equals(t, c.expectedBytes, bts)
+			equals(t, c.expectedErr, err)
 		})
 	}
 }
 func TestFileSource(t *testing.T) {
 	cases := []struct {
 		name          string
-		source        keys.Source
+		source        keybroker.Source
 		expectedErr   error
 		expectedBytes []byte
 	}{
@@ -157,8 +157,8 @@ func TestFileSource(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			bts, err := c.source.Get(context.Background())
-			deepEqual(t, c.expectedBytes, bts)
-			deepEqual(t, c.expectedErr, err)
+			equals(t, c.expectedBytes, bts)
+			equals(t, c.expectedErr, err)
 		})
 	}
 }
@@ -173,19 +173,19 @@ func TestHTTPSource(t *testing.T) {
 
 	cases := []struct {
 		name          string
-		source        keys.Source
+		source        keybroker.Source
 		expectedErr   error
 		expectedBytes []byte
 	}{
 		{
 			name:          "when source is 127.0.0.1/one.pub",
-			source:        keys.HTTPSource(fmt.Sprintf("http://127.0.0.1:%d/one.pub", port)),
+			source:        keybroker.HTTPSource(fmt.Sprintf("http://127.0.0.1:%d/one.pub", port)),
 			expectedBytes: onePubBytes,
 			expectedErr:   nil,
 		},
 		{
 			name:          "when source is 127.0.0.1/two.pub",
-			source:        keys.HTTPSource(fmt.Sprintf("http://127.0.0.1:%d/two.pub", port)),
+			source:        keybroker.HTTPSource(fmt.Sprintf("http://127.0.0.1:%d/two.pub", port)),
 			expectedBytes: twoPubBytes,
 			expectedErr:   nil,
 		},
@@ -193,8 +193,8 @@ func TestHTTPSource(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			bts, err := c.source.Get(context.Background())
-			deepEqual(t, c.expectedBytes, bts)
-			deepEqual(t, c.expectedErr, err)
+			equals(t, c.expectedBytes, bts)
+			equals(t, c.expectedErr, err)
 		})
 	}
 }

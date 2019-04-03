@@ -1,10 +1,10 @@
-package keys
+package keybroker
 
 import (
 	"context"
 	"crypto/rsa"
 	"fmt"
-	"log"
+	"io"
 	"math/big"
 	"time"
 
@@ -26,16 +26,35 @@ type RSAPublicKeyCopier interface {
 	Copy() rsa.PublicKey
 }
 
+// Config represents broker configuration
+type Config struct {
+	Interval time.Duration
+	Source   Source
+}
+
 var (
 	// DefaultRSA is an empty RSA public key
 	DefaultRSA = &rsa.PublicKey{E: 0, N: big.NewInt(0)}
 )
 
-// BrokerRSAPublicKey will broker a public key from a source on an interval
-func BrokerRSAPublicKey(ctx context.Context, source Source, interval time.Duration) *RSAPublicKeyBroker {
+// NewRSA returns a rsa public key broker based on configuration.
+func NewRSA(config ...Config) *RSAPublicKeyBroker {
+	var cfg Config
+	if len(config) > 0 {
+		cfg = config[0]
+	} else {
+		cfg = Config{}
+	}
+	if cfg.Source == nil {
+		cfg.Source = JWTPublicKeySources
+	}
+	if cfg.Interval == 0 {
+		cfg.Interval = 5 * time.Second
+	}
+
 	broker := &RSAPublicKeyBroker{
-		source:    source,
-		ticker:    time.NewTicker(interval),
+		source:    cfg.Source,
+		ticker:    time.NewTicker(cfg.Interval),
 		key:       DefaultRSA,
 		renew:     make(chan struct{}, 1),
 		cancelled: make(chan struct{}, 1),
@@ -43,12 +62,6 @@ func BrokerRSAPublicKey(ctx context.Context, source Source, interval time.Durati
 
 	// Make sure the broker is marked for renewal immediately
 	broker.Renew()
-
-	// Begin the key renewal
-	go broker.run(ctx)
-
-	// Return the broker together with a separate cancel function
-	// We do this to ensure cancellation is handled correctly
 	return broker
 }
 
@@ -86,24 +99,22 @@ func (b *RSAPublicKeyBroker) Close() {
 	close(b.renew)
 }
 
-// Run will periodically try and the public key
-func (b *RSAPublicKeyBroker) run(ctx context.Context) {
+// Run will periodically try and the public key.
+func (b *RSAPublicKeyBroker) Run(ctx context.Context, out io.Writer) error {
 	for {
 		select {
 		case <-b.cancelled:
-			log.Printf("rsa public key broker cancelled\n")
-			return
+			return fmt.Errorf("rsa public key broker cancelled")
 		case <-b.ticker.C:
 			select {
 			case <-b.renew:
 				if err := b.get(ctx); err != nil {
-					log.Printf("rsa public key broker interval error: %v\n", err)
+					fmt.Fprintf(out, "rsa public key broker interval error: %v\n", err)
 				}
 			default:
 			}
 		case <-ctx.Done():
-			log.Printf("rsa public key broker quit due to context timeout\n")
-			return
+			return fmt.Errorf("rsa public key broker quit due to context timeout")
 		}
 	}
 }

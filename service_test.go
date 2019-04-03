@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/LUSHDigital/core/workers/keybroker"
+
 	"github.com/LUSHDigital/core"
 	"github.com/LUSHDigital/core/workers/grpcsrv"
 	"github.com/LUSHDigital/core/workers/httpsrv"
@@ -25,5 +27,6 @@ func ExampleService_StartWorkers() {
 		grpcsrv.New(),
 		httpsrv.New(handler),
 		metricsrv.New(),
+		keybroker.NewRSA(),
 	)
 }
