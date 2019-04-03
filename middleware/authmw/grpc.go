@@ -73,15 +73,13 @@ func InterceptServerJWT(ctx context.Context, brk auth.RSAPublicKeyCopierRenewer)
 	parser := auth.NewParser(&pk)
 	claims, err := parser.Claims(raw)
 	if err != nil {
-		if err != nil {
-			switch err.(type) {
-			case auth.TokenMalformedError:
-				return consumer, status.Error(codes.InvalidArgument, err.Error())
-			case auth.TokenSignatureError:
-				brk.Renew() // Renew the public key if there's an error validating the token signature
-			}
-			return consumer, status.Error(codes.Unauthenticated, err.Error())
+		switch err.(type) {
+		case auth.TokenMalformedError:
+			return consumer, status.Error(codes.InvalidArgument, err.Error())
+		case auth.TokenSignatureError:
+			brk.Renew() // Renew the public key if there's an error validating the token signature
 		}
+		return consumer, status.Error(codes.Unauthenticated, err.Error())
 	}
 	return claims.Consumer, nil
 }
