@@ -1,4 +1,4 @@
-package keysmock_test
+package keybrokermock_test
 
 import (
 	"crypto/rand"
@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/LUSHDigital/core/keys/keysmock"
+	"github.com/LUSHDigital/core/workers/keybroker/keybrokermock"
 )
 
 func Test_MockRSAPublicKey(t *testing.T) {
@@ -15,7 +15,7 @@ func Test_MockRSAPublicKey(t *testing.T) {
 		t.Fatal(err)
 	}
 	public := private.PublicKey
-	mock := keysmock.MockRSAPublicKey(public)
+	mock := keybrokermock.MockRSAPublicKey(public)
 	if err != nil {
 		t.Fatal(err)
 	}
