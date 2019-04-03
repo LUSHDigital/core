@@ -48,7 +48,7 @@ func (f writer) Write(b []byte) (int, error) {
 // StartWorkers will start the given service workers and block block indefinitely.
 func (s *Service) StartWorkers(ctx context.Context, workers ...ServiceWorker) {
 	var out = writer(func(b []byte) (int, error) {
-		log.Println(b)
+		log.Print(string(b))
 		return len(b), nil
 	})
 	var work = func(worker ServiceWorker) {
