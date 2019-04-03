@@ -9,8 +9,13 @@ Documentation and examples are provided in README files in each pacakge.
 
 - [core/auth](https://github.com/LUSHDigital/core/tree/master/auth#auth)
 - [core/env](https://github.com/LUSHDigital/core/tree/master/env#env)
-- [core/keys](https://github.com/LUSHDigital/core/tree/master/keys#keys)
 - [core/pagination](https://github.com/LUSHDigital/core/tree/master/pagination#pagination)
 - [core/response](https://github.com/LUSHDigital/core/tree/master/response#response)
 - [core/tracing](https://github.com/LUSHDigital/core/tree/master/tracing)
 - [core/metrics](https://github.com/LUSHDigital/core/tree/master/metrics#metrics)
+
+### Service Workers
+- [core/workers/grpcsrv](https://github.com/LUSHDigital/core/tree/master/workers/grpcsrv)
+- [core/workers/httpsrv](https://github.com/LUSHDigital/core/tree/master/workers/httpsrv)
+- [core/workers/metricsrv](https://github.com/LUSHDigital/core/tree/master/workers/metricsrv)
+- [core/workers/keybroker](https://github.com/LUSHDigital/core/tree/master/workers/keybroker)

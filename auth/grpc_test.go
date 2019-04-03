@@ -12,7 +12,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 
 	"github.com/LUSHDigital/core/auth"
-	"github.com/LUSHDigital/core/keys/keysmock"
+	"github.com/LUSHDigital/core/workers/keybroker/keybrokermock"
 )
 
 func TestGRPCMiddleware(t *testing.T) {
@@ -21,7 +21,7 @@ func TestGRPCMiddleware(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	brk := keysmock.MockRSAPublicKey(*pk)
+	brk := keybrokermock.MockRSAPublicKey(*pk)
 	grpc.StreamInterceptor(auth.StreamServerInterceptor(brk))
 	grpc.UnaryInterceptor(auth.UnaryServerInterceptor(brk))
 
@@ -90,7 +90,7 @@ func TestInterceptServerJWT(t *testing.T) {
 				md.Set("auth-token", c.jwt)
 			}
 			ctx := metadata.NewIncomingContext(context.Background(), md)
-			brk := keysmock.MockRSAPublicKey(*pk)
+			brk := keybrokermock.MockRSAPublicKey(*pk)
 			_, err = auth.InterceptServerJWT(ctx, brk)
 			if c.errors {
 				s, ok := status.FromError(err)
