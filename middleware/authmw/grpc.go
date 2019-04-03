@@ -1,8 +1,9 @@
-package auth
+package authmw
 
 import (
 	"context"
 
+	"github.com/LUSHDigital/core/auth"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -29,6 +30,7 @@ func ContextWithJWTMetadata(ctx context.Context, jwt string) context.Context {
 // UnaryClientInterceptor is a gRPC client-side interceptor that provides Prometheus monitoring for Unary RPCs.
 func UnaryClientInterceptor(jwt string) func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 	return func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+		ctx = ContextWithJWTMetadata(ctx, jwt)
 		err := invoker(ctx, method, req, reply, cc, opts...)
 		return err
 	}
@@ -55,8 +57,8 @@ func (s *authenticatedClientStream) Context() context.Context {
 }
 
 // InterceptServerJWT will check the context metadata for a JWT
-func InterceptServerJWT(ctx context.Context, brk RSAPublicKeyCopierRenewer) (Consumer, error) {
-	var consumer Consumer
+func InterceptServerJWT(ctx context.Context, brk auth.RSAPublicKeyCopierRenewer) (auth.Consumer, error) {
+	var consumer auth.Consumer
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return consumer, ErrMetadataMissing
@@ -68,14 +70,14 @@ func InterceptServerJWT(ctx context.Context, brk RSAPublicKeyCopierRenewer) (Con
 	raw := tokens[0]
 	pk := brk.Copy()
 
-	parser := Parser{publicKey: &pk}
+	parser := auth.NewParser(&pk)
 	claims, err := parser.Claims(raw)
 	if err != nil {
 		if err != nil {
 			switch err.(type) {
-			case TokenMalformedError:
+			case auth.TokenMalformedError:
 				return consumer, status.Error(codes.InvalidArgument, err.Error())
-			case TokenSignatureError:
+			case auth.TokenSignatureError:
 				brk.Renew() // Renew the public key if there's an error validating the token signature
 			}
 			return consumer, status.Error(codes.Unauthenticated, err.Error())
@@ -85,19 +87,19 @@ func InterceptServerJWT(ctx context.Context, brk RSAPublicKeyCopierRenewer) (Con
 }
 
 // UnaryServerInterceptor is a gRPC server-side interceptor that checks that JWT provided is valid for unary procedures
-func UnaryServerInterceptor(brk RSAPublicKeyCopierRenewer) func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+func UnaryServerInterceptor(brk auth.RSAPublicKeyCopierRenewer) func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		consumer, err := InterceptServerJWT(ctx, brk)
 		if err != nil {
 			return nil, err
 		}
-		resp, err := handler(ContextWithConsumer(ctx, consumer), req)
+		resp, err := handler(auth.ContextWithConsumer(ctx, consumer), req)
 		return resp, err
 	}
 }
 
 // StreamServerInterceptor is a gRPC server-side interceptor that checks that JWT provided is valid for streaming procedures
-func StreamServerInterceptor(brk RSAPublicKeyCopierRenewer) func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+func StreamServerInterceptor(brk auth.RSAPublicKeyCopierRenewer) func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		consumer, err := InterceptServerJWT(ss.Context(), brk)
 		if err != nil {
@@ -110,9 +112,9 @@ func StreamServerInterceptor(brk RSAPublicKeyCopierRenewer) func(srv interface{}
 
 type authenticatedServerStream struct {
 	grpc.ServerStream
-	consumer Consumer
+	consumer auth.Consumer
 }
 
 func (s *authenticatedServerStream) Context() context.Context {
-	return ContextWithConsumer(s.ServerStream.Context(), s.consumer)
+	return auth.ContextWithConsumer(s.ServerStream.Context(), s.consumer)
 }

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/LUSHDigital/core/pagination"
+	"github.com/LUSHDigital/core/middleware/paginationmw"
 	"github.com/LUSHDigital/core/workers/grpcsrv"
 
 	"google.golang.org/grpc"
@@ -33,8 +33,8 @@ func TestMain(m *testing.M) {
 
 func Example() {
 	srv := grpcsrv.New(
-		grpc.StreamInterceptor(pagination.StreamServerInterceptor),
-		grpc.UnaryInterceptor(pagination.UnaryServerInterceptor),
+		grpc.StreamInterceptor(paginationmw.StreamServerInterceptor),
+		grpc.UnaryInterceptor(paginationmw.UnaryServerInterceptor),
 	)
 	srv.Run(ctx, ioutil.Discard)
 }
