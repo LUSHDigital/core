@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/LUSHDigital/core/auth"
-	"github.com/LUSHDigital/core/keys/keysmock"
+	"github.com/LUSHDigital/core/workers/keybroker/keybrokermock"
 	"github.com/LUSHDigital/core/response"
 	jwt "github.com/dgrijalva/jwt-go"
 )
@@ -27,7 +27,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 	}{
 		{
 			name:   "token is good",
-			broker: keysmock.MockRSAPublicKey(*correctPK),
+			broker: keybrokermock.MockRSAPublicKey(*correctPK),
 			claims: auth.Claims{
 				StandardClaims: jwt.StandardClaims{
 					IssuedAt:  time.Now().Add(-2 * time.Hour).Unix(),
@@ -41,7 +41,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 		},
 		{
 			name:   "token has expired",
-			broker: keysmock.MockRSAPublicKey(*correctPK),
+			broker: keybrokermock.MockRSAPublicKey(*correctPK),
 			claims: auth.Claims{
 				StandardClaims: jwt.StandardClaims{
 					IssuedAt:  time.Now().Add(-2 * time.Hour).Unix(),
@@ -55,7 +55,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 		},
 		{
 			name:   "token is not ready yet",
-			broker: keysmock.MockRSAPublicKey(*correctPK),
+			broker: keybrokermock.MockRSAPublicKey(*correctPK),
 			claims: auth.Claims{
 				StandardClaims: jwt.StandardClaims{
 					IssuedAt:  time.Now().Add(-2 * time.Hour).Unix(),
@@ -68,7 +68,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 		},
 		{
 			name:   "issuedAt is in the future",
-			broker: keysmock.MockRSAPublicKey(*correctPK),
+			broker: keybrokermock.MockRSAPublicKey(*correctPK),
 			claims: auth.Claims{
 				StandardClaims: jwt.StandardClaims{
 					IssuedAt:  time.Now().Add(1 * time.Hour).Unix(),
@@ -81,7 +81,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 		},
 		{
 			name:   "token not signed with matching key",
-			broker: keysmock.MockRSAPublicKey(*incorrectPK),
+			broker: keybrokermock.MockRSAPublicKey(*incorrectPK),
 			claims: auth.Claims{
 				StandardClaims: jwt.StandardClaims{
 					IssuedAt:  time.Now().Add(-2 * time.Hour).Unix(),
