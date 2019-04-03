@@ -7,6 +7,7 @@ import (
 	"github.com/LUSHDigital/core"
 	"github.com/LUSHDigital/core/workers/grpcsrv"
 	"github.com/LUSHDigital/core/workers/httpsrv"
+	"github.com/LUSHDigital/core/workers/metricsrv"
 )
 
 var (
@@ -23,5 +24,6 @@ func ExampleService_StartWorkers() {
 	svc.StartWorkers(ctx,
 		grpcsrv.New(),
 		httpsrv.New(handler),
+		metricsrv.New(),
 	)
 }
