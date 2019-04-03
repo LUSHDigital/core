@@ -10,6 +10,6 @@ srv := grpcsrv.New(
     grpc.StreamInterceptor(paginationmw.StreamServerInterceptor),
     grpc.UnaryInterceptor(paginationmw.UnaryServerInterceptor),
 )
-srv.Port = 8080
+srv.Addr = ":8080"
 srv.Run(ctx, ioutil.Discard)
 ```

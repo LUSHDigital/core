@@ -21,20 +21,19 @@ const (
 
 // New sets up a new grpc server.
 func New(options ...grpc.ServerOption) *Server {
-	return &Server{grpc.NewServer(options...), Port, time.Now}
+	return &Server{grpc.NewServer(options...), net.JoinHostPort("", strconv.Itoa(Port)), time.Now}
 }
 
 // Server represents a collection of functions for starting and running an RPC server.
 type Server struct {
 	Connection *grpc.Server
-	Port       int
+	Addr       string
 	Now        func() time.Time
 }
 
 // Run will start the gRPC server and listen for requests.
 func (gs *Server) Run(ctx context.Context, out io.Writer) error {
-	address := net.JoinHostPort("", strconv.Itoa(gs.Port))
-	lis, err := net.Listen("tcp", address)
+	lis, err := net.Listen("tcp", gs.Addr)
 	if err != nil {
 		return err
 	}
@@ -42,7 +41,6 @@ func (gs *Server) Run(ctx context.Context, out io.Writer) error {
 	hsrv := health.NewServer()
 	grpc_health_v1.RegisterHealthServer(gs.Connection, hsrv)
 
-	gs.Port = lis.Addr().(*net.TCPAddr).Port
-	fmt.Fprintf(out, "serving grpc on 0.0.0.0:%d", gs.Port)
+	fmt.Fprintf(out, "serving grpc on %s", gs.Addr)
 	return gs.Connection.Serve(lis)
 }
