@@ -16,6 +16,7 @@ Documentation and examples are provided in README files in each pacakge.
 
 ### Middlewares
 - [core/middleware/tracingmw](https://github.com/LUSHDigital/core/tree/master/middleware/tracingmw)
+- [core/middleware/paginationmw](https://github.com/LUSHDigital/core/tree/master/middleware/paginationmw)
 
 ### Service Workers
 - [core/workers/grpcsrv](https://github.com/LUSHDigital/core/tree/master/workers/grpcsrv)

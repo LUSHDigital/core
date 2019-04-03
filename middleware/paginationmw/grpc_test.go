@@ -1,14 +1,15 @@
-package pagination_test
+package paginationmw_test
 
 import (
 	"context"
 	"errors"
 	"net"
+	"reflect"
 	"testing"
 
+	"github.com/LUSHDigital/core/middleware/paginationmw"
+	greeter "github.com/LUSHDigital/core/middleware/paginationmw/internal/greeter"
 	"github.com/LUSHDigital/core/pagination"
-
-	greeter "github.com/LUSHDigital/core/pagination/internal/greeter"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -22,7 +23,7 @@ func TestInterceptServerRequest(t *testing.T) {
 			"page":     "1",
 		})
 		ctx = metadata.NewIncomingContext(ctx, md)
-		req, err := pagination.InterceptServerRequest(ctx)
+		req, err := paginationmw.InterceptServerRequest(ctx)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -39,7 +40,7 @@ func TestInterceptServerRequest(t *testing.T) {
 			"page":     "1",
 		})
 		ctx = metadata.NewIncomingContext(ctx, md)
-		_, err := pagination.InterceptServerRequest(ctx)
+		_, err := paginationmw.InterceptServerRequest(ctx)
 		if err == nil {
 			t.Fatal("expected an error but got none")
 		}
@@ -52,7 +53,7 @@ func TestInterceptServerRequest(t *testing.T) {
 			"page":     "abc",
 		})
 		ctx = metadata.NewIncomingContext(ctx, md)
-		_, err := pagination.InterceptServerRequest(ctx)
+		_, err := paginationmw.InterceptServerRequest(ctx)
 		if err == nil {
 			t.Fatal("expected an error but got none")
 		}
@@ -61,8 +62,8 @@ func TestInterceptServerRequest(t *testing.T) {
 
 func TestGRPCInterceptor(t *testing.T) {
 	server := grpc.NewServer(
-		grpc.UnaryInterceptor(pagination.UnaryServerInterceptor),
-		grpc.StreamInterceptor(pagination.StreamServerInterceptor),
+		grpc.UnaryInterceptor(paginationmw.UnaryServerInterceptor),
+		grpc.StreamInterceptor(paginationmw.StreamServerInterceptor),
 	)
 	greeter.RegisterGreeterServer(server, &GreeterServer{})
 	listener, err := net.Listen("tcp", "")
@@ -97,4 +98,10 @@ func (*GreeterServer) SayHello(ctx context.Context, _ *greeter.Empty) (*greeter.
 		return &greeter.Empty{}, errors.New("failed to intercept")
 	}
 	return &greeter.Empty{}, nil
+}
+
+func equals(tb testing.TB, expected, actual interface{}) {
+	if !reflect.DeepEqual(expected, actual) {
+		tb.Fatalf("\n\texp: %#[1]v (%[1]T)\n\tgot: %#[2]v (%[2]T)\n", expected, actual)
+	}
 }
