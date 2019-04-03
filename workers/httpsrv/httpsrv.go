@@ -81,11 +81,8 @@ func HealthHandler(now func() time.Time) http.HandlerFunc {
 }
 
 // New sets up a new HTTP server.
-func New(handler http.Handler, servers ...*http.Server) *Server {
-	var server *http.Server
-	if len(servers) > 1 {
-		server = servers[0]
-	} else {
+func New(handler http.Handler, server *http.Server) *Server {
+	if server == nil {
 		server = &DefaultHTTPServer
 	}
 	return &Server{
