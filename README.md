@@ -20,18 +20,16 @@ import (
 	"github.com/LUSHDigital/core/workers/metricsrv"
 )
 
-var (
-	service = &core.Service{
+func main() {
+	core.SetupLogs()
+
+	service := &core.Service{
 		Name:    "example",
 		Type:    "service",
 		Version: "1.0.0",
 	}
-)
 
-func main() {
 	ctx := context.Background()
-
-	workers := []core.ServiceWorker{}
 
 	httphandler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(200)
@@ -41,13 +39,12 @@ func main() {
 		ReadTimeout: 10 * time.Second,
 	}
 
-	workers = append(workers, httpsrv.New(httphandler, httpserver))
-	workers = append(workers, metricsrv.New())
-	workers = append(workers, keybroker.NewRSA(nil))
-
-	service.StartWorkers(ctx, workers...)
+	service.StartWorkers(ctx,
+		httpsrv.New(httphandler, httpserver),
+		metricsrv.New(),
+		keybroker.NewRSA(nil),
+	)
 }
-
 ```
 
 ## Documentation
