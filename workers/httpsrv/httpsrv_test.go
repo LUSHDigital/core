@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -67,8 +68,8 @@ func TestHealthHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if res.Latency != "0 ms" {
-		t.Errorf("handler returned unexpected latencey: got %v want %v", res.Latency, "0 ms")
+	if !strings.HasSuffix(res.Latency, " ms") {
+		t.Errorf("handler returned unexpected latencey suffix: got %v want %v", res.Latency, "ms")
 	}
 }
 
