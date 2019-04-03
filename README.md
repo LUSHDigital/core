@@ -73,7 +73,7 @@ These packages contain convenient middlewares for transport protocols like HTTP 
 ### Service Workers
 These packages contain convenient service workers things like network servers, background workers and message brokers.
 
-- [core/workers/grpcsrv](https://github.com/LUSHDigital/core/tree/master/workers/grpcsrv)
-- [core/workers/httpsrv](https://github.com/LUSHDigital/core/tree/master/workers/httpsrv)
-- [core/workers/metricsrv](https://github.com/LUSHDigital/core/tree/master/workers/metricsrv)
-- [core/workers/keybroker](https://github.com/LUSHDigital/core/tree/master/workers/keybroker)
+- [core/workers/grpcsrv](https://github.com/LUSHDigital/core/tree/master/workers/grpcsrv#grpc-server)
+- [core/workers/httpsrv](https://github.com/LUSHDigital/core/tree/master/workers/httpsrv#http-server)
+- [core/workers/metricsrv](https://github.com/LUSHDigital/core/tree/master/workers/metricsrv#metric-server)
+- [core/workers/keybroker](https://github.com/LUSHDigital/core/tree/master/workers/keybroker#key-broker)
