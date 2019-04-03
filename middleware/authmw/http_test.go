@@ -1,4 +1,4 @@
-package auth_test
+package authmw_test
 
 import (
 	"net/http"
@@ -7,8 +7,9 @@ import (
 	"time"
 
 	"github.com/LUSHDigital/core/auth"
-	"github.com/LUSHDigital/core/workers/keybroker/keybrokermock"
+	"github.com/LUSHDigital/core/middleware/authmw"
 	"github.com/LUSHDigital/core/response"
+	"github.com/LUSHDigital/core/workers/keybroker/keybrokermock"
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
@@ -107,7 +108,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 			req.Header.Add("Authorization", "Bearer "+token)
 
 			recorder := httptest.NewRecorder()
-			handler := auth.HandlerValidateJWT(c.broker, func(w http.ResponseWriter, r *http.Request) {
+			handler := authmw.HandlerValidateJWT(c.broker, func(w http.ResponseWriter, r *http.Request) {
 				consumer := auth.ConsumerFromContext(r.Context())
 				response.Response{Code: http.StatusOK, Message: "", Data: &response.Data{Type: "consumer", Content: consumer}}.WriteTo(w)
 			})
