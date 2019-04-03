@@ -32,7 +32,7 @@ func TestMain(m *testing.M) {
 }
 
 func Example() {
-	go httpsrv.New(handler).Run(ctx, os.Stdout)
+	go httpsrv.New(handler, nil).Run(ctx, os.Stdout)
 
 	// Start a new server worker with a custom http.Server
 	go httpsrv.New(handler, &http.Server{
