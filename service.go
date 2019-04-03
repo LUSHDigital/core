@@ -52,7 +52,9 @@ func (s *Service) StartWorkers(ctx context.Context, workers ...ServiceWorker) {
 		return len(b), nil
 	})
 	var work = func(worker ServiceWorker) {
-		log.Fatalln(worker.Run(ctx, out))
+		if err := worker.Run(ctx, out); err != nil {
+			log.Fatalln(err)
+		}
 	}
 	log.Printf("starting %s: %s (%s)\n", s.Type, s.Name, s.Version)
 	for _, worker := range workers {
