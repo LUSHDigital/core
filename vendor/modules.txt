@@ -2,6 +2,8 @@
 github.com/beorn7/perks/quantile
 # github.com/dgrijalva/jwt-go v3.2.0+incompatible
 github.com/dgrijalva/jwt-go
+# github.com/dustin/go-humanize v1.0.0
+github.com/dustin/go-humanize
 # github.com/gofrs/uuid v3.2.0+incompatible
 github.com/gofrs/uuid
 # github.com/golang/protobuf v1.2.0
@@ -10,8 +12,6 @@ github.com/golang/protobuf/ptypes
 github.com/golang/protobuf/ptypes/any
 github.com/golang/protobuf/ptypes/duration
 github.com/golang/protobuf/ptypes/timestamp
-# github.com/gorilla/mux v1.7.0
-github.com/gorilla/mux
 # github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 github.com/grpc-ecosystem/go-grpc-prometheus
 # github.com/matttproud/golang_protobuf_extensions v1.0.1
@@ -53,6 +53,8 @@ google.golang.org/grpc
 google.golang.org/grpc/codes
 google.golang.org/grpc/metadata
 google.golang.org/grpc/status
+google.golang.org/grpc/health
+google.golang.org/grpc/health/grpc_health_v1
 google.golang.org/grpc/balancer
 google.golang.org/grpc/balancer/roundrobin
 google.golang.org/grpc/connectivity
