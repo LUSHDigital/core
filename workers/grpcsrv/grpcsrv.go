@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"strconv"
 	"time"
 
-	"github.com/LUSHDigital/core/workers/internal/portfmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
@@ -33,8 +33,8 @@ type Server struct {
 
 // Run will start the gRPC server and listen for requests.
 func (gs *Server) Run(ctx context.Context, out io.Writer) error {
-	port := portfmt.Port(gs.Port)
-	lis, err := net.Listen("tcp", port.String())
+	address := net.JoinHostPort("", strconv.Itoa(gs.Port))
+	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		return err
 	}
