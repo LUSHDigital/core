@@ -3,6 +3,53 @@
 # Core (Go)
 A collection of packages for building a Go microservice on the LUSH platform.
 
+## Quick start
+Below there's an example for how to get running quickly with a service using the LUSHDigital core package.
+
+```go
+package main
+
+import (
+	"context"
+	"net/http"
+	"time"
+
+	"github.com/LUSHDigital/core"
+	"github.com/LUSHDigital/core/workers/httpsrv"
+	"github.com/LUSHDigital/core/workers/keybroker"
+	"github.com/LUSHDigital/core/workers/metricsrv"
+)
+
+var (
+	service = &core.Service{
+		Name:    "example",
+		Type:    "service",
+		Version: "1.0.0",
+	}
+)
+
+func main() {
+	ctx := context.Background()
+
+	workers := []core.ServiceWorker{}
+
+	httphandler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(200)
+		w.Write([]byte("hello world"))
+	})
+	httpserver := &http.Server{
+		ReadTimeout: 10 * time.Second,
+	}
+
+	workers = append(workers, httpsrv.New(httphandler, httpserver))
+	workers = append(workers, metricsrv.New())
+	workers = append(workers, keybroker.NewRSA())
+
+	service.StartWorkers(ctx, workers...)
+}
+
+```
+
 ## Documentation
 Documentation and examples are provided in README files in each pacakge.
 
