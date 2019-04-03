@@ -4,11 +4,10 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/LUSHDigital/core/workers/keybroker"
-
 	"github.com/LUSHDigital/core"
 	"github.com/LUSHDigital/core/workers/grpcsrv"
 	"github.com/LUSHDigital/core/workers/httpsrv"
+	"github.com/LUSHDigital/core/workers/keybroker"
 	"github.com/LUSHDigital/core/workers/metricsrv"
 )
 
