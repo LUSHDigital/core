@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/LUSHDigital/core/response"
-
 	"github.com/dustin/go-humanize"
 )
 
