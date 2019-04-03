@@ -1,15 +1,20 @@
-# Keys
+# Key Broker
 The package `core/workers/keybroker` implements a background broker conmtinous retrieval of public keys from multiple different type of sources.
 
 ## Examples
 
 ```go
-broker := keys.BrokerRSAPublicKey(context.Background(), keys.JWTPublicKeySources, 5*time.Second)
-defer broker.Close()
+broker := keybroker.NewRSA(&keybroker.Config{
+    Source:   keybroker.JWTPublicKeySources,
+    Interval: 5 * time.Second,
+})
+
+// Run the broker
+go broker.Run(ctx, ioutil.Discard)
 
 // Queue retrieval of new key
 broker.Renew()
 
 // Copy the current public key held by the broker
-publicKey := broker.Copy()
+broker.Copy()
 ```
