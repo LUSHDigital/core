@@ -88,7 +88,6 @@ func New(handler http.Handler, server *http.Server) *Server {
 	return &Server{
 		Server:  server,
 		Handler: handler,
-		Port:    Port,
 		Now:     time.Now,
 	}
 }
@@ -97,13 +96,16 @@ func New(handler http.Handler, server *http.Server) *Server {
 type Server struct {
 	Server  *http.Server
 	Handler http.Handler
-	Port    int
 	Now     func() time.Time
 }
 
 // Run will start the gRPC server and listen for requests.
 func (gs *Server) Run(ctx context.Context, out io.Writer) error {
-	lis, err := net.Listen("tcp", strconv.Itoa(gs.Port))
+	addr := gs.Server.Addr
+	if addr == "" {
+		addr = net.JoinHostPort("", strconv.Itoa(Port))
+	}
+	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		return err
 	}
@@ -117,8 +119,7 @@ func (gs *Server) Run(ctx context.Context, out io.Writer) error {
 
 	gs.Server.Handler = WrapperHandler(gs.Now, gs.Handler)
 
-	gs.Port = lis.Addr().(*net.TCPAddr).Port
-	fmt.Fprintf(out, "serving http on 0.0.0.0:%d", gs.Port)
+	fmt.Fprintf(out, "serving http on %s", lis.Addr().String())
 	return gs.Server.Serve(lis)
 }
 
