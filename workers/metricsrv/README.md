@@ -1,5 +1,5 @@
 # Metric Server
-The package core/workers/metricsrv provides a default set of configuration for hosting a http prometheus metrics in a service.
+The package `core/workers/metricsrv` provides a default set of configuration for hosting a http prometheus metrics in a service.
 
 ## Configuration
 The metric server can be configured through the environment to match setup in the infrastructure.
@@ -12,6 +12,6 @@ The metric server can be configured through the environment to match setup in th
 ### Starting server and exposing metrics
 
 ```go
-	srv := metricsrv.New()
-	srv.Run(ctx, ioutil.Discard)
+srv := metricsrv.New()
+srv.Run(ctx, ioutil.Discard)
 ```
