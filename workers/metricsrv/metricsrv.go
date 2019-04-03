@@ -13,7 +13,7 @@ import (
 
 const (
 	// DefaultInterface is the port that we listen to the prometheus path on by default.
-	DefaultInterface = ":5117"
+	DefaultInterface = "0.0.0.0:5117"
 
 	// DefaultPath is the path where we expose prometheus by default.
 	DefaultPath = "/metrics"
@@ -40,7 +40,7 @@ func (s *Server) Run(ctx context.Context, out io.Writer) error {
 	if path == "" {
 		path = DefaultPath
 	}
-	fmt.Fprintf(out, "running prometheus metrics server on %s%s", s.Interface, s.Path)
+	fmt.Fprintf(out, "serving prometheus metrics server over http on %s%s", s.Interface, s.Path)
 	http.Handle(path, promhttp.Handler())
 	return http.ListenAndServe(addr, nil)
 }
