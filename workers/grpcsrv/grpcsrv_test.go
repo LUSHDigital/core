@@ -36,5 +36,6 @@ func Example() {
 		grpc.StreamInterceptor(paginationmw.StreamServerInterceptor),
 		grpc.UnaryInterceptor(paginationmw.UnaryServerInterceptor),
 	)
+	srv.Port = 8080
 	srv.Run(ctx, ioutil.Discard)
 }
