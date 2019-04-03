@@ -7,7 +7,6 @@ import (
 
 	"github.com/LUSHDigital/core/auth"
 
-	"github.com/gorilla/mux"
 	"google.golang.org/grpc"
 )
 
@@ -40,8 +39,7 @@ func ExampleUnaryServerInterceptor() {
 }
 
 func ExampleHandlerValidateJWT() {
-	r := mux.NewRouter()
-	r.Handle("/users", auth.HandlerValidateJWT(broker, func(w http.ResponseWriter, r *http.Request) {
+	http.Handle("/users", auth.HandlerValidateJWT(broker, func(w http.ResponseWriter, r *http.Request) {
 		consumer := auth.ConsumerFromContext(r.Context())
 		if !consumer.HasAnyGrant("users.read") {
 			http.Error(w, "access denied", http.StatusUnauthorized)
