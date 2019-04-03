@@ -28,7 +28,7 @@ func (s *badSource) Get(ctx context.Context) ([]byte, error) {
 }
 
 func Example() {
-	broker := keybroker.NewRSA(keybroker.Config{
+	broker := keybroker.NewRSA(&keybroker.Config{
 		Source:   keybroker.JWTPublicKeySources,
 		Interval: 5 * time.Second,
 	})
@@ -53,7 +53,7 @@ func TestServer_Run(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		b1 := keybroker.NewRSA(keybroker.Config{
+		b1 := keybroker.NewRSA(&keybroker.Config{
 			Source:   keybroker.StringSource(sourceString),
 			Interval: tick,
 		})
@@ -65,7 +65,7 @@ func TestServer_Run(t *testing.T) {
 	})
 
 	t.Run("bad source", func(t *testing.T) {
-		b2 := keybroker.NewRSA(keybroker.Config{
+		b2 := keybroker.NewRSA(&keybroker.Config{
 			Source:   &badSource{},
 			Interval: tick,
 		})

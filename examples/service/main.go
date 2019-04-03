@@ -34,7 +34,7 @@ func main() {
 
 	workers = append(workers, httpsrv.New(httphandler, httpserver))
 	workers = append(workers, metricsrv.New())
-	workers = append(workers, keybroker.NewRSA())
+	workers = append(workers, keybroker.NewRSA(nil))
 
 	service.StartWorkers(ctx, workers...)
 }
