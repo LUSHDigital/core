@@ -1,4 +1,4 @@
-package metrics
+package metricsmw
 
 import (
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
