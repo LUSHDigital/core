@@ -26,6 +26,6 @@ func ExampleService_StartWorkers() {
 		grpcsrv.New(),
 		httpsrv.New(handler, nil),
 		metricsrv.New(),
-		keybroker.NewRSA(),
+		keybroker.NewRSA(nil),
 	)
 }

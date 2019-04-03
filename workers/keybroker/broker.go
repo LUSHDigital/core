@@ -38,24 +38,21 @@ var (
 )
 
 // NewRSA returns a rsa public key broker based on configuration.
-func NewRSA(config ...Config) *RSAPublicKeyBroker {
-	var cfg Config
-	if len(config) > 0 {
-		cfg = config[0]
-	} else {
-		cfg = Config{}
+func NewRSA(config *Config) *RSAPublicKeyBroker {
+	if config == nil {
+		config = &Config{}
 	}
-	if cfg.Source == nil {
-		cfg.Source = JWTPublicKeySources
+	if config.Source == nil {
+		config.Source = JWTPublicKeySources
 	}
-	if cfg.Interval == 0 {
-		cfg.Interval = 5 * time.Second
+	if config.Interval == 0 {
+		config.Interval = 5 * time.Second
 	}
 
 	broker := &RSAPublicKeyBroker{
-		interval:  cfg.Interval,
-		source:    cfg.Source,
-		ticker:    time.NewTicker(cfg.Interval),
+		interval:  config.Interval,
+		source:    config.Source,
+		ticker:    time.NewTicker(config.Interval),
 		key:       DefaultRSA,
 		renew:     make(chan struct{}, 1),
 		cancelled: make(chan struct{}, 1),
