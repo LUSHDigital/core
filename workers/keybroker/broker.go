@@ -108,7 +108,7 @@ func (b *RSAPublicKeyBroker) Run(ctx context.Context, out io.Writer) error {
 		case <-b.ticker.C:
 			select {
 			case <-b.renew:
-				if err := b.get(ctx); err != nil {
+				if err := b.get(ctx, out); err != nil {
 					fmt.Fprintf(out, "rsa public key broker interval error: %v\n", err)
 					b.Renew()
 				}
@@ -120,7 +120,7 @@ func (b *RSAPublicKeyBroker) Run(ctx context.Context, out io.Writer) error {
 	}
 }
 
-func (b *RSAPublicKeyBroker) get(ctx context.Context) error {
+func (b *RSAPublicKeyBroker) get(ctx context.Context, out io.Writer) error {
 	bts, err := b.source.Get(ctx)
 	if err != nil {
 		return fmt.Errorf("cannot get rsa public key: %v", err)
@@ -129,6 +129,7 @@ func (b *RSAPublicKeyBroker) get(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("cannot parse rsa public key: %v", err)
 	}
+	fmt.Fprintf(out, "rsa public key broker found new key of size %d\n", key.Size())
 	b.key = key
 	return nil
 }
