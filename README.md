@@ -72,5 +72,6 @@ These packages contain convenient service workers things like network servers, b
 
 - [core/workers/grpcsrv](https://github.com/LUSHDigital/core/tree/master/workers/grpcsrv#grpc-server)
 - [core/workers/httpsrv](https://github.com/LUSHDigital/core/tree/master/workers/httpsrv#http-server)
+- [core/workers/readysrv](https://github.com/LUSHDigital/core/tree/master/workers/readysrv#ready-server)
 - [core/workers/metricsrv](https://github.com/LUSHDigital/core/tree/master/workers/metricsrv#metric-server)
 - [core/workers/keybroker](https://github.com/LUSHDigital/core/tree/master/workers/keybroker#key-broker)
