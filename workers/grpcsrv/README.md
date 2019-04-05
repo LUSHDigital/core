@@ -6,10 +6,11 @@ The package `core/workers/grpcsrv` provides a default set of configuration for h
 ### Starting server and exposing the service
 
 ```go
-srv := grpcsrv.New(
+srv := grpcsrv.New(&grpcsrv.Config{
+    Addr: ":8080",
+},
     grpc.StreamInterceptor(paginationmw.StreamServerInterceptor),
     grpc.UnaryInterceptor(paginationmw.UnaryServerInterceptor),
 )
-srv.Addr = ":8080"
 srv.Run(ctx, ioutil.Discard)
 ```

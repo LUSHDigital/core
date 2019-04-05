@@ -23,7 +23,7 @@ func ExampleNewService() {
 func ExampleService_StartWorkers() {
 	svc := core.NewService()
 	svc.StartWorkers(ctx,
-		grpcsrv.New(),
+		grpcsrv.New(nil),
 		httpsrv.New(handler, nil),
 		metricsrv.New(),
 		keybroker.NewRSA(nil),
