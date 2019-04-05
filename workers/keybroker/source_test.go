@@ -87,7 +87,9 @@ func TestSources(t *testing.T) {
 				faultySource,
 			},
 			expectedBytes: nil,
-			expectedErr:   keybroker.ErrNoSourcesResolved{3},
+			expectedErr: keybroker.ErrNoSourcesResolved{
+				N: 3,
+			},
 		},
 	}
 
