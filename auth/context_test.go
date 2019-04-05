@@ -7,8 +7,24 @@ import (
 	"github.com/LUSHDigital/core/auth"
 )
 
+var (
+	ctx context.Context
+)
+
+func ExampleContextWithConsumer() {
+	ctx = auth.ContextWithConsumer(context.Background(), auth.Consumer{
+		ID:     999,
+		Grants: []string{"foo"},
+	})
+}
+
+func ExampleConsumerFromContext() {
+	consumer := auth.ConsumerFromContext(ctx)
+	consumer.IsUser(999)
+}
+
 func TestContext(t *testing.T) {
-	ctx := auth.ContextWithConsumer(context.Background(), auth.Consumer{
+	ctx = auth.ContextWithConsumer(context.Background(), auth.Consumer{
 		ID:     999,
 		Grants: []string{"foo"},
 	})

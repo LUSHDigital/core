@@ -1,6 +1,8 @@
 package auth_test
 
 import (
+	"fmt"
+	"log"
 	"testing"
 
 	"github.com/LUSHDigital/core/auth"
@@ -9,6 +11,24 @@ import (
 var (
 	err error
 )
+
+func ExampleIssuer_Issue() {
+	consumer := &auth.Consumer{
+		ID:        999,
+		FirstName: "Testy",
+		LastName:  "McTest",
+		Grants: []string{
+			"testing.read",
+			"testing.create",
+		},
+	}
+	raw, err := issuer.Issue(consumer)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	fmt.Println(raw)
+}
 
 func TestIssuer_Issue(t *testing.T) {
 	consumer := &auth.Consumer{
