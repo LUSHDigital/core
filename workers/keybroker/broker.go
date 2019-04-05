@@ -110,6 +110,7 @@ func (b *RSAPublicKeyBroker) Run(ctx context.Context, out io.Writer) error {
 			case <-b.renew:
 				if err := b.get(ctx); err != nil {
 					fmt.Fprintf(out, "rsa public key broker interval error: %v\n", err)
+					b.Renew()
 				}
 			default:
 			}
