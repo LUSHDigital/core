@@ -122,11 +122,11 @@ func (b *RSAPublicKeyBroker) Run(ctx context.Context, out io.Writer) error {
 func (b *RSAPublicKeyBroker) get(ctx context.Context) error {
 	bts, err := b.source.Get(ctx)
 	if err != nil {
-		return fmt.Errorf("cannot get key: %v", err)
+		return fmt.Errorf("cannot get rsa public key: %v", err)
 	}
 	key, err := jwt.ParseRSAPublicKeyFromPEM(bts)
 	if err != nil {
-		return fmt.Errorf("cannot parse key: %v", err)
+		return fmt.Errorf("cannot parse rsa public key: %v", err)
 	}
 	b.key = key
 	return nil
