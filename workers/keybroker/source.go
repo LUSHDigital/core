@@ -27,7 +27,7 @@ func (sources Sources) Get(ctx context.Context) ([]byte, error) {
 			return bts, nil
 		}
 	}
-	return nil, ErrNoSourcesResolved
+	return nil, ErrNoSourcesResolved{len(sources)}
 }
 
 const (
