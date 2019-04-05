@@ -92,15 +92,15 @@ func (b *RSAPublicKeyBroker) Renew() {
 
 // Close stops the ticker and releases resources
 func (b *RSAPublicKeyBroker) Close() {
-	// Close the cancelled channel first to stop all select switches
+	// Close the cancelled channel first to stop all select switches.
 	close(b.cancelled)
 	b.ticker.Stop()
-	close(b.renew)
 }
 
 // Run will periodically try and the public key.
 func (b *RSAPublicKeyBroker) Run(ctx context.Context, out io.Writer) error {
 	fmt.Fprintf(out, "running rsa public key broker checking for new key every %d second(s)\n", b.interval/time.Second)
+	defer close(b.renew)
 	for {
 		select {
 		case <-b.cancelled:
