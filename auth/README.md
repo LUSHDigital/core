@@ -4,29 +4,39 @@ It contains several middlewares for HTTP and GRPC to aid streamlining the authen
 
 ## Examples
 
-### HTTP middleware
+### Put consumers through context
+Setting the consumer in a context.
 
 ```go
-r := mux.NewRouter()
-r.Handle("/users", auth.HandlerValidateJWT(broker, func(w http.ResponseWriter, r *http.Request) {
-	consumer := auth.ConsumerFromContext(r.Context())
-	if !consumer.HasAnyGrant("users.read") {
-		http.Error(w, "access denied", http.StatusUnauthorized)
-	}
-}))
+ctx = auth.ContextWithConsumer(context.Background(), auth.Consumer{
+	ID:     999,
+	Grants: []string{"foo"},
+})
 ```
 
-### gRPC middleware
+Retreiving a consumer from context.
 
 ```go
-srv := grpc.NewServer(
-	grpc.StreamInterceptor(auth.StreamServerInterceptor(broker)),
-	grpc.UnaryInterceptor(auth.UnaryServerInterceptor(broker)),
-)
+consumer := auth.ConsumerFromContext(ctx)
+consumer.IsUser(999)
+```
 
-l, err := net.Listen("tpc", ":50051")
-if err != nil {
-	log.Fatalln(err)
+### Issue new tokens
+
+```go
+consumer := &auth.Consumer{
+	ID:        999,
+	FirstName: "Testy",
+	LastName:  "McTest",
+	Grants: []string{
+		"testing.read",
+		"testing.create",
+	},
 }
-log.Fatalln(srv.Serve(l))
+raw, err := issuer.Issue(consumer)
+if err != nil {
+	log.Println(err)
+	return
+}
+fmt.Println(raw)
 ```
