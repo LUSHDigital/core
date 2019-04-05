@@ -89,6 +89,7 @@ func New(handler http.Handler, server *http.Server) *Server {
 		Server:  server,
 		Handler: handler,
 		Now:     time.Now,
+		addrC:   make(chan *net.TCPAddr, 1),
 	}
 }
 
@@ -97,10 +98,13 @@ type Server struct {
 	Server  *http.Server
 	Handler http.Handler
 	Now     func() time.Time
+	addrC   chan *net.TCPAddr
+	tcpAddr *net.TCPAddr
 }
 
 // Run will start the gRPC server and listen for requests.
 func (gs *Server) Run(ctx context.Context, out io.Writer) error {
+	defer close(gs.addrC)
 	addr := gs.Server.Addr
 	if addr == "" {
 		addr = net.JoinHostPort("", strconv.Itoa(Port))
@@ -109,6 +113,7 @@ func (gs *Server) Run(ctx context.Context, out io.Writer) error {
 	if err != nil {
 		return err
 	}
+	gs.addrC <- lis.Addr().(*net.TCPAddr)
 
 	if gs.Handler == nil {
 		if gs.Server.Handler == nil {
@@ -121,6 +126,17 @@ func (gs *Server) Run(ctx context.Context, out io.Writer) error {
 
 	fmt.Fprintf(out, "serving http on %s", lis.Addr().String())
 	return gs.Server.Serve(lis)
+}
+
+// Addr will block until you have received an address for your server.
+func (gs *Server) Addr() *net.TCPAddr {
+	if gs.tcpAddr != nil {
+		return gs.tcpAddr
+	}
+	select {
+	case addr := <-gs.addrC:
+		return addr
+	}
 }
 
 // HealthResponse contains information about the service health.
