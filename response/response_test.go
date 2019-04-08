@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/LUSHDigital/core/pagination"
+	"github.com/LUSHDigital/core/test"
 )
 
 func init() {
@@ -103,14 +104,8 @@ func TestData_MarshalJSON(t *testing.T) {
 			if tt.wantsErr && err != nil {
 				return
 			}
-			equals(t, raw, tt.expected)
+			test.Equals(t, raw, tt.expected)
 		})
-	}
-}
-
-func equals(tb testing.TB, expected, actual interface{}) {
-	if !reflect.DeepEqual(expected, actual) {
-		tb.Fatalf("\n\texp: %#[1]v (%[1]T)\n\tgot: %#[2]v (%[2]T)\n", expected, actual)
 	}
 }
 

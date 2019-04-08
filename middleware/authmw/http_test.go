@@ -9,6 +9,7 @@ import (
 	"github.com/LUSHDigital/core/auth"
 	"github.com/LUSHDigital/core/middleware/authmw"
 	"github.com/LUSHDigital/core/response"
+	"github.com/LUSHDigital/core/test"
 	"github.com/LUSHDigital/core/workers/keybroker/keybrokermock"
 	jwt "github.com/dgrijalva/jwt-go"
 )
@@ -113,12 +114,12 @@ func TestHandlerValidateJWT(t *testing.T) {
 				response.Response{Code: http.StatusOK, Message: "", Data: &response.Data{Type: "consumer", Content: consumer}}.WriteTo(w)
 			})
 			handler.ServeHTTP(recorder, req)
-			equals(t, c.expectedStatusCode, recorder.Code)
+			test.Equals(t, c.expectedStatusCode, recorder.Code)
 
 			if c.expectedStatusCode == http.StatusOK {
 				var consumer auth.Consumer
 				response.UnmarshalJSONResponse(recorder.Body.Bytes(), &consumer)
-				equals(t, c.claims.Consumer.ID, consumer.ID)
+				test.Equals(t, c.claims.Consumer.ID, consumer.ID)
 			}
 		})
 	}

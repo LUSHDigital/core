@@ -63,6 +63,7 @@ These packages contain functionality for the core concepts of our services.
 - [core/pagination](https://github.com/LUSHDigital/core/tree/master/pagination#pagination)
 - [core/response](https://github.com/LUSHDigital/core/tree/master/response#response)
 - [core/metrics](https://github.com/LUSHDigital/core/tree/master/metrics#metrics)
+- [core/test](https://github.com/LUSHDigital/core/tree/master/test#test)
 
 ### Middlewares
 These packages contain convenient middlewares for transport protocols like HTTP REST and gRPC.

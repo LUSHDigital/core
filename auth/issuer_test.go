@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/LUSHDigital/core/auth"
+	"github.com/LUSHDigital/core/test"
 )
 
 var (
@@ -48,5 +49,5 @@ func TestIssuer_Issue(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	equals(t, consumer.ID, claims.Consumer.ID)
+	test.Equals(t, consumer.ID, claims.Consumer.ID)
 }

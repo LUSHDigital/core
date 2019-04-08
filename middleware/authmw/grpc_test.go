@@ -12,6 +12,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 
 	"github.com/LUSHDigital/core/middleware/authmw"
+	"github.com/LUSHDigital/core/test"
 	"github.com/LUSHDigital/core/workers/keybroker/keybrokermock"
 )
 
@@ -97,9 +98,9 @@ func TestInterceptServerJWT(t *testing.T) {
 				if !ok {
 					t.Errorf("unknown status from err: %v", err)
 				}
-				equals(t, c.code, s.Code())
+				test.Equals(t, c.code, s.Code())
 			} else {
-				equals(t, nil, err)
+				test.Equals(t, nil, err)
 			}
 		})
 	}
@@ -124,8 +125,8 @@ func TestContextWithJWTMetadata(t *testing.T) {
 			ctx := context.Background()
 			out := authmw.ContextWithJWTMetadata(ctx, c.jwt)
 			md, ok := metadata.FromOutgoingContext(out)
-			equals(t, true, ok)
-			equals(t, c.jwt, md.Get("auth-token")[0])
+			test.Equals(t, true, ok)
+			test.Equals(t, c.jwt, md.Get("auth-token")[0])
 		})
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/LUSHDigital/core/auth"
+	"github.com/LUSHDigital/core/test"
 )
 
 func TestParser_Token(t *testing.T) {
@@ -46,7 +47,7 @@ func TestParser_Token(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			_, err := parser.Token(c.jwt)
-			equals(t, reflect.TypeOf(c.expectedErr), reflect.TypeOf(err))
+			test.Equals(t, reflect.TypeOf(c.expectedErr), reflect.TypeOf(err))
 		})
 	}
 }

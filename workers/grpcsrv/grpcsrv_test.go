@@ -6,13 +6,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"reflect"
 	"testing"
 	"time"
 
 	"google.golang.org/grpc/health/grpc_health_v1"
 
 	"github.com/LUSHDigital/core/middleware/paginationmw"
+	"github.com/LUSHDigital/core/test"
 	"github.com/LUSHDigital/core/workers/grpcsrv"
 
 	"google.golang.org/grpc"
@@ -53,7 +53,7 @@ func TestHealthCheck(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	equals(t, "SERVING", res.Status.String())
+	test.Equals(t, "SERVING", res.Status.String())
 }
 
 func Example() {
@@ -64,10 +64,4 @@ func Example() {
 		grpc.UnaryInterceptor(paginationmw.UnaryServerInterceptor),
 	)
 	srv.Run(ctx, ioutil.Discard)
-}
-
-func equals(tb testing.TB, expected, actual interface{}) {
-	if !reflect.DeepEqual(expected, actual) {
-		tb.Fatalf("\n\texp: %#[1]v (%[1]T)\n\tgot: %#[2]v (%[2]T)\n", expected, actual)
-	}
 }
