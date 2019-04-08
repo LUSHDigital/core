@@ -3,10 +3,10 @@ package keybroker_test
 import (
 	"context"
 	"io/ioutil"
-	"reflect"
 	"testing"
 	"time"
 
+	"github.com/LUSHDigital/core/test"
 	"github.com/LUSHDigital/core/workers/keybroker"
 	"github.com/dgrijalva/jwt-go"
 )
@@ -61,7 +61,7 @@ func TestServer_Run(t *testing.T) {
 		defer b1.Close()
 
 		time.Sleep(10 * time.Millisecond)
-		equals(t, *pk, b1.Copy())
+		test.Equals(t, *pk, b1.Copy())
 	})
 
 	t.Run("bad source", func(t *testing.T) {
@@ -73,7 +73,7 @@ func TestServer_Run(t *testing.T) {
 		defer b2.Close()
 
 		time.Sleep(10 * time.Millisecond)
-		equals(t, *keybroker.DefaultRSA, b2.Copy())
+		test.Equals(t, *keybroker.DefaultRSA, b2.Copy())
 	})
 }
 
@@ -91,8 +91,8 @@ func TestServer_Check(t *testing.T) {
 
 	t.Run("good source, started", func(t *testing.T) {
 		messages, ok := b1.Check()
-		equals(t, true, ok)
-		equals(t, "broker has retrieved key of size 128", messages[0])
+		test.Equals(t, true, ok)
+		test.Equals(t, "broker has retrieved key of size 128", messages[0])
 	})
 
 	b1.Close()
@@ -100,8 +100,8 @@ func TestServer_Check(t *testing.T) {
 
 	t.Run("good source, stopped", func(t *testing.T) {
 		messages, ok := b1.Check()
-		equals(t, false, ok)
-		equals(t, "broker is not yet running", messages[0])
+		test.Equals(t, false, ok)
+		test.Equals(t, "broker is not yet running", messages[0])
 	})
 
 	b2 := keybroker.NewRSA(&keybroker.Config{
@@ -113,13 +113,7 @@ func TestServer_Check(t *testing.T) {
 
 	t.Run("good source, started", func(t *testing.T) {
 		messages, ok := b2.Check()
-		equals(t, false, ok)
-		equals(t, "broker has not yet retrieved a key", messages[0])
+		test.Equals(t, false, ok)
+		test.Equals(t, "broker has not yet retrieved a key", messages[0])
 	})
-}
-
-func equals(tb testing.TB, expected, actual interface{}) {
-	if !reflect.DeepEqual(expected, actual) {
-		tb.Fatalf("\n\texp: %#[1]v (%[1]T)\n\tgot: %#[2]v (%[2]T)\n", expected, actual)
-	}
 }

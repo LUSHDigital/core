@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/LUSHDigital/core/pagination"
+	"github.com/LUSHDigital/core/test"
 )
 
 func TestContext(t *testing.T) {
@@ -15,6 +16,6 @@ func TestContext(t *testing.T) {
 
 	req := pagination.RequestFromContext(ctx)
 
-	equals(t, uint64(1), req.Page)
-	equals(t, uint64(10), req.PerPage)
+	test.Equals(t, uint64(1), req.Page)
+	test.Equals(t, uint64(10), req.PerPage)
 }

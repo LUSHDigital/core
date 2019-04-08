@@ -5,9 +5,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 
+	"github.com/LUSHDigital/core/test"
 	"github.com/LUSHDigital/core/workers/readysrv"
 )
 
@@ -73,13 +73,7 @@ func TestCheckerFunc(t *testing.T) {
 			handler := readysrv.CheckHandler(c.checks)
 			handler.ServeHTTP(rr, req)
 
-			equals(t, c.expected, rr.Code)
+			test.Equals(t, c.expected, rr.Code)
 		})
-	}
-}
-
-func equals(tb testing.TB, expected, actual interface{}) {
-	if !reflect.DeepEqual(expected, actual) {
-		tb.Fatalf("\n\texp: %#[1]v (%[1]T)\n\tgot: %#[2]v (%[2]T)\n", expected, actual)
 	}
 }

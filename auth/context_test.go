@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/LUSHDigital/core/auth"
+	"github.com/LUSHDigital/core/test"
 )
 
 var (
@@ -29,5 +30,5 @@ func TestContext(t *testing.T) {
 		Grants: []string{"foo"},
 	})
 	consumer := auth.ConsumerFromContext(ctx)
-	equals(t, true, consumer.IsUser(999))
+	test.Equals(t, true, consumer.IsUser(999))
 }

@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"net"
-	"reflect"
 	"testing"
 
 	"github.com/LUSHDigital/core/middleware/paginationmw"
 	greeter "github.com/LUSHDigital/core/middleware/paginationmw/internal/greeter"
 	"github.com/LUSHDigital/core/pagination"
+	"github.com/LUSHDigital/core/test"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -31,7 +31,7 @@ func TestInterceptServerRequest(t *testing.T) {
 			PerPage: 10,
 			Page:    1,
 		}
-		equals(t, expected, req)
+		test.Equals(t, expected, req)
 	})
 	t.Run("invalid per page incoming context", func(t *testing.T) {
 		ctx := context.Background()
@@ -98,10 +98,4 @@ func (*GreeterServer) SayHello(ctx context.Context, _ *greeter.Empty) (*greeter.
 		return &greeter.Empty{}, errors.New("failed to intercept")
 	}
 	return &greeter.Empty{}, nil
-}
-
-func equals(tb testing.TB, expected, actual interface{}) {
-	if !reflect.DeepEqual(expected, actual) {
-		tb.Fatalf("\n\texp: %#[1]v (%[1]T)\n\tgot: %#[2]v (%[2]T)\n", expected, actual)
-	}
 }

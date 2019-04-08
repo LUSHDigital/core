@@ -8,6 +8,7 @@ import (
 	"path"
 	"testing"
 
+	"github.com/LUSHDigital/core/test"
 	"github.com/LUSHDigital/core/workers/keybroker"
 )
 
@@ -96,8 +97,8 @@ func TestSources(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			bts, err := c.source.Get(context.Background())
-			equals(t, c.expectedBytes, bts)
-			equals(t, c.expectedErr, err)
+			test.Equals(t, c.expectedBytes, bts)
+			test.Equals(t, c.expectedErr, err)
 		})
 	}
 
@@ -131,8 +132,8 @@ func TestStringSource(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			bts, err := c.source.Get(context.Background())
-			equals(t, c.expectedBytes, bts)
-			equals(t, c.expectedErr, err)
+			test.Equals(t, c.expectedBytes, bts)
+			test.Equals(t, c.expectedErr, err)
 		})
 	}
 }
@@ -159,8 +160,8 @@ func TestFileSource(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			bts, err := c.source.Get(context.Background())
-			equals(t, c.expectedBytes, bts)
-			equals(t, c.expectedErr, err)
+			test.Equals(t, c.expectedBytes, bts)
+			test.Equals(t, c.expectedErr, err)
 		})
 	}
 }
@@ -195,8 +196,8 @@ func TestHTTPSource(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			bts, err := c.source.Get(context.Background())
-			equals(t, c.expectedBytes, bts)
-			equals(t, c.expectedErr, err)
+			test.Equals(t, c.expectedBytes, bts)
+			test.Equals(t, c.expectedErr, err)
 		})
 	}
 }
