@@ -77,6 +77,47 @@ func TestServer_Run(t *testing.T) {
 	})
 }
 
+func TestServer_Check(t *testing.T) {
+	ctx = context.Background()
+	tick := 5 * time.Millisecond
+
+	b1 := keybroker.NewRSA(&keybroker.Config{
+		Source:   keybroker.StringSource(sourceString),
+		Interval: tick,
+	})
+
+	go b1.Run(ctx, ioutil.Discard)
+	time.Sleep(10 * time.Millisecond)
+
+	t.Run("good source, started", func(t *testing.T) {
+		messages, ok := b1.Check()
+		equals(t, true, ok)
+		equals(t, "broker has retrieved key of size 128", messages[0])
+	})
+
+	b1.Close()
+	time.Sleep(10 * time.Millisecond)
+
+	t.Run("good source, stopped", func(t *testing.T) {
+		messages, ok := b1.Check()
+		equals(t, false, ok)
+		equals(t, "broker is not yet running", messages[0])
+	})
+
+	b2 := keybroker.NewRSA(&keybroker.Config{
+		Source:   &badSource{},
+		Interval: tick,
+	})
+	go b2.Run(ctx, ioutil.Discard)
+	time.Sleep(10 * time.Millisecond)
+
+	t.Run("good source, started", func(t *testing.T) {
+		messages, ok := b2.Check()
+		equals(t, false, ok)
+		equals(t, "broker has not yet retrieved a key", messages[0])
+	})
+}
+
 func equals(tb testing.TB, expected, actual interface{}) {
 	if !reflect.DeepEqual(expected, actual) {
 		tb.Fatalf("\n\texp: %#[1]v (%[1]T)\n\tgot: %#[2]v (%[2]T)\n", expected, actual)
