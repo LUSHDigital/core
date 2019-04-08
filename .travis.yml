@@ -6,11 +6,13 @@ go:
   - master
 
 install: true
+env:
+  - GO111MODULE=on
 
 before_script:
   - go get golang.org/x/lint/golint
 
 script:
-  - env GO111MODULE=on go test -v -cover ./...
-  - env GO111MODULE=on go vet ./...
-  - env GO111MODULE=on golint -set_exit_status $(go list ./... | grep -v /vendor/)
+  - go test -v -cover ./...
+  - go vet ./...
+  - golint -set_exit_status $(go list ./... | grep -v /vendor/)
