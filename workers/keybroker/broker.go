@@ -53,7 +53,6 @@ func NewRSA(config *Config) *RSAPublicKeyBroker {
 		interval:  config.Interval,
 		source:    config.Source,
 		ticker:    time.NewTicker(config.Interval),
-		key:       DefaultRSA,
 		renew:     make(chan struct{}, 1),
 		cancelled: make(chan struct{}, 1),
 	}
@@ -71,10 +70,14 @@ type RSAPublicKeyBroker struct {
 	key       *rsa.PublicKey
 	renew     chan struct{}
 	cancelled chan struct{}
+	running   bool
 }
 
 // Copy returns a shallow copy o the RSA public key
 func (b *RSAPublicKeyBroker) Copy() rsa.PublicKey {
+	if b.key == nil {
+		return *DefaultRSA
+	}
 	return *b.key
 }
 
@@ -100,6 +103,8 @@ func (b *RSAPublicKeyBroker) Close() {
 // Run will periodically try and the public key.
 func (b *RSAPublicKeyBroker) Run(ctx context.Context, out io.Writer) error {
 	fmt.Fprintf(out, "running rsa public key broker checking for new key every %d second(s)\n", b.interval/time.Second)
+	b.running = true
+	defer func() { b.running = false }()
 	defer close(b.renew)
 	for {
 		select {
@@ -118,6 +123,17 @@ func (b *RSAPublicKeyBroker) Run(ctx context.Context, out io.Writer) error {
 			return fmt.Errorf("rsa public key broker quit due to context timeout")
 		}
 	}
+}
+
+// Check will see if the broker is ready.
+func (b *RSAPublicKeyBroker) Check() ([]string, bool) {
+	if !b.running {
+		return []string{fmt.Sprintf("broker is not yet running")}, false
+	}
+	if b.key == nil {
+		return []string{fmt.Sprintf("broker has not yet retrieved a key")}, false
+	}
+	return []string{fmt.Sprintf("broker has retrieved key of size %d", b.key.Size())}, true
 }
 
 func (b *RSAPublicKeyBroker) get(ctx context.Context, out io.Writer) error {

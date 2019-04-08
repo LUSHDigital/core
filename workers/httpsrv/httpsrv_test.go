@@ -2,7 +2,6 @@ package httpsrv_test
 
 import (
 	"context"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -38,15 +37,6 @@ func Example() {
 	go httpsrv.New(handler, &http.Server{
 		ReadTimeout: 1 * time.Second,
 	}).Run(ctx, os.Stdout)
-}
-
-func TestServer_Run(t *testing.T) {
-	srv := &httpsrv.Server{
-		Server:  &httpsrv.DefaultHTTPServer,
-		Handler: handler,
-		Now:     func() time.Time { return now },
-	}
-	go srv.Run(ctx, ioutil.Discard)
 }
 
 func TestHealthHandler(t *testing.T) {
