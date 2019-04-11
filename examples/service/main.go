@@ -21,11 +21,12 @@ func main() {
 		"public_key": broker,
 	})
 
-	server := httpsrv.New(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(200)
-		w.Write([]byte("hello world"))
-	}), &http.Server{
+	server := httpsrv.New(&http.Server{
 		ReadTimeout: 10 * time.Second,
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(200)
+			w.Write([]byte("hello world"))
+		}),
 	})
 
 	ctx := context.Background()

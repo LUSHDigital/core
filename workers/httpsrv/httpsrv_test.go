@@ -31,10 +31,8 @@ func TestMain(m *testing.M) {
 }
 
 func Example() {
-	go httpsrv.New(handler, nil).Run(ctx, os.Stdout)
-
-	// Start a new server worker with a custom http.Server
-	go httpsrv.New(handler, &http.Server{
+	go httpsrv.New(&http.Server{
+		Handler:     handler,
 		ReadTimeout: 1 * time.Second,
 	}).Run(ctx, os.Stdout)
 }
