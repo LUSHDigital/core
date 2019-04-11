@@ -80,23 +80,41 @@ func HealthHandler(now func() time.Time) http.HandlerFunc {
 
 }
 
+// NewDefault returns a http server
+func NewDefault(handler http.Handler) *Server {
+	server := &DefaultHTTPServer
+	server.Handler = handler
+	return New(server)
+}
+
 // New sets up a new HTTP server.
-func New(handler http.Handler, server *http.Server) *Server {
+func New(server *http.Server) *Server {
 	if server == nil {
-		server = &DefaultHTTPServer
+		server = &http.Server{}
 	}
+	if server.WriteTimeout == 0 {
+		server.WriteTimeout = DefaultHTTPServer.WriteTimeout
+	}
+	if server.ReadTimeout == 0 {
+		server.ReadTimeout = DefaultHTTPServer.ReadTimeout
+	}
+	if server.IdleTimeout == 0 {
+		server.IdleTimeout = DefaultHTTPServer.IdleTimeout
+	}
+	if server.ReadHeaderTimeout == 0 {
+		server.ReadHeaderTimeout = DefaultHTTPServer.ReadHeaderTimeout
+	}
+
 	return &Server{
-		Server:  server,
-		Handler: handler,
-		Now:     time.Now,
-		addrC:   make(chan *net.TCPAddr, 1),
+		Server: server,
+		Now:    time.Now,
+		addrC:  make(chan *net.TCPAddr, 1),
 	}
 }
 
 // Server represents a collection of functions for starting and running an RPC server.
 type Server struct {
 	Server  *http.Server
-	Handler http.Handler
 	Now     func() time.Time
 	addrC   chan *net.TCPAddr
 	tcpAddr *net.TCPAddr
@@ -115,14 +133,11 @@ func (gs *Server) Run(ctx context.Context, out io.Writer) error {
 	}
 	gs.addrC <- lis.Addr().(*net.TCPAddr)
 
-	if gs.Handler == nil {
-		if gs.Server.Handler == nil {
-			return fmt.Errorf("http server needs a handler")
-		}
-		gs.Handler = gs.Server.Handler
+	if gs.Server.Handler == nil {
+		return fmt.Errorf("http server needs a handler")
 	}
 
-	gs.Server.Handler = WrapperHandler(gs.Now, gs.Handler)
+	gs.Server.Handler = WrapperHandler(gs.Now, gs.Server.Handler)
 
 	fmt.Fprintf(out, "serving http on %s", lis.Addr().String())
 	return gs.Server.Serve(lis)
