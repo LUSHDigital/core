@@ -9,6 +9,7 @@ require (
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/golang/protobuf v1.2.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
+	github.com/joho/godotenv v1.3.0
 	github.com/prometheus/client_golang v0.9.2
 	github.com/stretchr/testify v1.3.0 // indirect
 	golang.org/x/net v0.0.0-20181201002055-351d144fa1fc
