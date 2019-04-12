@@ -14,6 +14,10 @@ func ExampleMustGet() {
 	log.Println(dbURL)
 }
 
+func ExampleTryLoadDefault() {
+	env.TryLoadDefault()
+}
+
 func TestMustGet(t *testing.T) {
 	os.Setenv("TMPENV", "HELLO WORLD")
 	tmpenv := env.MustGet("TMPENV")

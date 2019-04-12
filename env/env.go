@@ -5,6 +5,9 @@ package env
 import (
 	"log"
 	"os"
+	"strings"
+
+	"github.com/joho/godotenv"
 )
 
 // MustGet returns an environment variable by name
@@ -18,4 +21,12 @@ func MustGet(name string) string {
 		log.Fatalf("environment variable (%s) is empty", name)
 	}
 	return envVar
+}
+
+// TryLoadDefault will attempt to load the default environment variables.
+func TryLoadDefault(paths ...string) {
+	paths = append([]string{"infra/.env"}, paths...)
+	if err := godotenv.Load(paths...); err != nil {
+		log.Printf("could not load environment files: %s: skipping...\n", strings.Join(paths, " "))
+	}
 }
