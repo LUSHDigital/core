@@ -139,7 +139,7 @@ func (gs *Server) Run(ctx context.Context, out io.Writer) error {
 
 	gs.Server.Handler = WrapperHandler(gs.Now, gs.Server.Handler)
 
-	fmt.Fprintf(out, "serving http on %s", lis.Addr().String())
+	fmt.Fprintf(out, "serving http on %s", gs.Addr().String())
 	return gs.Server.Serve(lis)
 }
 
@@ -148,10 +148,14 @@ func (gs *Server) Addr() *net.TCPAddr {
 	if gs.tcpAddr != nil {
 		return gs.tcpAddr
 	}
+	t := time.NewTimer(5 * time.Second)
 	select {
 	case addr := <-gs.addrC:
-		return addr
+		gs.tcpAddr = addr
+	case <-t.C:
+		gs.tcpAddr = &net.TCPAddr{}
 	}
+	return gs.tcpAddr
 }
 
 // HealthResponse contains information about the service health.
