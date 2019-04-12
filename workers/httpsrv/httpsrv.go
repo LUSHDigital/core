@@ -139,7 +139,7 @@ func (gs *Server) Run(ctx context.Context, out io.Writer) error {
 
 	gs.Server.Handler = WrapperHandler(gs.Now, gs.Server.Handler)
 
-	fmt.Fprintf(out, "serving http on %s", lis.Addr().String())
+	fmt.Fprintf(out, "serving http on %s", gs.Addr().String())
 	return gs.Server.Serve(lis)
 }
 

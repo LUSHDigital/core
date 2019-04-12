@@ -60,7 +60,7 @@ func (gs *Server) Run(ctx context.Context, out io.Writer) error {
 	hsrv := health.NewServer()
 	grpc_health_v1.RegisterHealthServer(gs.Connection, hsrv)
 
-	fmt.Fprintf(out, "serving grpc on %s", gs.addr)
+	fmt.Fprintf(out, "serving grpc on %s", gs.Addr().String())
 	return gs.Connection.Serve(lis)
 }
 
