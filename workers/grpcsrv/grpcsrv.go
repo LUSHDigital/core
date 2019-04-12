@@ -69,8 +69,12 @@ func (gs *Server) Addr() *net.TCPAddr {
 	if gs.tcpAddr != nil {
 		return gs.tcpAddr
 	}
+	t := time.NewTimer(5 * time.Second)
 	select {
 	case addr := <-gs.addrC:
-		return addr
+		gs.tcpAddr = addr
+	case <-t.C:
+		gs.tcpAddr = &net.TCPAddr{}
 	}
+	return gs.tcpAddr
 }
