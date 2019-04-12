@@ -71,6 +71,17 @@ func (source HTTPSource) Get(ctx context.Context) ([]byte, error) {
 	return body, nil
 }
 
+// EnvHTTPSource refers to a source in env
+type EnvHTTPSource string
+
+// Get converts the environment variable to a http url and resolves it
+func (source EnvHTTPSource) Get(ctx context.Context) ([]byte, error) {
+	if source == "" {
+		return nil, ErrEmptyString
+	}
+	return HTTPSource(os.Getenv(string(source))).Get(ctx)
+}
+
 // FileSource defines a path to a file on disk
 type FileSource string
 
@@ -90,6 +101,17 @@ func (source FileSource) Get(ctx context.Context) ([]byte, error) {
 	return content, nil
 }
 
+// EnvFileSource refers to a source in env
+type EnvFileSource string
+
+// Get converts the environment variable to a file path and resolves it
+func (source EnvFileSource) Get(ctx context.Context) ([]byte, error) {
+	if source == "" {
+		return nil, ErrEmptyString
+	}
+	return FileSource(os.Getenv(string(source))).Get(ctx)
+}
+
 // StringSource defines the source as a string
 type StringSource string
 
@@ -99,4 +121,15 @@ func (source StringSource) Get(ctx context.Context) ([]byte, error) {
 		return nil, ErrEmptyString
 	}
 	return []byte(source), nil
+}
+
+// EnvStringSource refers to a source in env
+type EnvStringSource string
+
+// Get converts the environment variable value to a byte slice
+func (source EnvStringSource) Get(ctx context.Context) ([]byte, error) {
+	if source == "" {
+		return nil, ErrEmptyString
+	}
+	return StringSource(os.Getenv(string(source))).Get(ctx)
 }

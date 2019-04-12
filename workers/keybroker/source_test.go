@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"path"
 	"testing"
 
@@ -137,6 +138,44 @@ func TestStringSource(t *testing.T) {
 		})
 	}
 }
+
+func TestEnvStringSource(t *testing.T) {
+	os.Setenv("TEST_FOOBAR", "foobar")
+	os.Setenv("TEST_BARBAZ", "barbaz")
+	os.Setenv("TEST_EMPTY", "")
+	cases := []struct {
+		name          string
+		source        keybroker.Source
+		expectedErr   error
+		expectedBytes []byte
+	}{
+		{
+			name:          "when source is foobar",
+			source:        keybroker.EnvStringSource("TEST_FOOBAR"),
+			expectedBytes: []byte("foobar"),
+			expectedErr:   nil,
+		},
+		{
+			name:          "when source is barbaz",
+			source:        keybroker.EnvStringSource("TEST_BARBAZ"),
+			expectedBytes: []byte("barbaz"),
+			expectedErr:   nil,
+		},
+		{
+			name:          "when source is empty",
+			source:        keybroker.EnvStringSource("TEST_EMPTY"),
+			expectedBytes: nil,
+			expectedErr:   keybroker.ErrEmptyString,
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			bts, err := c.source.Get(context.Background())
+			test.Equals(t, c.expectedBytes, bts)
+			test.Equals(t, c.expectedErr, err)
+		})
+	}
+}
 func TestFileSource(t *testing.T) {
 	cases := []struct {
 		name          string
@@ -165,6 +204,38 @@ func TestFileSource(t *testing.T) {
 		})
 	}
 }
+
+func TestEnvFileSource(t *testing.T) {
+	os.Setenv("TEST_ONE", string(onePubPath))
+	os.Setenv("TEST_TWO", string(twoPubPath))
+	cases := []struct {
+		name          string
+		source        keybroker.Source
+		expectedErr   error
+		expectedBytes []byte
+	}{
+		{
+			name:          "first source",
+			source:        keybroker.EnvFileSource("TEST_ONE"),
+			expectedBytes: onePubBytes,
+			expectedErr:   nil,
+		},
+		{
+			name:          "second source",
+			source:        keybroker.EnvFileSource("TEST_TWO"),
+			expectedBytes: twoPubBytes,
+			expectedErr:   nil,
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			bts, err := c.source.Get(context.Background())
+			test.Equals(t, c.expectedBytes, bts)
+			test.Equals(t, c.expectedErr, err)
+		})
+	}
+}
+
 func TestHTTPSource(t *testing.T) {
 	l, err := net.Listen("tcp", ":")
 	if err != nil {
@@ -189,6 +260,46 @@ func TestHTTPSource(t *testing.T) {
 		{
 			name:          "when source is 127.0.0.1/two.pub",
 			source:        keybroker.HTTPSource(fmt.Sprintf("http://127.0.0.1:%d/two.pub", port)),
+			expectedBytes: twoPubBytes,
+			expectedErr:   nil,
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			bts, err := c.source.Get(context.Background())
+			test.Equals(t, c.expectedBytes, bts)
+			test.Equals(t, c.expectedErr, err)
+		})
+	}
+}
+
+func TestEnvHTTPSource(t *testing.T) {
+	l, err := net.Listen("tcp", ":")
+	if err != nil {
+		panic(err)
+	}
+	port := l.Addr().(*net.TCPAddr).Port
+	fs := http.FileServer(http.Dir(path.Join("testdata")))
+	go http.Serve(l, fs)
+
+	os.Setenv("TEST_ONE", fmt.Sprintf("http://127.0.0.1:%d/one.pub", port))
+	os.Setenv("TEST_TWO", fmt.Sprintf("http://127.0.0.1:%d/two.pub", port))
+
+	cases := []struct {
+		name          string
+		source        keybroker.Source
+		expectedErr   error
+		expectedBytes []byte
+	}{
+		{
+			name:          "when source is 127.0.0.1/one.pub",
+			source:        keybroker.EnvHTTPSource("TEST_ONE"),
+			expectedBytes: onePubBytes,
+			expectedErr:   nil,
+		},
+		{
+			name:          "when source is 127.0.0.1/two.pub",
+			source:        keybroker.EnvHTTPSource("TEST_TWO"),
 			expectedBytes: twoPubBytes,
 			expectedErr:   nil,
 		},
