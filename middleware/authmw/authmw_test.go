@@ -68,9 +68,9 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func ExampleStreamServerInterceptor() {
+func ExampleNewStreamServerInterceptor() {
 	srv := grpc.NewServer(
-		grpc.StreamInterceptor(authmw.StreamServerInterceptor(broker)),
+		authmw.NewStreamServerInterceptor(broker),
 	)
 
 	l, err := net.Listen("tpc", ":50051")
@@ -80,9 +80,9 @@ func ExampleStreamServerInterceptor() {
 	log.Fatalln(srv.Serve(l))
 }
 
-func ExampleUnaryServerInterceptor() {
+func ExampleNewUnaryServerInterceptor() {
 	srv := grpc.NewServer(
-		grpc.UnaryInterceptor(authmw.UnaryServerInterceptor(broker)),
+		authmw.NewUnaryServerInterceptor(broker),
 	)
 
 	l, err := net.Listen("tpc", ":50051")
