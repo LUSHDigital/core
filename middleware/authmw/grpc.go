@@ -22,6 +22,16 @@ var (
 	ErrAuthTokenMissing = status.Error(codes.InvalidArgument, "metadata missing: auth-token")
 )
 
+// NewStreamServerInterceptor creates a grpc server option with your key broker.
+func NewStreamServerInterceptor(broker RSAPublicKeyCopierRenewer) grpc.ServerOption {
+	return grpc.StreamInterceptor(StreamServerInterceptor(broker))
+}
+
+// NewUnaryServerInterceptor creates a unary grpc server option with your key broker.
+func NewUnaryServerInterceptor(broker RSAPublicKeyCopierRenewer) grpc.ServerOption {
+	return grpc.UnaryInterceptor(UnaryServerInterceptor(broker))
+}
+
 // ContextWithJWTMetadata will add a JWT to the client outgoing context metadata
 func ContextWithJWTMetadata(ctx context.Context, jwt string) context.Context {
 	return metadata.AppendToOutgoingContext(ctx, metaAuthTokenKey, jwt)
@@ -57,7 +67,7 @@ func (s *authenticatedClientStream) Context() context.Context {
 }
 
 // InterceptServerJWT will check the context metadata for a JWT
-func InterceptServerJWT(ctx context.Context, brk auth.RSAPublicKeyCopierRenewer) (auth.Consumer, error) {
+func InterceptServerJWT(ctx context.Context, broker RSAPublicKeyCopierRenewer) (auth.Consumer, error) {
 	var consumer auth.Consumer
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
@@ -68,7 +78,7 @@ func InterceptServerJWT(ctx context.Context, brk auth.RSAPublicKeyCopierRenewer)
 		return consumer, ErrAuthTokenMissing
 	}
 	raw := tokens[0]
-	pk := brk.Copy()
+	pk := broker.Copy()
 
 	parser := auth.NewParser(&pk)
 	claims, err := parser.Claims(raw)
@@ -77,7 +87,7 @@ func InterceptServerJWT(ctx context.Context, brk auth.RSAPublicKeyCopierRenewer)
 		case auth.TokenMalformedError:
 			return consumer, status.Error(codes.InvalidArgument, err.Error())
 		case auth.TokenSignatureError:
-			brk.Renew() // Renew the public key if there's an error validating the token signature
+			broker.Renew() // Renew the public key if there's an error validating the token signature
 		}
 		return consumer, status.Error(codes.Unauthenticated, err.Error())
 	}
@@ -85,9 +95,9 @@ func InterceptServerJWT(ctx context.Context, brk auth.RSAPublicKeyCopierRenewer)
 }
 
 // UnaryServerInterceptor is a gRPC server-side interceptor that checks that JWT provided is valid for unary procedures
-func UnaryServerInterceptor(brk auth.RSAPublicKeyCopierRenewer) func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+func UnaryServerInterceptor(broker RSAPublicKeyCopierRenewer) func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		consumer, err := InterceptServerJWT(ctx, brk)
+		consumer, err := InterceptServerJWT(ctx, broker)
 		if err != nil {
 			return nil, err
 		}
@@ -97,9 +107,9 @@ func UnaryServerInterceptor(brk auth.RSAPublicKeyCopierRenewer) func(ctx context
 }
 
 // StreamServerInterceptor is a gRPC server-side interceptor that checks that JWT provided is valid for streaming procedures
-func StreamServerInterceptor(brk auth.RSAPublicKeyCopierRenewer) func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+func StreamServerInterceptor(broker RSAPublicKeyCopierRenewer) func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-		consumer, err := InterceptServerJWT(ss.Context(), brk)
+		consumer, err := InterceptServerJWT(ss.Context(), broker)
 		if err != nil {
 			return err
 		}
