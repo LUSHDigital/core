@@ -21,13 +21,19 @@ import (
 	"github.com/LUSHDigital/core/workers/readysrv"
 )
 
+var service = &core.Service{
+	Name:    "example",
+	Type:    "service",
+	Version: "1.0.0",
+}
+
 func main() {
 	core.SetupLogs()
 
 	metrics := metricsrv.New()
 	broker := keybroker.NewRSA(nil)
 	readiness := readysrv.New(readysrv.Checks{
-		"public_key": broker,
+		"rsa_key": broker,
 	})
 
 	server := httpsrv.New(&http.Server{
@@ -38,13 +44,7 @@ func main() {
 		}),
 	})
 
-	ctx := context.Background()
-	svc := &core.Service{
-		Name:    "example",
-		Type:    "service",
-		Version: "1.0.0",
-	}
-	svc.StartWorkers(ctx,
+	service.StartWorkers(context.Background(),
 		server,
 		metrics,
 		broker,
