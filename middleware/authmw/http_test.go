@@ -6,12 +6,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
+
 	"github.com/LUSHDigital/core/auth"
 	"github.com/LUSHDigital/core/middleware/authmw"
 	"github.com/LUSHDigital/core/response"
 	"github.com/LUSHDigital/core/test"
 	"github.com/LUSHDigital/core/workers/keybroker/keybrokermock"
-	jwt "github.com/dgrijalva/jwt-go"
 )
 
 func TestHandlerValidateJWT(t *testing.T) {

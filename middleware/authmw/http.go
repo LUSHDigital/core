@@ -47,3 +47,16 @@ func HandlerGrants(grants []string, next http.HandlerFunc) http.HandlerFunc {
 		next.ServeHTTP(w, r)
 	})
 }
+
+// HandlerRoles is an HTTP handler to check that the consumer in the request context has the required roles.
+func HandlerRoles(roles []string, next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		consumer := auth.ConsumerFromContext(r.Context())
+		if !consumer.HasAnyRole(roles...) {
+			res := &response.Response{Code: http.StatusUnauthorized, Message: msgMissingRequiredGrants}
+			res.WriteTo(w)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
