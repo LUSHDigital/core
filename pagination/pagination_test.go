@@ -82,8 +82,9 @@ func ExampleMakeResponse() {
 		Page:    1,
 	}
 	presp := pagination.MakeResponse(preq, 100)
-	fmt.Printf("%+v\n", presp)
-	// Output: {PerPage:10 Page:1 Offset:0 Total:100 LastPage:10}
+	raw, _ := json.Marshal(presp)
+	fmt.Println(string(raw))
+	// Output: {"per_page":10,"offset":0,"total":100,"last_page":10,"current_page":1,"next_page":2,"prev_page":null}
 }
 
 func ExampleMakeResponse_withOffset() {
@@ -92,8 +93,9 @@ func ExampleMakeResponse_withOffset() {
 		Page:    2,
 	}
 	presp := pagination.MakeResponse(preq, 100)
-	fmt.Printf("%+v\n", presp)
-	// Output: {PerPage:10 Page:2 Offset:10 Total:100 LastPage:10}
+	raw, _ := json.Marshal(presp)
+	fmt.Println(string(raw))
+	// Output: {"per_page":10,"offset":10,"total":100,"last_page":10,"current_page":2,"next_page":3,"prev_page":1}
 }
 
 func ExampleMakeResponse_withinResponse() {
@@ -125,10 +127,12 @@ func ExampleMakeResponse_withinResponse() {
 	// 	},
 	// 	"pagination": {
 	// 		"per_page": 10,
-	// 		"page": 2,
 	// 		"offset": 10,
 	// 		"total": 100,
-	// 		"last_page": 10
+	// 		"last_page": 10,
+	// 		"current_page": 2,
+	// 		"next_page": 3,
+	// 		"prev_page": 1
 	// 	}
 	// }
 }
