@@ -25,7 +25,7 @@ func MustGet(name string) string {
 
 // TryLoadDefault will attempt to load the default environment variables.
 func TryLoadDefault(paths ...string) {
-	paths = append([]string{"infra/.env"}, paths...)
+	paths = append([]string{"infra/.env", "infra/local.env"}, paths...)
 	if err := godotenv.Load(paths...); err != nil {
 		log.Printf("could not load environment files: %s: skipping...\n", strings.Join(paths, " "))
 	}
