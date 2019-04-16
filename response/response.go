@@ -85,13 +85,13 @@ func (r Response) WriteTo(w http.ResponseWriter) error {
 
 // WriteTo writes any JSON response to a HTTP writer.
 func WriteTo(code int, i interface{}, w http.ResponseWriter) error {
-	w.WriteHeader(code)
 	// Don't attempt to write a body for 204s.
 	if code == http.StatusNoContent {
+		w.WriteHeader(code)
 		return nil
 	}
-
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
 	return json.NewEncoder(w).Encode(i)
 }
 
