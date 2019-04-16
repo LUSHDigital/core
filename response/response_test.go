@@ -18,6 +18,10 @@ func init() {
 }
 
 func TestData_MarshalJSON(t *testing.T) {
+	preq := pagination.MakeResponse(pagination.Request{
+		PerPage: 1,
+		Page:    1,
+	}, 1)
 	cases := []struct {
 		name     string
 		response *Response
@@ -33,15 +37,9 @@ func TestData_MarshalJSON(t *testing.T) {
 					Type:    "test",
 					Content: map[string]interface{}{"test": "test"},
 				},
-				Pagination: &pagination.Response{
-					PerPage:  1,
-					Page:     1,
-					Offset:   0,
-					Total:    1,
-					LastPage: 1,
-				},
+				Pagination: &preq,
 			},
-			expected: []byte(`{"code":200,"message":"","data":{"test":{"test":"test"}},"pagination":{"per_page":1,"page":1,"offset":0,"total":1,"last_page":1}}`),
+			expected: []byte(`{"code":200,"message":"","data":{"test":{"test":"test"}},"pagination":{"per_page":1,"offset":0,"total":1,"last_page":1,"current_page":1,"next_page":null,"prev_page":null}}`),
 			wantsErr: false,
 		},
 		{
@@ -104,7 +102,7 @@ func TestData_MarshalJSON(t *testing.T) {
 			if tt.wantsErr && err != nil {
 				return
 			}
-			test.Equals(t, raw, tt.expected)
+			test.Equals(t, string(raw), string(tt.expected))
 		})
 	}
 }
@@ -196,12 +194,11 @@ func TestResponse_WriteTo(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &Response{
+			Response{
 				Code:    tt.fields.Code,
 				Message: tt.fields.Message,
 				Data:    tt.fields.Data,
-			}
-			r.WriteTo(h)
+			}.WriteTo(h)
 		})
 	}
 }

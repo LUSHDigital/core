@@ -14,11 +14,13 @@ func (p Request) Offset() uint64 {
 
 // Response manages pagination of a data set.
 type Response struct {
-	PerPage  uint64 `json:"per_page"`  // The number of items per page.
-	Page     uint64 `json:"page"`      // Which page are we on?
-	Offset   uint64 `json:"offset"`    // The current offset to pass to the query.
-	Total    uint64 `json:"total"`     // The total number of items
-	LastPage uint64 `json:"last_page"` // The number of the last possible page.
+	PerPage     uint64  `json:"per_page"`     // The number of items per page.
+	Offset      uint64  `json:"offset"`       // The current offset to pass to the query.
+	Total       uint64  `json:"total"`        // The total number of items
+	LastPage    uint64  `json:"last_page"`    // The number of the last possible page.
+	CurrentPage uint64  `json:"current_page"` // The current page number.
+	NextPage    *uint64 `json:"next_page"`    // The number of the next page (if possible).
+	PrevPage    *uint64 `json:"prev_page"`    // The number of the previous page (if possible).
 }
 
 // MakeResponse returns a new Response with the provided
@@ -30,11 +32,22 @@ func MakeResponse(request Request, total uint64) Response {
 		lastPage = uint64(math.Ceil(float64(total) / float64(request.PerPage)))
 	}
 
-	return Response{
-		PerPage:  request.PerPage,
-		Page:     request.Page,
-		Total:    total,
-		Offset:   request.Offset(),
-		LastPage: lastPage,
+	resp := Response{
+		PerPage:     request.PerPage,
+		CurrentPage: request.Page,
+		Total:       total,
+		Offset:      request.Offset(),
+		LastPage:    lastPage,
 	}
+
+	if lastPage > request.Page {
+		next := request.Page + 1
+		resp.NextPage = &next
+	}
+	if request.Page > 1 {
+		prev := request.Page - 1
+		resp.PrevPage = &prev
+	}
+
+	return resp
 }
