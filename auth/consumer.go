@@ -23,7 +23,7 @@ func (c *Consumer) HasAnyGrant(grants ...string) bool {
 	return false
 }
 
-// HasAnyGrant checks if a consumer possess any of a given set of grants
+// HasAnyRole checks if a consumer possess any of a given set of roles
 func (c *Consumer) HasAnyRole(roles ...string) bool {
 	for _, role := range roles {
 		for _, r := range c.Roles {
