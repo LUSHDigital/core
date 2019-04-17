@@ -67,7 +67,7 @@ func Example() {
 }
 
 func TestServer_Addr(t *testing.T) {
-	cases := 100
+	cases := 10
 	servers := make([]*grpcsrv.Server, cases)
 	for i := 0; i < cases; i++ {
 		srv := grpcsrv.New(&grpcsrv.Config{

@@ -78,7 +78,7 @@ func TestNotFoundHandler(t *testing.T) {
 }
 
 func TestServer_Addr(t *testing.T) {
-	cases := 100
+	cases := 10
 	servers := make([]*httpsrv.Server, cases)
 	for i := 0; i < cases; i++ {
 		srv := httpsrv.New(&http.Server{
