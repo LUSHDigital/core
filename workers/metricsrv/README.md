@@ -4,7 +4,7 @@ The package `core/workers/metricsrv` provides a default set of configuration for
 ## Configuration
 The metric server can be configured through the environment to match setup in the infrastructure.
 
-- `PROMETHEUS_INTERFACE` default: `:5117`
+- `PROMETHEUS_ADDR` default: `:5117`
 - `PROMETHEUS_PATH` default: `/metrics`
 
 ## Examples
@@ -12,6 +12,11 @@ The metric server can be configured through the environment to match setup in th
 ### Starting server and exposing metrics
 
 ```go
-srv := metricsrv.New()
+srv := metricsrv.New(&metricsrv.Config{
+    Server: &http.Server{
+        Addr: "0.0.0.0:5117",
+    },
+    Path: "/metrics",
+})
 srv.Run(ctx, ioutil.Discard)
 ```
