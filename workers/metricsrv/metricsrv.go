@@ -73,7 +73,7 @@ func (s *Server) Addr() *net.TCPAddr {
 	case addr := <-s.addrC:
 		s.tcpAddr = addr
 	case <-t.C:
-		s.tcpAddr = &net.TCPAddr{}
+		return &net.TCPAddr{}
 	}
 	return s.tcpAddr
 }
