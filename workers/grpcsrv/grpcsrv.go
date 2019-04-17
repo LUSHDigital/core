@@ -50,7 +50,6 @@ type Server struct {
 
 // Run will start the gRPC server and listen for requests.
 func (gs *Server) Run(ctx context.Context, out io.Writer) error {
-	defer close(gs.addrC)
 	lis, err := net.Listen("tcp", gs.addr)
 	if err != nil {
 		return err
@@ -74,7 +73,7 @@ func (gs *Server) Addr() *net.TCPAddr {
 	case addr := <-gs.addrC:
 		gs.tcpAddr = addr
 	case <-t.C:
-		gs.tcpAddr = &net.TCPAddr{}
+		return &net.TCPAddr{}
 	}
 	return gs.tcpAddr
 }
