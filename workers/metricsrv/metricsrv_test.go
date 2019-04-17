@@ -46,7 +46,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestServer_Addr(t *testing.T) {
-	cases := 10000
+	cases := 100
 	servers := make([]*metricsrv.Server, cases)
 	for i := 0; i < cases; i++ {
 		srv := metricsrv.New(&metricsrv.Config{
