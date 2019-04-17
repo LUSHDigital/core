@@ -30,7 +30,7 @@ var service = &core.Service{
 func main() {
 	core.SetupLogs()
 
-	metrics := metricsrv.New()
+	metrics := metricsrv.New(nil)
 	broker := keybroker.NewRSA(nil)
 	readiness := readysrv.New(readysrv.Checks{
 		"rsa_key": broker,

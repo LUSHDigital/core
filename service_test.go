@@ -25,7 +25,7 @@ func ExampleService_StartWorkers() {
 	svc.StartWorkers(ctx,
 		grpcsrv.New(nil),
 		httpsrv.NewDefault(handler),
-		metricsrv.New(),
+		metricsrv.New(nil),
 		keybroker.NewRSA(nil),
 	)
 }
