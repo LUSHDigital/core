@@ -2,6 +2,7 @@ package httpsrv_test
 
 import (
 	"context"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/LUSHDigital/core/response"
+	"github.com/LUSHDigital/core/test"
 	"github.com/LUSHDigital/core/workers/httpsrv"
 )
 
@@ -73,4 +75,21 @@ func TestNotFoundHandler(t *testing.T) {
 	if status := rr.Code; status != http.StatusNotFound {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
 	}
+}
+
+func TestServer_Addr(t *testing.T) {
+	cases := 10
+	servers := make([]*httpsrv.Server, cases)
+	for i := 0; i < cases; i++ {
+		srv := httpsrv.New(&http.Server{
+			Addr:    ":",
+			Handler: handler,
+		})
+		servers[i] = srv
+		go srv.Run(ctx, ioutil.Discard)
+	}
+	for _, srv := range servers {
+		test.NotEquals(t, ":0", srv.Addr().String())
+	}
+
 }

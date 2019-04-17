@@ -122,7 +122,6 @@ type Server struct {
 
 // Run will start the gRPC server and listen for requests.
 func (gs *Server) Run(ctx context.Context, out io.Writer) error {
-	defer close(gs.addrC)
 	addr := gs.Server.Addr
 	if addr == "" {
 		addr = net.JoinHostPort("", strconv.Itoa(Port))
@@ -153,7 +152,7 @@ func (gs *Server) Addr() *net.TCPAddr {
 	case addr := <-gs.addrC:
 		gs.tcpAddr = addr
 	case <-t.C:
-		gs.tcpAddr = &net.TCPAddr{}
+		return &net.TCPAddr{}
 	}
 	return gs.tcpAddr
 }

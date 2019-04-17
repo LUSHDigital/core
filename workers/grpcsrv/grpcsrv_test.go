@@ -65,3 +65,19 @@ func Example() {
 	)
 	srv.Run(ctx, ioutil.Discard)
 }
+
+func TestServer_Addr(t *testing.T) {
+	cases := 10
+	servers := make([]*grpcsrv.Server, cases)
+	for i := 0; i < cases; i++ {
+		srv := grpcsrv.New(&grpcsrv.Config{
+			Addr: ":",
+		})
+		servers[i] = srv
+		go srv.Run(ctx, ioutil.Discard)
+	}
+	for _, srv := range servers {
+		test.NotEquals(t, ":0", srv.Addr().String())
+	}
+
+}
