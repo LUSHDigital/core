@@ -26,6 +26,7 @@ func (sources Sources) Get(ctx context.Context) ([]byte, error) {
 		if err == nil {
 			return bts, nil
 		}
+		log.Printf("could not resolve source %s: %v: skipping...\n", source, err)
 	}
 	return nil, ErrNoSourcesResolved{
 		N: len(sources),
