@@ -3,8 +3,9 @@ package tracingmw
 import (
 	"net/http"
 
-	"github.com/LUSHDigital/core/response"
 	"github.com/gofrs/uuid"
+
+	"github.com/LUSHDigital/core/rest"
 )
 
 const (
@@ -17,7 +18,7 @@ func EnsureRequestID(next http.Handler) http.Handler {
 		if r.Header.Get(httpHeaderRequestIDKey) == "" {
 			requestID, err := uuid.NewV4()
 			if err != nil {
-				response.InternalError(err).WriteTo(w)
+				rest.InternalError(err).WriteTo(w)
 				return
 			}
 			r.Header.Add(httpHeaderRequestIDKey, requestID.String())

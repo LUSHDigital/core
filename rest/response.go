@@ -1,5 +1,5 @@
-// Package response defines the how the default microservice response must look and behave like.
-package response
+// Package rest defines the how the default microservice response must look and behave like.
+package rest
 
 import (
 	"encoding/json"

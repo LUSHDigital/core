@@ -10,7 +10,7 @@ import (
 
 	"github.com/LUSHDigital/core/auth"
 	"github.com/LUSHDigital/core/middleware/authmw"
-	"github.com/LUSHDigital/core/response"
+	"github.com/LUSHDigital/core/rest"
 	"github.com/LUSHDigital/core/test"
 	"github.com/LUSHDigital/core/workers/keybroker/keybrokermock"
 )
@@ -112,14 +112,14 @@ func TestHandlerValidateJWT(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			handler := authmw.HandlerValidateJWT(c.broker, func(w http.ResponseWriter, r *http.Request) {
 				consumer := auth.ConsumerFromContext(r.Context())
-				response.Response{Code: http.StatusOK, Message: "", Data: &response.Data{Type: "consumer", Content: consumer}}.WriteTo(w)
+				rest.Response{Code: http.StatusOK, Message: "", Data: &rest.Data{Type: "consumer", Content: consumer}}.WriteTo(w)
 			})
 			handler.ServeHTTP(recorder, req)
 			test.Equals(t, c.expectedStatusCode, recorder.Code)
 
 			if c.expectedStatusCode == http.StatusOK {
 				var consumer auth.Consumer
-				response.UnmarshalJSONResponse(recorder.Body.Bytes(), &consumer)
+				rest.UnmarshalJSONResponse(recorder.Body.Bytes(), &consumer)
 				test.Equals(t, c.claims.Consumer.ID, consumer.ID)
 			}
 		})

@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/LUSHDigital/core/auth"
-	"github.com/LUSHDigital/core/response"
+	"github.com/LUSHDigital/core/rest"
 )
 
 const (
@@ -26,7 +26,7 @@ func HandlerValidateJWT(brk auth.RSAPublicKeyCopierRenewer, next http.HandlerFun
 			case auth.TokenSignatureError:
 				brk.Renew() // Renew the public key if there's an error validating the token signature
 			}
-			res := &response.Response{Code: http.StatusUnauthorized, Message: err.Error()}
+			res := &rest.Response{Code: http.StatusUnauthorized, Message: err.Error()}
 			res.WriteTo(w)
 			return
 		}
@@ -40,7 +40,7 @@ func HandlerGrants(grants []string, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		consumer := auth.ConsumerFromContext(r.Context())
 		if !consumer.HasAnyGrant(grants...) {
-			res := &response.Response{Code: http.StatusUnauthorized, Message: msgMissingRequiredGrants}
+			res := &rest.Response{Code: http.StatusUnauthorized, Message: msgMissingRequiredGrants}
 			res.WriteTo(w)
 			return
 		}
@@ -53,7 +53,7 @@ func HandlerRoles(roles []string, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		consumer := auth.ConsumerFromContext(r.Context())
 		if !consumer.HasAnyRole(roles...) {
-			res := &response.Response{Code: http.StatusUnauthorized, Message: msgMissingRequiredGrants}
+			res := &rest.Response{Code: http.StatusUnauthorized, Message: msgMissingRequiredGrants}
 			res.WriteTo(w)
 			return
 		}

@@ -50,10 +50,10 @@ func ExamplePaginationResponse() {
 	}
 	presp := pagination.MakeResponse(preq, 100)
 
-	resp := response.Response{
+	resp := rest.Response{
 		Code:    http.StatusOK,
 		Message: "some helpful message",
-		Data: &response.Data{
+		Data: &rest.Data{
 			Type:    "some_data",
 			Content: map[string]interface{}{"hello": "world"},
 		},
