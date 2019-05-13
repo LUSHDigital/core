@@ -8,6 +8,7 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"log"
 
@@ -17,19 +18,22 @@ import (
 // Service represents the minimal information required to define a working service.
 type Service struct {
 	// Name represents the name of the service, typically the same as the github repository.
-	Name string `json:"service_name"`
+	Name string `json:"name"`
 	// Type represents the type of the service, eg. service or aggregator.
-	Type string `json:"service_type"`
-	// Version represents the SVC tagged version of the service.
-	Version string `json:"service_version"`
+	Type string `json:"type"`
+	// Version represents the latest version or SVC tag of the service.
+	Version string `json:"version"`
+	// Revision represents the SVC revision or commit hash of the service.
+	Revision string `json:"revision"`
 }
 
 // NewService reads a service definition from the environment.
 func NewService() *Service {
 	return &Service{
-		Name:    env.MustGet("SERVICE_NAME"),
-		Type:    env.MustGet("SERVICE_TYPE"),
-		Version: env.MustGet("SERVICE_VERSION"),
+		Name:     env.MustGet("SERVICE_NAME"),
+		Type:     env.MustGet("SERVICE_TYPE"),
+		Version:  env.MustGet("SERVICE_VERSION"),
+		Revision: env.MustGet("SERVICE_REVISION"),
 	}
 }
 
@@ -47,6 +51,9 @@ func (f writer) Write(b []byte) (int, error) {
 
 // StartWorkers will start the given service workers and block block indefinitely.
 func (s *Service) StartWorkers(ctx context.Context, workers ...ServiceWorker) {
+	if s.Name == "" || s.Type == "" {
+		log.Fatalln("cannot start without a name or type")
+	}
 	var out = writer(func(b []byte) (int, error) {
 		log.Print(string(b))
 		return len(b), nil
@@ -56,7 +63,14 @@ func (s *Service) StartWorkers(ctx context.Context, workers ...ServiceWorker) {
 			log.Fatalln(err)
 		}
 	}
-	log.Printf("starting %s: %s (%s)\n", s.Type, s.Name, s.Version)
+	msg := fmt.Sprintf("starting %s: %s", s.Type, s.Name)
+	if s.Version != "" {
+		msg = fmt.Sprintf("%s %s", msg, s.Version)
+	}
+	if s.Revision != "" {
+		msg = fmt.Sprintf("%s (%s)", msg, s.Revision)
+	}
+	log.Println(msg)
 	for _, worker := range workers {
 		go work(worker)
 	}
