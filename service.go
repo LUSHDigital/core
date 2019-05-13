@@ -68,7 +68,7 @@ func (s *Service) StartWorkers(ctx context.Context, workers ...ServiceWorker) {
 		msg = fmt.Sprintf("%s %s", msg, s.Version)
 	}
 	if s.Revision != "" {
-		msg = fmt.Sprintf("%s (%s)", msg, s.Revision)
+		msg = fmt.Sprintf("%s (%s)", msg, s.Revision[0:6])
 	}
 	log.Println(msg)
 	for _, worker := range workers {
