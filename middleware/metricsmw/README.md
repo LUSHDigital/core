@@ -1,6 +1,5 @@
-# Metrics
-The package `core/metrics` is used to record and expose metrics for an application.
-The metrics server is be provided over HTTP using the prometheus extraction protocol.
+# Metrics Middleware
+The package `core/workers/metricsmw` is used to record and expose metrics for an application. The metrics server is be provided over HTTP using the prometheus extraction protocol.
 
 You can read more about [using prometheus in go on the their offical website](https://prometheus.io/docs/guides/go-application/).
 

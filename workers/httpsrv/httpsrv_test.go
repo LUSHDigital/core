@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/LUSHDigital/core/response"
+	"github.com/LUSHDigital/core/rest"
 	"github.com/LUSHDigital/core/test"
 	"github.com/LUSHDigital/core/workers/httpsrv"
 )
@@ -54,7 +54,7 @@ func TestHealthHandler(t *testing.T) {
 	}
 
 	res := &httpsrv.HealthResponse{}
-	if err := response.UnmarshalJSONResponse(rr.Body.Bytes(), res); err != nil {
+	if err := rest.UnmarshalJSONResponse(rr.Body.Bytes(), res); err != nil {
 		t.Fatal(err)
 	}
 

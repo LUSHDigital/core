@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/LUSHDigital/core/pagination"
-	"github.com/LUSHDigital/core/response"
+	"github.com/LUSHDigital/core/rest"
 )
 
 // TestMakeResponse tests that the response is being tested
@@ -105,10 +105,10 @@ func ExampleMakeResponse_withinResponse() {
 	}
 	presp := pagination.MakeResponse(preq, 100)
 
-	resp := response.Response{
+	resp := rest.Response{
 		Code:    http.StatusOK,
 		Message: "some helpful message",
-		Data: &response.Data{
+		Data: &rest.Data{
 			Type:    "some_data",
 			Content: map[string]interface{}{"hello": "world"},
 		},

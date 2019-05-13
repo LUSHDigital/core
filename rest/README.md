@@ -1,8 +1,5 @@
-# Response
-
-The response package provides ways to create HTTP + JSON responses in a consistent format.
-
-Below are usage example which demonstrate it's use.
+# REST
+The response package provides ways to create HTTP + JSON responses in a consistent format. Below are usage example which demonstrate it's use.
 
 ## Respond without data
 
@@ -13,11 +10,11 @@ import (
 	"net/http"
 	
 	"github.com/LUSHDigital/core/pagination"
-	"github.com/LUSHDigital/core/response"
+	"github.com/LUSHDigital/core/rest"
 )
 
 func someHandler(w http.ResponseWriter, r *http.Request) {
-    resp := &response.Response{
+    resp := &rest.Response{
         Code:    http.StatusOK,
         Message: "some helpful message",
     }
@@ -42,7 +39,7 @@ import (
 	"net/http"
 	
 	"github.com/LUSHDigital/core/pagination"
-	"github.com/LUSHDigital/core/response"
+	"github.com/LUSHDigital/core/rest"
 )
 
 func someHandler(w http.ResponseWriter, r *http.Request) {
@@ -50,10 +47,10 @@ func someHandler(w http.ResponseWriter, r *http.Request) {
         "hello": "world",
     }
     
-    resp := &response.Response{
+    resp := &rest.Response{
         Code:    http.StatusOK,
         Message: "some helpful message",
-        Data: &response.Data{
+        Data: &rest.Data{
             Type:    "something",
             Content: someData,
         },
@@ -84,7 +81,7 @@ import (
 	"net/http"
 	
 	"github.com/LUSHDigital/core/pagination"
-	"github.com/LUSHDigital/core/response"
+	"github.com/LUSHDigital/core/rest"
 )
 
 func someHandler(w http.ResponseWriter, r *http.Request) {
@@ -97,10 +94,10 @@ func someHandler(w http.ResponseWriter, r *http.Request) {
         Page:    1,
     }
     paginator := pagination.MakeResponse(preq, 100)
-    resp := &response.Response{
+    resp := &rest.Response{
         Code:    http.StatusOK,
         Message: "some helpful message",
-        Data: &response.Data{
+        Data: &rest.Data{
             Type:    "something",
             Content: someData,
         },

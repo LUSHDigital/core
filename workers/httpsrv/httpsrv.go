@@ -11,8 +11,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/LUSHDigital/core/response"
 	"github.com/dustin/go-humanize"
+
+	"github.com/LUSHDigital/core/rest"
 )
 
 const (
@@ -23,7 +24,7 @@ const (
 var (
 	// NotFoundHandler responds with the default a 404 response.
 	NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		res := &response.Response{
+		res := &rest.Response{
 			Code:    http.StatusNotFound,
 			Message: http.StatusText(http.StatusNotFound),
 		}
@@ -61,10 +62,10 @@ func HealthHandler(now func() time.Time) http.HandlerFunc {
 		runtime.ReadMemStats(&mem)
 
 		latency := time.Since(start).Nanoseconds() / (1 * 1000 * 1000) // Milliseconds
-		res := &response.Response{
+		res := &rest.Response{
 			Code:    http.StatusOK,
 			Message: http.StatusText(http.StatusOK),
-			Data: &response.Data{
+			Data: &rest.Data{
 				Type: "health",
 				Content: HealthResponse{
 					Latency:       fmt.Sprintf("%d ms", latency),
