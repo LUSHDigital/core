@@ -13,7 +13,7 @@ You can also put your key on the location `/usr/local/var/jwt.pub` and it will b
 ## Examples
 
 ```go
-broker := keybroker.NewRSA(&keybroker.Config{
+broker := keybroker.NewPublicRSA(&keybroker.Config{
     Source:   keybroker.JWTPublicKeySources,
     Interval: 5 * time.Second,
 })
