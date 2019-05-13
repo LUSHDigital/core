@@ -1,8 +1,5 @@
 # REST
-
-The response package provides ways to create HTTP + JSON responses in a consistent format.
-
-Below are usage example which demonstrate it's use.
+The response package provides ways to create HTTP + JSON responses in a consistent format. Below are usage example which demonstrate it's use.
 
 ## Respond without data
 

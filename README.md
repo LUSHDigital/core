@@ -63,22 +63,21 @@ These packages contain functionality for the core concepts of our services.
 - [core/env](https://github.com/LUSHDigital/core/tree/master/env#env)
 - [core/pagination](https://github.com/LUSHDigital/core/tree/master/pagination#pagination)
 - [core/rest](https://github.com/LUSHDigital/core/tree/master/rest#REST)
-- [core/metrics](https://github.com/LUSHDigital/core/tree/master/metrics#metrics)
 - [core/test](https://github.com/LUSHDigital/core/tree/master/test#test)
 
 ### Middlewares
 These packages contain convenient middlewares for transport protocols like HTTP REST and gRPC.
 
-- [core/middleware/tracingmw](https://github.com/LUSHDigital/core/tree/master/middleware/tracingmw)
-- [core/middleware/paginationmw](https://github.com/LUSHDigital/core/tree/master/middleware/paginationmw)
-- [core/middleware/authmw](https://github.com/LUSHDigital/core/tree/master/middleware/authmw)
-- [core/middleware/metricsmw](https://github.com/LUSHDigital/core/tree/master/middleware/metricsmw)
+- [core/middleware/authmw](https://github.com/LUSHDigital/core/tree/master/middleware/authmw#auth-middleware)
+- [core/middleware/metricsmw](https://github.com/LUSHDigital/core/tree/master/middleware/metricsmw#metrics-middleware)
+- [core/middleware/paginationmw](https://github.com/LUSHDigital/core/tree/master/middleware/paginationmw#pagination-middleware)
+- [core/middleware/tracingmw](https://github.com/LUSHDigital/core/tree/master/middleware/tracingmw#tracing-middleware)
 
 ### Service Workers
 These packages contain convenient service workers things like network servers, background workers and message brokers.
 
 - [core/workers/grpcsrv](https://github.com/LUSHDigital/core/tree/master/workers/grpcsrv#grpc-server)
 - [core/workers/httpsrv](https://github.com/LUSHDigital/core/tree/master/workers/httpsrv#http-server)
-- [core/workers/readysrv](https://github.com/LUSHDigital/core/tree/master/workers/readysrv#ready-server)
-- [core/workers/metricsrv](https://github.com/LUSHDigital/core/tree/master/workers/metricsrv#metric-server)
 - [core/workers/keybroker](https://github.com/LUSHDigital/core/tree/master/workers/keybroker#key-broker)
+- [core/workers/metricsrv](https://github.com/LUSHDigital/core/tree/master/workers/metricsrv#metric-server)
+- [core/workers/readysrv](https://github.com/LUSHDigital/core/tree/master/workers/readysrv#ready-server)
