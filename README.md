@@ -81,3 +81,14 @@ These packages contain convenient service workers things like network servers, b
 - [core/workers/keybroker](https://github.com/LUSHDigital/core/tree/master/workers/keybroker#key-broker)
 - [core/workers/metricsrv](https://github.com/LUSHDigital/core/tree/master/workers/metricsrv#metric-server)
 - [core/workers/readysrv](https://github.com/LUSHDigital/core/tree/master/workers/readysrv#ready-server)
+
+## Plugins
+There are a few libraries that can be used in conjunction with the core library containing their own service workers, ready checks and/or middlewares.
+
+- [core-redis](https://github.com/LUSHDigital/core-redis#core-redis): Libraries for connecting to, and working with a Redis store.
+- [core-sql](https://github.com/LUSHDigital/core-sql#core-sql): Libraries for connecting to, and working with an SQL database.
+
+## Tools
+There are a few tools that can be used with projects that use the core libary.
+
+- [jwtl](https://github.com/LUSHDigital/jwtl#jwtl-json-web-token-command-line-tool): A command line tool to help generating JWTs during development.
