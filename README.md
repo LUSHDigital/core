@@ -87,3 +87,8 @@ There are a few libraries that can be used in conjunction with the core library 
 
 - [core-redis](https://github.com/LUSHDigital/core-redis#core-redis): Libraries for connecting to, and working with a Redis store.
 - [core-sql](https://github.com/LUSHDigital/core-sql#core-sql): Libraries for connecting to, and working with an SQL database.
+
+## Tools
+There are a few tools that can be used with projects that use the core libary.
+
+- [jwtl](https://github.com/LUSHDigital/jwtl#jwtl-json-web-token-command-line-tool): A command line tool to help generating JWTs during development.
