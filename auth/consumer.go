@@ -3,6 +3,7 @@ package auth
 // Consumer represents an API user
 type Consumer struct {
 	ID        int64    `json:"id"`
+	UUID      string   `json:"uuid"`
 	FirstName string   `json:"first_name"`
 	LastName  string   `json:"last_name"`
 	Language  string   `json:"language"`
@@ -39,4 +40,9 @@ func (c *Consumer) HasAnyRole(roles ...string) bool {
 // IsUser checks if a consumer has the same ID as a user
 func (c *Consumer) IsUser(userID int64) bool {
 	return c.ID == userID
+}
+
+// HasUUID checks if a consumer has the same uuid as a user
+func (c *Consumer) HasUUID(id string) bool {
+	return c.UUID == id
 }
