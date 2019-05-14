@@ -8,6 +8,7 @@ type Consumer struct {
 	Language  string   `json:"language"`
 	Grants    []string `json:"grants"`
 	Roles     []string `json:"roles"`
+	Needs     []string `json:"needs"`
 }
 
 // HasAnyGrant checks if a consumer possess any of a given set of grants
@@ -27,6 +28,19 @@ func (c *Consumer) HasAnyGrant(grants ...string) bool {
 func (c *Consumer) HasAnyRole(roles ...string) bool {
 	for _, role := range roles {
 		for _, r := range c.Roles {
+			if role == r {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+// HasAnyNeed checks if a consumer has any of the given needs
+func (c *Consumer) HasAnyNeed(needs ...string) bool {
+	for _, role := range needs {
+		for _, r := range c.Needs {
 			if role == r {
 				return true
 			}
