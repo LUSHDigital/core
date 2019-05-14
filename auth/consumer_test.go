@@ -37,16 +37,16 @@ func TestConsumer_HasAnyRole(t *testing.T) {
 			"test.baz",
 		},
 	}
-	t.Run("when using one grant that exists", func(t *testing.T) {
+	t.Run("when using one role that exists", func(t *testing.T) {
 		test.Equals(t, true, c.HasAnyRole("test.foo"))
 	})
-	t.Run("when using two grants where one does not exist", func(t *testing.T) {
+	t.Run("when using two roles where one does not exist", func(t *testing.T) {
 		test.Equals(t, true, c.HasAnyRole("test.foo", "doesnot.exist"))
 	})
-	t.Run("when using one grant that does not exist", func(t *testing.T) {
+	t.Run("when using one role that does not exist", func(t *testing.T) {
 		test.Equals(t, false, c.HasAnyRole("doesnot.exist"))
 	})
-	t.Run("when using two grants that does not exist", func(t *testing.T) {
+	t.Run("when using two roles that does not exist", func(t *testing.T) {
 		test.Equals(t, false, c.HasAnyRole("doesnot.exist", "has.no.access"))
 	})
 }
