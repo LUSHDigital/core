@@ -29,6 +29,28 @@ func TestConsumer_HasAnyGrant(t *testing.T) {
 	})
 }
 
+func TestConsumer_HasAnyRole(t *testing.T) {
+	c := &auth.Consumer{
+		Roles: []string{
+			"test.foo",
+			"test.bar",
+			"test.baz",
+		},
+	}
+	t.Run("when using one grant that exists", func(t *testing.T) {
+		test.Equals(t, true, c.HasAnyRole("test.foo"))
+	})
+	t.Run("when using two grants where one does not exist", func(t *testing.T) {
+		test.Equals(t, true, c.HasAnyRole("test.foo", "doesnot.exist"))
+	})
+	t.Run("when using one grant that does not exist", func(t *testing.T) {
+		test.Equals(t, false, c.HasAnyRole("doesnot.exist"))
+	})
+	t.Run("when using two grants that does not exist", func(t *testing.T) {
+		test.Equals(t, false, c.HasAnyRole("doesnot.exist", "has.no.access"))
+	})
+}
+
 func TestConsumer_IsUser(t *testing.T) {
 	c := &auth.Consumer{
 		ID: 1,
