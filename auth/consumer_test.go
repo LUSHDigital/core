@@ -5,6 +5,7 @@ import (
 
 	"github.com/LUSHDigital/core/auth"
 	"github.com/LUSHDigital/core/test"
+	"github.com/gofrs/uuid"
 )
 
 func TestConsumer_HasAnyGrant(t *testing.T) {
@@ -82,5 +83,19 @@ func TestConsumer_IsUser(t *testing.T) {
 	})
 	t.Run("when its not the same user", func(t *testing.T) {
 		test.Equals(t, false, c.IsUser(2))
+	})
+}
+
+func TestConsumer_HasUUID(t *testing.T) {
+	id1 := uuid.Must(uuid.NewV4()).String()
+	id2 := uuid.Must(uuid.NewV4()).String()
+	c := &auth.Consumer{
+		UUID: id1,
+	}
+	t.Run("when its the same user", func(t *testing.T) {
+		test.Equals(t, true, c.HasUUID(id1))
+	})
+	t.Run("when its not the same user", func(t *testing.T) {
+		test.Equals(t, false, c.HasUUID(id2))
 	})
 }
