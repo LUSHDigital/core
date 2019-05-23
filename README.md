@@ -61,6 +61,7 @@ These packages contain functionality for the core concepts of our services.
 
 - [core/auth](https://github.com/LUSHDigital/core/tree/master/auth#auth)
 - [core/env](https://github.com/LUSHDigital/core/tree/master/env#env)
+- [core/i18n](https://github.com/LUSHDigital/core/tree/master/i18n#internationalisation)
 - [core/pagination](https://github.com/LUSHDigital/core/tree/master/pagination#pagination)
 - [core/rest](https://github.com/LUSHDigital/core/tree/master/rest#REST)
 - [core/test](https://github.com/LUSHDigital/core/tree/master/test#test)
