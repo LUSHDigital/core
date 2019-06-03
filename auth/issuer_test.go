@@ -2,7 +2,6 @@ package auth_test
 
 import (
 	"fmt"
-	"log"
 	"testing"
 
 	"github.com/LUSHDigital/core/auth"
@@ -25,7 +24,6 @@ func ExampleIssuer_Issue() {
 	}
 	raw, err := issuer.Issue(consumer)
 	if err != nil {
-		log.Println(err)
 		return
 	}
 	fmt.Println(raw)
