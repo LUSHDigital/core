@@ -6,8 +6,8 @@ import (
 	"net"
 	"testing"
 
+	"github.com/LUSHDigital/core/middleware/internal/greeter"
 	"github.com/LUSHDigital/core/middleware/paginationmw"
-	greeter "github.com/LUSHDigital/core/middleware/paginationmw/internal/greeter"
 	"github.com/LUSHDigital/core/pagination"
 	"github.com/LUSHDigital/core/test"
 

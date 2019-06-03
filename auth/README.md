@@ -35,7 +35,6 @@ consumer := &auth.Consumer{
 }
 raw, err := issuer.Issue(consumer)
 if err != nil {
-	log.Println(err)
 	return
 }
 fmt.Println(raw)
