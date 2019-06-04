@@ -89,7 +89,6 @@ func (s *Server) Run(ctx context.Context, out io.Writer) error {
 	mux := http.NewServeMux()
 	mux.Handle(s.Path, promhttp.Handler())
 	s.Server.Handler = mux
-
-	fmt.Fprintf(out, "serving prometheus metrics over http on %s%s", s.Addr().String(), s.Path)
+	fmt.Fprintf(out, "serving prometheus metrics over http on http://%s%s", s.Addr().String(), s.Path)
 	return s.Server.Serve(lis)
 }
