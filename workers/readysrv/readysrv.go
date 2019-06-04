@@ -44,7 +44,7 @@ func (s *Server) Run(ctx context.Context, out io.Writer) error {
 	if path == "" {
 		path = DefaultPath
 	}
-	fmt.Fprintf(out, "serving readiness checks server over http on %s%s", s.Interface, s.Path)
+	fmt.Fprintf(out, "serving readiness checks server over http on http://%s%s", s.Interface, s.Path)
 	http.Handle(path, CheckHandler(s.Checks))
 	return http.ListenAndServe(addr, nil)
 
