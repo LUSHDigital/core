@@ -7,6 +7,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"os"
 	"runtime"
 	"strconv"
 	"time"
@@ -105,7 +106,13 @@ func New(server *http.Server) *Server {
 	if server.ReadHeaderTimeout == 0 {
 		server.ReadHeaderTimeout = DefaultHTTPServer.ReadHeaderTimeout
 	}
-
+	if server.Addr == "" {
+		var addr string
+		if addr = os.Getenv("HTTP_ADDR"); addr == "" {
+			addr = net.JoinHostPort("0.0.0.0", strconv.Itoa(Port))
+		}
+		server.Addr = addr
+	}
 	return &Server{
 		Server: server,
 		Now:    time.Now,
@@ -124,9 +131,6 @@ type Server struct {
 // Run will start the gRPC server and listen for requests.
 func (gs *Server) Run(ctx context.Context, out io.Writer) error {
 	addr := gs.Server.Addr
-	if addr == "" {
-		addr = net.JoinHostPort("", strconv.Itoa(Port))
-	}
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		return err
