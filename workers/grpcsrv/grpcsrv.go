@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"os"
 	"strconv"
 	"time"
 
@@ -27,9 +28,14 @@ type Config struct {
 // New sets up a new grpc server.
 func New(config *Config, options ...grpc.ServerOption) *Server {
 	if config == nil {
-		config = &Config{
-			Addr: net.JoinHostPort("", strconv.Itoa(Port)),
+		config = &Config{}
+	}
+	if config.Addr == "" {
+		var addr string
+		if addr = os.Getenv("GRPC_ADDR"); addr == "" {
+			addr = net.JoinHostPort("0.0.0.0", strconv.Itoa(Port))
 		}
+		config.Addr = addr
 	}
 	return &Server{
 		Connection: grpc.NewServer(options...),
