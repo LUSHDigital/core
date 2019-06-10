@@ -1,6 +1,7 @@
 package test_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/LUSHDigital/core/test"
@@ -30,6 +31,10 @@ func TestEquals(t *testing.T) {
 		{
 			actual:   struct{}{},
 			expected: struct{}{},
+		},
+		{
+			actual:   fmt.Errorf("failed"),
+			expected: fmt.Errorf("failed"),
 		},
 	}
 	for n, tC := range testCases {
@@ -63,6 +68,10 @@ func TestNotEquals(t *testing.T) {
 		{
 			actual:   struct{}{},
 			expected: false,
+		},
+		{
+			actual:   fmt.Errorf("failed"),
+			expected: nil,
 		},
 	}
 	for n, tC := range testCases {
