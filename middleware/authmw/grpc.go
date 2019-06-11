@@ -95,13 +95,20 @@ func InterceptServerJWT(ctx context.Context, broker RSAPublicKeyCopierRenewer) (
 	return claims.Consumer, nil
 }
 
+func handleInterceptError(err error) {
+	switch err {
+	case ErrMetadataMissing, ErrAuthTokenMissing:
+	default:
+		log.Printf("grpc auth middleware error: %v\n", err)
+	}
+}
+
 // UnaryServerInterceptor is a gRPC server-side interceptor that checks that JWT provided is valid for unary procedures
 func UnaryServerInterceptor(broker RSAPublicKeyCopierRenewer) func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		consumer, err := InterceptServerJWT(ctx, broker)
 		if err != nil {
-			log.Printf("grpc auth middleware error: %v\n", err)
-			consumer = auth.Consumer{}
+			handleInterceptError(err)
 		}
 		resp, err := handler(auth.ContextWithConsumer(ctx, consumer), req)
 		return resp, err
@@ -113,8 +120,7 @@ func StreamServerInterceptor(broker RSAPublicKeyCopierRenewer) func(srv interfac
 	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		consumer, err := InterceptServerJWT(ss.Context(), broker)
 		if err != nil {
-			log.Printf("grpc auth middleware error: %v\n", err)
-			consumer = auth.Consumer{}
+			handleInterceptError(err)
 		}
 		err = handler(srv, &authenticatedServerStream{ss, consumer})
 		return err
