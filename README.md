@@ -95,3 +95,10 @@ There are a few libraries that can be used in conjunction with the core library 
 There are a few tools that can be used with projects that use the core libary.
 
 - [jwtl](https://github.com/LUSHDigital/jwtl#jwtl-json-web-token-command-line-tool): A command line tool to help generating JWTs during development.
+
+## Recommended Libraries
+Some libraries have been designed to work together with the core library and some are even dependencies.
+Consider using these if you need extended functionality for certain things.
+
+- [LUSHDigital/scan](https://github.com/LUSHDigital/scan) Scan database/sql rows directly to structs, slices, and primitive types, originally forked from https://github.com/blockloop/scan
+- [LUSHDigital/uuid](https://github.com/LUSHDigital/uuid) A UUID package originally forked from https://github.com/gofrs/uuid & github.com/satori/go.uuid
