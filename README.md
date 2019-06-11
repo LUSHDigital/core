@@ -100,5 +100,5 @@ There are a few tools that can be used with projects that use the core libary.
 Some libraries have been designed to work together with the core library and some are even dependencies.
 Consider using these if you need extended functionality for certain things.
 
-- [LUSHDigital/scan](https://github.com/LUSHDigital/scan) Scan database/sql rows directly to structs, slices, and primitive types, originally forked from https://github.com/blockloop/scan
-- [LUSHDigital/uuid](https://github.com/LUSHDigital/uuid) A UUID package originally forked from https://github.com/gofrs/uuid & github.com/satori/go.uuid
+- [LUSHDigital/scan](https://github.com/LUSHDigital/scan): Scan database/sql rows directly to structs, slices, and primitive types, originally forked from github.com/blockloop/scan
+- [LUSHDigital/uuid](https://github.com/LUSHDigital/uuid): A UUID package originally forked from github.com/gofrs/uuid & github.com/satori/go.uuid
