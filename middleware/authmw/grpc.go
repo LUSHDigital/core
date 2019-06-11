@@ -2,6 +2,7 @@ package authmw
 
 import (
 	"context"
+	"log"
 
 	"github.com/LUSHDigital/core/auth"
 	"google.golang.org/grpc"
@@ -99,7 +100,8 @@ func UnaryServerInterceptor(broker RSAPublicKeyCopierRenewer) func(ctx context.C
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		consumer, err := InterceptServerJWT(ctx, broker)
 		if err != nil {
-			return nil, err
+			log.Printf("grpc auth middleware error: %v\n", err)
+			consumer = auth.Consumer{}
 		}
 		resp, err := handler(auth.ContextWithConsumer(ctx, consumer), req)
 		return resp, err
@@ -111,7 +113,8 @@ func StreamServerInterceptor(broker RSAPublicKeyCopierRenewer) func(srv interfac
 	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		consumer, err := InterceptServerJWT(ss.Context(), broker)
 		if err != nil {
-			return err
+			log.Printf("grpc auth middleware error: %v\n", err)
+			consumer = auth.Consumer{}
 		}
 		err = handler(srv, &authenticatedServerStream{ss, consumer})
 		return err
