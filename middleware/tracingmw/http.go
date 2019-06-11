@@ -3,7 +3,7 @@ package tracingmw
 import (
 	"net/http"
 
-	"github.com/gofrs/uuid"
+	"github.com/LUSHDigital/uuid"
 
 	"github.com/LUSHDigital/core/rest"
 )

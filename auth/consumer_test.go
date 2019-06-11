@@ -5,7 +5,7 @@ import (
 
 	"github.com/LUSHDigital/core/auth"
 	"github.com/LUSHDigital/core/test"
-	"github.com/gofrs/uuid"
+	"github.com/LUSHDigital/uuid"
 )
 
 func TestConsumer_HasAnyGrant(t *testing.T) {

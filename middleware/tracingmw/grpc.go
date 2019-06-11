@@ -3,7 +3,7 @@ package tracingmw
 import (
 	"context"
 
-	"github.com/gofrs/uuid"
+	"github.com/LUSHDigital/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
