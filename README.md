@@ -31,7 +31,7 @@ func main() {
 	core.SetupLogs()
 
 	metrics := metricsrv.New(nil)
-	broker := keybroker.NewRSA(nil)
+	broker := keybroker.NewPublicRSA(nil)
 	readiness := readysrv.New(readysrv.Checks{
 		"rsa_key": broker,
 	})
