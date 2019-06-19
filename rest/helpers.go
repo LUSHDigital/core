@@ -54,7 +54,12 @@ func ConflictErr(msg string) *Response {
 }
 
 // InternalError returns a prepared 500 Internal Server Error, including the error
-// message in the message field of the response object
+// message in the message field of the response object.
 func InternalError(err error) *Response {
 	return &Response{Code: http.StatusInternalServerError, Message: fmt.Sprintf("internal server error: %v", err)}
+}
+
+// Unauthorized returns a prepared 401 Unauthorized error.
+func Unauthorized() *Response {
+	return &Response{Code: http.StatusUnauthorized, Message: http.StatusText(http.StatusUnauthorized)}
 }
