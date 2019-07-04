@@ -41,7 +41,7 @@ func InterceptLocale(ctx context.Context) (string, error) {
 		}
 	}
 	if locale == "" {
-		locale = i18n.DefaultLanguage
+		locale = i18n.DefaultLocale
 	}
 	return locale, nil
 }
