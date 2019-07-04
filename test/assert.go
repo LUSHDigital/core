@@ -13,24 +13,37 @@ const (
 // Equals performs a deep equal comparison against two values and fails if they are not the same.
 func Equals(tb testing.TB, expected, actual interface{}) {
 	tb.Helper()
-	if !reflect.DeepEqual(expected, actual) {
-		tb.Fatalf(tmpl(actual), expected, actual)
+	switch exp := expected.(type) {
+	case error:
+		act, ok := actual.(error)
+		if !ok {
+			tb.Fatalf("actual value should be of type %T", actual)
+		}
+		if !reflect.DeepEqual(exp.Error(), act.Error()) {
+			tb.Fatalf(tmplEQErr, expected, actual)
+		}
+	default:
+		if !reflect.DeepEqual(expected, actual) {
+			tb.Fatalf(tmplEQ, expected, actual)
+		}
 	}
 }
 
 // NotEquals performs a deep equal comparison against two values and fails if they are the same.
 func NotEquals(tb testing.TB, expected, actual interface{}) {
 	tb.Helper()
-	if reflect.DeepEqual(expected, actual) {
-		tb.Fatalf(tmpl(actual), expected, actual)
-	}
-}
-
-func tmpl(t interface{}) string {
-	switch t.(type) {
+	switch exp := expected.(type) {
 	case error:
-		return tmplEQErr
+		act, ok := actual.(error)
+		if !ok {
+			tb.Fatalf("actual value should be of type %T", actual)
+		}
+		if reflect.DeepEqual(exp.Error(), act.Error()) {
+			tb.Fatalf(tmplEQErr, expected, actual)
+		}
 	default:
-		return tmplEQ
+		if reflect.DeepEqual(expected, actual) {
+			tb.Fatalf(tmplEQ, expected, actual)
+		}
 	}
 }
