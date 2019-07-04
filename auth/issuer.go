@@ -11,24 +11,24 @@ import (
 )
 
 const (
-	// DefaultTokenValidPeriod is the default amount of minutes a token is valid
-	DefaultTokenValidPeriod = 60
+	// DefaultValidPeriod is the default amount of minutes a token is valid
+	DefaultValidPeriod = time.Duration(60 * time.Minute)
 )
 
 // IssuerConfig is a set of data to configure an issuer
 type IssuerConfig struct {
-	Name             string
-	TokenValidPeriod int
-	Now              func() time.Time
+	Name        string
+	ValidPeriod time.Duration
+	TimeFunc    func() time.Time
 }
 
 // Issuer represents a set of methods for generating a JWT with a private key
 type Issuer struct {
-	privateKey       *rsa.PrivateKey
-	publicKey        *rsa.PublicKey
-	name             string
-	tokenValidPeriod int
-	now              func() time.Time
+	privateKey  *rsa.PrivateKey
+	publicKey   *rsa.PublicKey
+	name        string
+	validPeriod time.Duration
+	timeFunc    func() time.Time
 }
 
 // NewIssuerFromPrivateKeyPEM will take a private key PEM file and return a token issuer
@@ -42,19 +42,19 @@ func NewIssuerFromPrivateKeyPEM(cfg IssuerConfig, pem []byte) (*Issuer, error) {
 
 // NewIssuer returns a new JWT instance
 func NewIssuer(cfg IssuerConfig, privateKey *rsa.PrivateKey) *Issuer {
-	if cfg.TokenValidPeriod < 1 {
-		cfg.TokenValidPeriod = DefaultTokenValidPeriod
+	if cfg.ValidPeriod < 1 {
+		cfg.ValidPeriod = DefaultValidPeriod
 	}
-	now := cfg.Now
+	now := cfg.TimeFunc
 	if now == nil {
 		now = time.Now
 	}
 	return &Issuer{
-		privateKey:       privateKey,
-		publicKey:        &privateKey.PublicKey,
-		name:             cfg.Name,
-		tokenValidPeriod: cfg.TokenValidPeriod,
-		now:              now,
+		privateKey:  privateKey,
+		publicKey:   &privateKey.PublicKey,
+		name:        cfg.Name,
+		validPeriod: cfg.ValidPeriod,
+		timeFunc:    now,
 	}
 }
 
@@ -88,8 +88,8 @@ func NewMockIssuerWithTime(now func() time.Time) (*Issuer, error) {
 		return nil, err
 	}
 	return NewIssuer(IssuerConfig{
-		Name: name,
-		Now:  now,
+		Name:     name,
+		TimeFunc: now,
 	}, privateKey), nil
 }
 
@@ -102,9 +102,9 @@ func (i *Issuer) Issue(consumer *Consumer) (string, error) {
 	claims := Claims{
 		Consumer: *consumer,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: i.now().Add(time.Duration(i.tokenValidPeriod) * time.Minute).Unix(),
-			IssuedAt:  i.now().Unix(),
-			NotBefore: i.now().Unix(),
+			ExpiresAt: i.timeFunc().Add(i.validPeriod).Unix(),
+			IssuedAt:  i.timeFunc().Unix(),
+			NotBefore: i.timeFunc().Unix(),
 			Issuer:    i.name,
 			Id:        id.String(),
 		},
