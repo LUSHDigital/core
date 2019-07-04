@@ -66,9 +66,10 @@ W+kIFfkbaZVWbkUYAwIDAQAB
 	correctPK   *rsa.PublicKey
 	incorrectPK *rsa.PublicKey
 
-	now  time.Time
-	then time.Time
-	at   time.Time
+	now       time.Time
+	then      time.Time
+	at        time.Time
+	validTime time.Duration
 )
 
 func TestMain(m *testing.M) {
@@ -76,36 +77,37 @@ func TestMain(m *testing.M) {
 	now = time.Now()
 	then = now.Add(-(76 * time.Hour))
 	at = now.Add(76 * time.Hour)
+	validTime = time.Hour
 	jwt.TimeFunc = func() time.Time { return now }
 
 	issuer, err = auth.NewIssuerFromPrivateKeyPEM(auth.IssuerConfig{
-		Name:             "test",
-		Now:              func() time.Time { return now },
-		TokenValidPeriod: 60,
+		Name:        "test",
+		TimeFunc:    func() time.Time { return now },
+		ValidPeriod: validTime,
 	}, []byte(testPrivateKey))
 	if err != nil {
 		log.Fatalln(err)
 	}
 	expiredIssuer, err = auth.NewIssuerFromPrivateKeyPEM(auth.IssuerConfig{
-		Name:             "test expired",
-		Now:              func() time.Time { return then },
-		TokenValidPeriod: 60,
+		Name:        "test expired",
+		TimeFunc:    func() time.Time { return then },
+		ValidPeriod: validTime,
 	}, []byte(testPrivateKey))
 	if err != nil {
 		log.Fatalln(err)
 	}
 	futureIssuer, err = auth.NewIssuerFromPrivateKeyPEM(auth.IssuerConfig{
-		Name:             "test future",
-		Now:              func() time.Time { return at },
-		TokenValidPeriod: 60,
+		Name:        "test future",
+		TimeFunc:    func() time.Time { return at },
+		ValidPeriod: validTime,
 	}, []byte(testPrivateKey))
 	if err != nil {
 		log.Fatalln(err)
 	}
 	invalidIssuer, err = auth.NewIssuerFromPrivateKeyPEM(auth.IssuerConfig{
-		Name:             "test invalid",
-		Now:              func() time.Time { return now },
-		TokenValidPeriod: 60,
+		Name:        "test invalid",
+		TimeFunc:    func() time.Time { return now },
+		ValidPeriod: validTime,
 	}, []byte(testIncorrectPrivateKey))
 	if err != nil {
 		log.Fatalln(err)
