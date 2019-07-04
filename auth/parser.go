@@ -9,24 +9,40 @@ import (
 
 // UnexpectedSigningMethodError when JWT parsing encounters an unexpected signature method
 type UnexpectedSigningMethodError struct {
-	alg interface{}
+	Algorithm interface{}
 }
 
 func (e UnexpectedSigningMethodError) Error() string {
-	return fmt.Sprintf("unexpected signing method: %v", e.alg)
+	return fmt.Sprintf("unexpected signing method: %v", e.Algorithm)
 }
 
 // TokenInvalidError happens when a token could not be validated because of an unknown reason
-type TokenInvalidError struct{ error }
+type TokenInvalidError struct{ Err error }
+
+func (e TokenInvalidError) Error() string {
+	return fmt.Sprintf("token invalid: %v", e.Err)
+}
 
 // TokenSignatureError happens when the signature could not be verified with the given public key
-type TokenSignatureError struct{ error }
+type TokenSignatureError struct{ Err error }
+
+func (e TokenSignatureError) Error() string {
+	return fmt.Sprintf("token signature invalid: %v", e.Err)
+}
 
 // TokenExpiredError happens when the token has expired or is not yet valid
-type TokenExpiredError struct{ error }
+type TokenExpiredError struct{ Err error }
+
+func (e TokenExpiredError) Error() string {
+	return e.Err.Error()
+}
 
 // TokenMalformedError happens when the token is not the correct format
-type TokenMalformedError struct{ error }
+type TokenMalformedError struct{ Err error }
+
+func (e TokenMalformedError) Error() string {
+	return fmt.Sprintf("token malformed: %v", e.Err)
+}
 
 var (
 	// ErrTokenInvalid happens when a token could not be validated because of an unknown reason
@@ -56,7 +72,7 @@ func NewParserFromPublicKeyPEM(pkb []byte) (*Parser, error) {
 func (p *Parser) Token(raw string) (*jwt.Token, error) {
 	token, err := jwt.ParseWithClaims(raw, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, UnexpectedSigningMethodError{token.Header["alg"]}
+			return p.publicKey, UnexpectedSigningMethodError{token.Header["alg"]}
 		}
 		return p.publicKey, nil
 	})
@@ -65,33 +81,49 @@ func (p *Parser) Token(raw string) (*jwt.Token, error) {
 		case *jwt.ValidationError:
 			switch {
 			case err.Errors&jwt.ValidationErrorMalformed != 0:
-				return nil, TokenMalformedError{fmt.Errorf("token malformed: %v", err)}
+				return token, TokenMalformedError{err}
 			case err.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0:
-				return nil, TokenExpiredError{fmt.Errorf("%v", err)}
+				return token, TokenExpiredError{err}
 			case err.Errors&jwt.ValidationErrorSignatureInvalid != 0:
-				return nil, TokenSignatureError{fmt.Errorf("token signature invalid: %v", err)}
+				return token, TokenSignatureError{err}
 			default:
-				return nil, TokenInvalidError{fmt.Errorf("token invalid: %v", err)}
+				switch err.Inner.(type) {
+				case UnexpectedSigningMethodError:
+					return token, err
+				}
+				return token, TokenInvalidError{err}
 			}
+		default:
+			return token, err
 		}
-		return nil, err
-	}
-	// Check the claims and token are valid
-	if _, ok := token.Claims.(*Claims); !ok || !token.Valid {
-		return nil, ErrTokenInvalid
 	}
 	return token, nil
 }
 
 // Claims returns the consumer details for a given auth token.
 func (p *Parser) Claims(raw string) (*Claims, error) {
-	token, err := p.Token(raw)
+	var (
+		token *jwt.Token
+		err   error
+	)
+	token, err = p.Token(raw)
 	if err != nil {
-		return nil, err
+		switch err.(type) {
+		case
+			TokenExpiredError,
+			TokenSignatureError,
+			UnexpectedSigningMethodError,
+			TokenInvalidError:
+		default:
+			return &Claims{
+				StandardClaims: jwt.StandardClaims{},
+				Consumer:       Consumer{},
+			}, err
+		}
 	}
 	claims, ok := token.Claims.(*Claims)
 	if !ok {
-		return nil, ErrTokenInvalid
+		return claims, ErrTokenInvalid
 	}
-	return claims, nil
+	return claims, err
 }
