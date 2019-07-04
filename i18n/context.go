@@ -20,5 +20,5 @@ func LocaleFromContext(ctx context.Context) string {
 	if c, ok := ctx.Value(localeKey).(string); ok {
 		return c
 	}
-	return DefaultLanguage
+	return DefaultLocale
 }

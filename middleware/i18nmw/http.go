@@ -26,7 +26,7 @@ func ParseLocaleHandler(next http.HandlerFunc) http.HandlerFunc {
 			}
 		}
 		if locale == "" {
-			locale = i18n.DefaultLanguage
+			locale = i18n.DefaultLocale
 		}
 		ctx := i18n.ContextWithLocale(r.Context(), locale)
 		next.ServeHTTP(w, r.WithContext(ctx))

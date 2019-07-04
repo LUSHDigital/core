@@ -4,9 +4,9 @@ import (
 	"golang.org/x/text/language"
 )
 
-const (
-	// DefaultLanguage is the default locale is set to english for simplicity.
-	DefaultLanguage = "en"
+var (
+	// DefaultLocale is the default locale is set to english for simplicity.
+	DefaultLocale = "en"
 )
 
 // ParseLocale will attempt to read the locale from a string.
