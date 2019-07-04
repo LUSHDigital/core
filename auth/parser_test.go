@@ -1,53 +1,106 @@
 package auth_test
 
 import (
-	"reflect"
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/LUSHDigital/core/auth"
 	"github.com/LUSHDigital/core/test"
+	"github.com/LUSHDigital/uuid"
 )
 
-func TestParser_Token(t *testing.T) {
+func mustIssue(jwt string, err error) string {
+	if err != nil {
+		panic(err)
+	}
+	return jwt
+}
+
+func TestParser_Claims(t *testing.T) {
+	consumer := &auth.Consumer{
+		ID:        1,
+		UUID:      uuid.Must(uuid.NewV4()).String(),
+		FirstName: "John",
+		LastName:  "Doe",
+		Language:  "en",
+		Grants:    []string{},
+		Roles:     []string{},
+		Needs:     []string{},
+	}
 	cases := []struct {
-		name        string
-		jwt         string
-		expectedErr error
+		name              string
+		jwt               string
+		expectedErr       error
+		expectedIssuedAt  int64
+		expectedExpiresAt int64
+		expectedNotBefore int64
 	}{
 		{
-			name:        "incorrect signing method",
-			jwt:         "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJjb25zdW1lciI6eyJpZCI6OTk5LCJmaXJzdF9uYW1lIjoiVGVzdHkiLCJsYXN0X25hbWUiOiJNY1Rlc3QiLCJsYW5ndWFnZSI6IiIsImdyYW50cyI6WyJ0ZXN0aW5nLnJlYWQiLCJ0ZXN0aW5nLmNyZWF0ZSJdfSwiZXhwIjoxNTE4NjAzNzIwLCJqdGkiOiIyNTAwYjk3MS0wNTcxLTQ4Y2UtYmUzOS1jNWJhNGQwZmU0MGIiLCJpc3MiOiJ0ZXN0aW5nIn0.",
-			expectedErr: auth.TokenInvalidError{},
+			name:              "valid token",
+			jwt:               mustIssue(issuer.Issue(consumer)),
+			expectedIssuedAt:  now.Unix(),
+			expectedNotBefore: now.Unix(),
+			expectedExpiresAt: now.Add(60 * time.Minute).Unix(),
+		},
+		{
+			name:              "incorrect signature",
+			jwt:               mustIssue(invalidIssuer.Issue(consumer)),
+			expectedErr:       auth.TokenSignatureError{Err: fmt.Errorf("crypto/rsa: verification error")},
+			expectedIssuedAt:  now.Unix(),
+			expectedNotBefore: now.Unix(),
+			expectedExpiresAt: now.Add(60 * time.Minute).Unix(),
+		},
+		{
+			name:              "expired token",
+			jwt:               mustIssue(expiredIssuer.Issue(consumer)),
+			expectedErr:       auth.TokenExpiredError{Err: fmt.Errorf("token is expired by 75h0m0s")},
+			expectedIssuedAt:  then.Unix(),
+			expectedNotBefore: then.Unix(),
+			expectedExpiresAt: then.Add(60 * time.Minute).Unix(),
+		},
+		{
+			name:              "token not valid yet",
+			jwt:               mustIssue(futureIssuer.Issue(consumer)),
+			expectedErr:       auth.TokenExpiredError{Err: fmt.Errorf("token is not valid yet")},
+			expectedIssuedAt:  at.Unix(),
+			expectedNotBefore: at.Unix(),
+			expectedExpiresAt: at.Add(60 * time.Minute).Unix(),
+		},
+		{
+			name:        "unexpected signing method",
+			jwt:         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+			expectedErr: auth.UnexpectedSigningMethodError{"HS256"},
 		},
 		{
 			name:        "malformed token",
 			jwt:         ".eyJjb25zdW1lciI6eyJpZCI6OTk5LCJmaXJzdF9uYW1lIjoiVGVzdHkiLCJsYXN0X25hbWUiOiJNY1Rlc3QiLCJsYW5ndWFnZSI6IiIsImdyYW50cyI6WyJ0ZXN0aW5nLnJlYWQiLCJ0ZXN0aW5nLmNyZWF0ZSJdfSwiZXhwIjoxNTE4NjAzNzIwLCJqdGkiOiIyNTAwYjk3MS0wNTcxLTQ4Y2UtYmUzOS1jNWJhNGQwZmU0MGIiLCJpc3MiOiJ0ZXN0aW5nIn0.",
-			expectedErr: auth.TokenMalformedError{},
+			expectedErr: auth.TokenMalformedError{Err: fmt.Errorf("unexpected end of JSON input")},
 		},
 		{
 			name:        "missing token",
-			expectedErr: auth.TokenMalformedError{},
-		},
-		{
-			name:        "expired token",
-			jwt:         "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb25zdW1lciI6eyJpZCI6OTk5LCJmaXJzdF9uYW1lIjoiVGVzdHkiLCJsYXN0X25hbWUiOiJNY1Rlc3QiLCJsYW5ndWFnZSI6IiIsImdyYW50cyI6WyJ0ZXN0aW5nLnJlYWQiLCJ0ZXN0aW5nLmNyZWF0ZSJdfSwiZXhwIjoxNTE0NzY0ODAwLCJqdGkiOiI5MjJiNTJhNi0wYmRjLTQ5ZmEtOWM4NC0wNmRlZjc2YWM2MGMiLCJpc3MiOiJ0ZXN0aW5nIn0.qNFzO3UODL6W-r_tG7Bmc844Qg9clOdoM-mbAawAN6pTyhdcx888mag6zxyvxYiX4fHY__j1iCfxrrr0mYLtcaM3MhmOch_Nj5u0IyOHDjgtwCQT22pRR1Y878uq78LQ2ktY2pbqTAFZyRlTbzsiT2Zq1RCatPOlZpwORLfOUTA",
-			expectedErr: auth.TokenExpiredError{},
-		},
-		{
-			name:        "token not valid yet",
-			jwt:         "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb25zdW1lciI6eyJpZCI6OTk5LCJmaXJzdF9uYW1lIjoiVGVzdHkiLCJsYXN0X25hbWUiOiJNY1Rlc3QiLCJsYW5ndWFnZSI6IiIsImdyYW50cyI6WyJ0ZXN0aW5nLnJlYWQiLCJ0ZXN0aW5nLmNyZWF0ZSJdfSwibmJmIjoyNTMzNzA3NjQ4MDAsImp0aSI6IjkyMmI1MmE2LTBiZGMtNDlmYS05Yzg0LTA2ZGVmNzZhYzYwYyIsImlzcyI6InRlc3RpbmcifQ.aKEg_6-7YVJgewm7-YL_8p4uFuSOzzq0DR-z0OMjIamlitZNyk4fY5YTyBuc0MFJT-dW-lrL8AMmCTqhFEOPYu-0uGKQPZUIGlBmc88fZb0yh5Pt-o3uSYncoU1Lx27P1GoFSQH_wVlhl_L3khTuTlshZR9p-Fe8wJOMUaTSUC8",
-			expectedErr: auth.TokenExpiredError{},
-		},
-		{
-			name:        "invalid claims",
-			jwt:         "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MTg2MDQ3OTQsImp0aSI6IjQxNjU3NzNlLWQ0YzYtNGU1Ni04ZGJmLTU2YzM2YzlmMzA1OCIsImlzcyI6InRlc3RpbmcifQ.4jhNEfhCkUrweLT2T4lJBmHWTOjF8QHNQBBEQaxo3xnFl1ya0vnL0hWPHdJydnFuSJbrFSvi4iXQtdByuKEQg7ti3JCTKxHN68zQRayk_0c_M6bE_RqDnRnX-Qc65qNAiloRWwIdEvTy4LebClgU-0POWSdqhNnAGUw759tFah0",
-			expectedErr: auth.TokenExpiredError{},
+			expectedErr: auth.TokenMalformedError{Err: fmt.Errorf("token contains an invalid number of segments")},
 		},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			_, err := parser.Token(c.jwt)
-			test.Equals(t, reflect.TypeOf(c.expectedErr), reflect.TypeOf(err))
+			claims, err := parser.Claims(c.jwt)
+			test.Equals(t, c.expectedErr, err)
+			test.Equals(t, c.expectedIssuedAt, claims.IssuedAt().Unix())
+			test.Equals(t, c.expectedExpiresAt, claims.ExpiresAt().Unix())
+			test.Equals(t, c.expectedExpiresAt, claims.ExpiresAt().Unix())
+			test.Equals(t, c.expectedNotBefore, claims.NotBefore().Unix())
 		})
 	}
+	t.Run("parse expired and extract data for token refresh", func(t *testing.T) {
+		token := mustIssue(expiredIssuer.Issue(consumer))
+		claims, err := parser.Claims(token)
+		test.NotEquals(t, nil, err)
+		switch err.(type) {
+		case auth.TokenExpiredError:
+			test.Equals(t, then.Add(60*time.Minute).Unix(), claims.ExpiresAt().Unix())
+		default:
+			test.Equals(t, nil, err)
+		}
+	})
 }

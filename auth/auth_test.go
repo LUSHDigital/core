@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 
@@ -33,6 +34,21 @@ OoPozRgG8msH03tC9+exMGUNlExmdMZKgY8LnYF6cA7j4lBwnjOJ3Omts5CXwtVS
 2rsFqvITfh0XNQq6W1JB2igTzezpybvpY3M157NImF0ijRPMcxP2qAjP7YgWjuDX
 W+kIFfkbaZVWbkUYAwIDAQAB
 -----END PUBLIC KEY-----`
+	testIncorrectPrivateKey = `-----BEGIN RSA PRIVATE KEY-----
+MIICXQIBAAKBgQC2BcJ5OatQY653s21PKAt6ttNxfC0iurY1foZL41540viPJ75U
+tuMd0o/II9NJnyBOHyn6U1tu3f6saE+eqHJqh3iO35qWLMaFUwIoiJU93mtx966O
+WOENchowmZR3QRVxLQkFtAhYRJdsJ+ICwNYJsXOIDutwVMoU0E/a+flLrQIDAQAB
+AoGABQCJhJ1SGOZ0X/O9WESIdDnb+61m7CJnaXbtp946tWVO0VhNQbS47xPfQafC
+Ya6Oy7bNh4SM6bIOEpzXO0vzwO/ULPYqV59HQIfe9zdMi3f4aocDz1WY+0lrX0Q/
+ZDK8kM1CJQDkXUhS/FcJaPx16KVpJOl3gV3t/FljHkpiwkECQQDcZqEBICqq7jlv
+17BaPBjeu37E0n1rlTdNiFECnnFTW0WzD/MW6Xsz+h6MglB8t+hPFh1qvPG0ZG0F
+7SbAM/nxAkEA02w4Tbuxo0Q11nHQIU4XIz1P0Jc4Gb3+dFxUfEll22ygDxa+UU5Q
+h4zcvfM838eMzJNimC6pEMhDYmmSm7NRfQJBAI9KagLBVvwqRU1hfVYtHD4yyAhO
+kRwQtxPBPGnneOYowPfZtsF+qorwYkwXrRxotLA2QInUrZAKepcPx9HN+QECQQDL
+r9BSu4h5dga0UjQlUhmifrg9iuKmkk/qhOV0VDZIfs95mfzDUkLtRL2KVyQHqDWz
+Bi+P1CxXmcipsHJphQn1AkBScr2xUw59XPNESXd9YDeNyBJclxtn8zL8l0Uc51iu
+FhROYlX5k/W/y4zIynkukBSMa8jmKbF+ie4genISrx9Q
+-----END RSA PRIVATE KEY-----`
 	testIncorrectPublicKey = `-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDx6dqtEuyEf7Mpviqa/rYl316f
 OoPozRgG8msH03tC9+esdfseftddfsefes8LnYF6cA7j4lBwnjOJ3Omts5CXwtVS
@@ -40,18 +56,57 @@ OoPozRgG8msH03tC9+esdfseftddfsefes8LnYF6cA7j4lBwnjOJ3Omts5CXwtVS
 W+kIFfkbaZVWbkUYAwIDAQAB
 -----END PUBLIC KEY-----`
 
-	issuer *auth.Issuer
+	issuer        *auth.Issuer
+	expiredIssuer *auth.Issuer
+	invalidIssuer *auth.Issuer
+	futureIssuer  *auth.Issuer
+
 	parser *auth.Parser
 
 	correctPK   *rsa.PublicKey
 	incorrectPK *rsa.PublicKey
+
+	now  time.Time
+	then time.Time
+	at   time.Time
 )
 
 func TestMain(m *testing.M) {
 	var err error
+	now = time.Now()
+	then = now.Add(-(76 * time.Hour))
+	at = now.Add(76 * time.Hour)
+	jwt.TimeFunc = func() time.Time { return now }
+
 	issuer, err = auth.NewIssuerFromPrivateKeyPEM(auth.IssuerConfig{
-		Name: "test",
+		Name:             "test",
+		Now:              func() time.Time { return now },
+		TokenValidPeriod: 60,
 	}, []byte(testPrivateKey))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	expiredIssuer, err = auth.NewIssuerFromPrivateKeyPEM(auth.IssuerConfig{
+		Name:             "test expired",
+		Now:              func() time.Time { return then },
+		TokenValidPeriod: 60,
+	}, []byte(testPrivateKey))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	futureIssuer, err = auth.NewIssuerFromPrivateKeyPEM(auth.IssuerConfig{
+		Name:             "test future",
+		Now:              func() time.Time { return at },
+		TokenValidPeriod: 60,
+	}, []byte(testPrivateKey))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	invalidIssuer, err = auth.NewIssuerFromPrivateKeyPEM(auth.IssuerConfig{
+		Name:             "test invalid",
+		Now:              func() time.Time { return now },
+		TokenValidPeriod: 60,
+	}, []byte(testIncorrectPrivateKey))
 	if err != nil {
 		log.Fatalln(err)
 	}

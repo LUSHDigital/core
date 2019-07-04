@@ -6,8 +6,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/LUSHDigital/uuid"
+	"github.com/dgrijalva/jwt-go"
 )
 
 const (
@@ -19,6 +19,7 @@ const (
 type IssuerConfig struct {
 	Name             string
 	TokenValidPeriod int
+	Now              func() time.Time
 }
 
 // Issuer represents a set of methods for generating a JWT with a private key
@@ -27,6 +28,7 @@ type Issuer struct {
 	publicKey        *rsa.PublicKey
 	name             string
 	tokenValidPeriod int
+	now              func() time.Time
 }
 
 // NewIssuerFromPrivateKeyPEM will take a private key PEM file and return a token issuer
@@ -43,15 +45,20 @@ func NewIssuer(cfg IssuerConfig, privateKey *rsa.PrivateKey) *Issuer {
 	if cfg.TokenValidPeriod < 1 {
 		cfg.TokenValidPeriod = DefaultTokenValidPeriod
 	}
+	now := cfg.Now
+	if now == nil {
+		now = time.Now
+	}
 	return &Issuer{
 		privateKey:       privateKey,
 		publicKey:        &privateKey.PublicKey,
 		name:             cfg.Name,
 		tokenValidPeriod: cfg.TokenValidPeriod,
+		now:              now,
 	}
 }
 
-// NewMockIssuer creates a new tokeniser with a random key pair
+// NewMockIssuer creates a new issuer with a random key pair.
 func NewMockIssuer() (*Issuer, error) {
 	reader := rand.Reader
 	bitSize := 2048
@@ -68,6 +75,24 @@ func NewMockIssuer() (*Issuer, error) {
 	}, privateKey), nil
 }
 
+// NewMockIssuerWithTime creates a new issuer with a random key pair.
+func NewMockIssuerWithTime(now func() time.Time) (*Issuer, error) {
+	reader := rand.Reader
+	bitSize := 2048
+	privateKey, err := rsa.GenerateKey(reader, bitSize)
+	if err != nil {
+		return nil, err
+	}
+	name, err := os.Hostname()
+	if err != nil {
+		return nil, err
+	}
+	return NewIssuer(IssuerConfig{
+		Name: name,
+		Now:  now,
+	}, privateKey), nil
+}
+
 // Issue generates and returns a JWT authentication token for a private key
 func (i *Issuer) Issue(consumer *Consumer) (string, error) {
 	id, err := uuid.NewV4()
@@ -77,7 +102,9 @@ func (i *Issuer) Issue(consumer *Consumer) (string, error) {
 	claims := Claims{
 		Consumer: *consumer,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Duration(i.tokenValidPeriod) * time.Minute).Unix(),
+			ExpiresAt: i.now().Add(time.Duration(i.tokenValidPeriod) * time.Minute).Unix(),
+			IssuedAt:  i.now().Unix(),
+			NotBefore: i.now().Unix(),
 			Issuer:    i.name,
 			Id:        id.String(),
 		},
