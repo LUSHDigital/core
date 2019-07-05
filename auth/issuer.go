@@ -42,7 +42,7 @@ func NewIssuerFromPrivateKeyPEM(cfg IssuerConfig, pem []byte) (*Issuer, error) {
 
 // NewIssuer returns a new JWT instance
 func NewIssuer(cfg IssuerConfig, privateKey *rsa.PrivateKey) *Issuer {
-	if cfg.ValidPeriod < 1 {
+	if cfg.ValidPeriod < time.Nanosecond {
 		cfg.ValidPeriod = DefaultValidPeriod
 	}
 	now := cfg.TimeFunc
