@@ -66,8 +66,17 @@ func UnmarshalJSONResponse(d []byte, dst interface{}) error {
 }
 
 // Responder defines the behaviour of a response for JSON over HTTP.
+// DEPRECATED: Responder interface should not be provided by the rest package.
 type Responder interface {
 	WriteTo(w http.ResponseWriter) error
+}
+
+// EmptyResponse is used to send no content to the API consumer.
+type EmptyResponse struct{}
+
+// WriteTo writes a JSON response to a HTTP writer.
+func (r EmptyResponse) WriteTo(w http.ResponseWriter) error {
+	return WriteTo(http.StatusNoContent, r, w)
 }
 
 // Response defines a JSON response body over HTTP.

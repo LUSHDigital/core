@@ -2,17 +2,119 @@ package rest
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+
+	"github.com/LUSHDigital/core/pagination"
 )
 
-// DBError returns a prepared 500 Internal Server Error response.
-func DBError(err error) *Response {
-	return DBErrorf("", err)
+// OKResponse returns a prepared 200 OK response.
+func OKResponse(data *Data, page *pagination.Response) *Response {
+	return &Response{
+		Code:       http.StatusOK,
+		Message:    http.StatusText(http.StatusOK),
+		Data:       data,
+		Pagination: page,
+	}
 }
 
-// DBErrorf returns a prepared 500 Internal Server Error response,
-// using the user provided formatted message.
+// CreatedResponse returns a prepared 201 Created response.
+func CreatedResponse(data *Data, page *pagination.Response) *Response {
+	return &Response{
+		Code:       http.StatusCreated,
+		Message:    http.StatusText(http.StatusOK),
+		Data:       data,
+		Pagination: page,
+	}
+}
+
+// NoContentResponse returns a prepared 204 No Content response.
+func NoContentResponse() *EmptyResponse {
+	return &EmptyResponse{}
+}
+
+// JSONError returns a prepared 422 Unprocessable Entity response if the JSON is found to contain syntax errors, or invalid values for types.
+func JSONError(msg interface{}) *Response {
+	return &Response{Code: http.StatusUnprocessableEntity, Message: fmt.Sprintf("json error: %v", msg)}
+}
+
+// ParameterError returns a prepared 422 Unprocessable Entity response, including the name of the failing parameter in the message field of the response object.
+func ParameterError(parameter string) *Response {
+	return &Response{Code: http.StatusUnprocessableEntity, Message: fmt.Sprintf("invalid or missing parameter: %v", parameter)}
+}
+
+// ValidationError returns a prepared 422 Unprocessable Entity response, including the name of the failing validation/validator in the message field of the response object.
+func ValidationError(resource string, msg interface{}) *Response {
+	return &Response{Code: http.StatusUnprocessableEntity, Message: fmt.Sprintf("validation error on %s: %v", resource, msg)}
+}
+
+// NotFoundError returns a prepared 404 Not Found response, including the message passed by the user in the message field of the response object.
+func NotFoundError(msg interface{}) *Response {
+	return &Response{Code: http.StatusNotFound, Message: fmt.Sprintf("resource not found: %v", msg)}
+}
+
+// ConflictError returns a prepared 409 Conflict response, including the message passed by the user in the message field of the response object.
+func ConflictError(msg interface{}) *Response {
+	return &Response{Code: http.StatusConflict, Message: fmt.Sprintf("resource conflict: %v", msg)}
+}
+
+// InternalError returns a prepared 500 Internal Server Error, including the error message in the message field of the response object.
+func InternalError(msg interface{}) *Response {
+	return &Response{Code: http.StatusInternalServerError, Message: fmt.Sprintf("internal server error: %v", msg)}
+}
+
+// UnauthorizedError returns a prepared 401 Unauthorized error.
+func UnauthorizedError() *Response {
+	return &Response{Code: http.StatusUnauthorized, Message: "unauthorized"}
+}
+
+// !!! DEPRECATED FUNCTIONS !!!
+
+// NotFoundErr returns a prepared 404 Not Found response, including the message passed by the user in the message field of the response object.
+// DEPRECATED: Use NotFoundError rather than NotFoundErr
+// TODO: Remove in version 1.x
+func NotFoundErr(msg interface{}) *Response {
+	log.Println("DEPRECATED: Use NotFoundError rather than NotFoundErr")
+	return NotFoundError(msg)
+}
+
+// ConflictErr returns a prepared 409 Conflict response, including the message passed by the user in the message field of the response object.
+// DEPRECATED: Use ConflicError rather than ConflictErr
+// TODO: Remove in version 1.x
+func ConflictErr(msg interface{}) *Response {
+	log.Println("DEPRECATED: Use ConflicError rather than ConflictErr")
+	return ConflictError(msg)
+}
+
+// ParamError returns a prepared 422 Unprocessable Entity response, including the name of the failing parameter in the message field of the response object.
+// DEPRECATED: Use ParameterError rather than ParamError
+// TODO: Remove in version 1.x
+func ParamError(parameter string) *Response {
+	log.Println("DEPRECATED: Use ParameterError rather than ParamError")
+	return ParameterError(parameter)
+}
+
+// Unauthorized returns a prepared 401 Unauthorized error.
+// DEPRECATED: Use UnauthorizedError rather than Unauthorized
+// TODO: Remove in version 1.x
+func Unauthorized() *Response {
+	log.Println("DEPRECATED: Use UnauthorizedError rather than Unauthorized")
+	return UnauthorizedError()
+}
+
+// DBError returns a prepared 500 Internal Server Error response.
+// DEPRECATED: Use InternalError rather than DBError
+// TODO: Remove in version 1.x
+func DBError(msg interface{}) *Response {
+	log.Println("DEPRECATED: Use InternalError rather than DBError")
+	return &Response{Code: http.StatusInternalServerError, Message: fmt.Sprintf("db error: %v", msg)}
+}
+
+// DBErrorf returns a prepared 500 Internal Server Error response, using the user provided formatted message.
+// DEPRECATED: Use InternalError rather than DBErrorf
+// TODO: Remove in version 1.x
 func DBErrorf(format string, err error) *Response {
+	log.Println("DEPRECATED: Use InternalError rather than DBErrorf")
 	var msg string
 	switch format {
 	case "":
@@ -21,45 +123,4 @@ func DBErrorf(format string, err error) *Response {
 		msg = fmt.Sprintf(format, err)
 	}
 	return &Response{Code: http.StatusInternalServerError, Message: msg}
-}
-
-// JSONError returns a prepared 422 Unprocessable Entity response if the JSON is found to
-// contain syntax errors, or invalid values for types.
-func JSONError(err error) *Response {
-	return &Response{Code: http.StatusUnprocessableEntity, Message: fmt.Sprintf("json error: %v", err)}
-}
-
-// ParamError returns a prepared 422 Unprocessable Entity response, including the name of
-// the failing parameter in the message field of the response object.
-func ParamError(name string) *Response {
-	return &Response{Code: http.StatusUnprocessableEntity, Message: fmt.Sprintf("invalid or missing parameter: %v", name)}
-}
-
-// ValidationError returns a prepared 422 Unprocessable Entity response, including the name of
-// the failing validation/validator in the message field of the response object.
-func ValidationError(err error, name string) *Response {
-	return &Response{Code: http.StatusUnprocessableEntity, Message: fmt.Sprintf("validation error on %s: %v", name, err)}
-}
-
-// NotFoundErr returns a prepared 404 Not Found response, including the message passed by the user
-// in the message field of the response object.
-func NotFoundErr(msg string) *Response {
-	return &Response{Code: http.StatusNotFound, Message: msg}
-}
-
-// ConflictErr returns a prepared 409 Conflict response, including the message passed by the user
-// in the message field of the response object.
-func ConflictErr(msg string) *Response {
-	return &Response{Code: http.StatusConflict, Message: msg}
-}
-
-// InternalError returns a prepared 500 Internal Server Error, including the error
-// message in the message field of the response object.
-func InternalError(err error) *Response {
-	return &Response{Code: http.StatusInternalServerError, Message: fmt.Sprintf("internal server error: %v", err)}
-}
-
-// Unauthorized returns a prepared 401 Unauthorized error.
-func Unauthorized() *Response {
-	return &Response{Code: http.StatusUnauthorized, Message: http.StatusText(http.StatusUnauthorized)}
 }
