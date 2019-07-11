@@ -1,6 +1,5 @@
 # Auth
 The `core/auth` package provides functions for services to issue and sign api consumer tokens.
-It contains several middlewares for HTTP and GRPC to aid streamlining the authentication process.
 
 ## Examples
 
