@@ -28,6 +28,11 @@ func CreatedResponse(data *Data, page *pagination.Response) *Response {
 	}
 }
 
+// Errorf returns a prepared error response using the provided code and formatted message.
+func Errorf(code int, format string, a ...interface{}) *Response {
+	return &Response{Code: code, Message: fmt.Sprintf(format, a...)}
+}
+
 // NoContentResponse returns a prepared 204 No Content response.
 func NoContentResponse() *EmptyResponse {
 	return &EmptyResponse{}
