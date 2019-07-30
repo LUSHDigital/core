@@ -50,6 +50,18 @@ func TestOKResponse(t *testing.T) {
 	test.Equals(t, "hello", tpl.Message)
 }
 
+func TestErrorfResponse(t *testing.T) {
+	req := httptest.NewRecorder()
+	err := rest.Errorf(http.StatusGone, "failed with: %v", "oops").WriteTo(req)
+	test.Equals(t, nil, err)
+	res := req.Result()
+	test.Equals(t, http.StatusGone, res.StatusCode)
+	e := &Envelope{}
+	err = json.Unmarshal(req.Body.Bytes(), e)
+	test.Equals(t, nil, err)
+	test.Equals(t, "failed with: oops", e.Message)
+}
+
 func TestCreatedResponse(t *testing.T) {
 	req := httptest.NewRecorder()
 	err := rest.CreatedResponse(payload, page).WriteTo(req)
