@@ -12,9 +12,17 @@ type Request struct {
 	PerPage, Page uint64
 }
 
+// Metadata returns gRPC metadata for a pagination request.
+func (r Request) Metadata() metadata.MD {
+	return metadata.New(map[string]string{
+		"per_page": fmt.Sprintf("%d", r.PerPage),
+		"offset":   fmt.Sprintf("%d", r.Page),
+	})
+}
+
 // Offset calculates the offset from the provided pagination request.
-func (p Request) Offset() uint64 {
-	return (p.Page - 1) * p.PerPage
+func (r Request) Offset() uint64 {
+	return (r.Page - 1) * r.PerPage
 }
 
 // Response manages pagination of a data set.
