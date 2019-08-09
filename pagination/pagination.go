@@ -1,15 +1,28 @@
 package pagination
 
-import "math"
+import (
+	"fmt"
+	"math"
+
+	"google.golang.org/grpc/metadata"
+)
 
 // Request derives the requested pagination data given by the client.
 type Request struct {
 	PerPage, Page uint64
 }
 
+// Metadata returns gRPC metadata for a pagination request.
+func (r Request) Metadata() metadata.MD {
+	return metadata.New(map[string]string{
+		"per_page": fmt.Sprintf("%d", r.PerPage),
+		"offset":   fmt.Sprintf("%d", r.Page),
+	})
+}
+
 // Offset calculates the offset from the provided pagination request.
-func (p Request) Offset() uint64 {
-	return (p.Page - 1) * p.PerPage
+func (r Request) Offset() uint64 {
+	return (r.Page - 1) * r.PerPage
 }
 
 // Response manages pagination of a data set.
@@ -21,6 +34,24 @@ type Response struct {
 	CurrentPage uint64  `json:"current_page"` // The current page number.
 	NextPage    *uint64 `json:"next_page"`    // The number of the next page (if possible).
 	PrevPage    *uint64 `json:"prev_page"`    // The number of the previous page (if possible).
+}
+
+// Metadata returns gRPC metadata for a pagination response.
+func (r Response) Metadata() metadata.MD {
+	md := metadata.New(map[string]string{
+		"per_page":     fmt.Sprintf("%d", r.PerPage),
+		"offset":       fmt.Sprintf("%d", r.Offset),
+		"total":        fmt.Sprintf("%d", r.Total),
+		"last_page":    fmt.Sprintf("%d", r.LastPage),
+		"current_page": fmt.Sprintf("%d", r.CurrentPage),
+	})
+	if r.NextPage != nil {
+		md.Set("next_page", fmt.Sprintf("%d", *r.NextPage))
+	}
+	if r.PrevPage != nil {
+		md.Set("prev_age", fmt.Sprintf("%d", *r.PrevPage))
+	}
+	return md
 }
 
 // MakeResponse returns a new Response with the provided
