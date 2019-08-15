@@ -16,7 +16,7 @@ type Request struct {
 func (r Request) Metadata() metadata.MD {
 	return metadata.New(map[string]string{
 		"per_page": fmt.Sprintf("%d", r.PerPage),
-		"offset":   fmt.Sprintf("%d", r.Page),
+		"page":     fmt.Sprintf("%d", r.Page),
 	})
 }
 
@@ -49,7 +49,7 @@ func (r Response) Metadata() metadata.MD {
 		md.Set("next_page", fmt.Sprintf("%d", *r.NextPage))
 	}
 	if r.PrevPage != nil {
-		md.Set("prev_age", fmt.Sprintf("%d", *r.PrevPage))
+		md.Set("prev_page", fmt.Sprintf("%d", *r.PrevPage))
 	}
 	return md
 }
