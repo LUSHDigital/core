@@ -19,7 +19,7 @@ func TestInterceptServerRequest(t *testing.T) {
 	t.Run("valid incoming context", func(t *testing.T) {
 		ctx := context.Background()
 		md := metadata.New(map[string]string{
-			"per_page": "10",
+			"per-page": "10",
 			"page":     "1",
 		})
 		ctx = metadata.NewIncomingContext(ctx, md)
@@ -36,7 +36,7 @@ func TestInterceptServerRequest(t *testing.T) {
 	t.Run("invalid per page incoming context", func(t *testing.T) {
 		ctx := context.Background()
 		md := metadata.New(map[string]string{
-			"per_page": "abc",
+			"per-page": "abc",
 			"page":     "1",
 		})
 		ctx = metadata.NewIncomingContext(ctx, md)
@@ -49,7 +49,7 @@ func TestInterceptServerRequest(t *testing.T) {
 	t.Run("invalid page incoming context", func(t *testing.T) {
 		ctx := context.Background()
 		md := metadata.New(map[string]string{
-			"per_page": "10",
+			"per-page": "10",
 			"page":     "abc",
 		})
 		ctx = metadata.NewIncomingContext(ctx, md)
@@ -81,7 +81,7 @@ func TestGRPCInterceptor(t *testing.T) {
 	}
 	client := greeter.NewGreeterClient(conn)
 	md := metadata.New(map[string]string{
-		"per_page": "10",
+		"per-page": "10",
 		"page":     "1",
 	})
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
