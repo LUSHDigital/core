@@ -33,7 +33,7 @@ func InterceptServerRequest(ctx context.Context) (pagination.Request, error) {
 		return n, nil
 	}
 
-	req.PerPage, err = extract("per_page", md)
+	req.PerPage, err = extract("per-page", md)
 	if err != nil {
 		return req, err
 	}

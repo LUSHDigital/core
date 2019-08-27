@@ -16,7 +16,7 @@ type Request struct {
 // Metadata returns gRPC metadata for a pagination request.
 func (r Request) Metadata() metadata.MD {
 	return metadata.New(map[string]string{
-		"per_page": fmt.Sprintf("%d", r.PerPage),
+		"per-page": fmt.Sprintf("%d", r.PerPage),
 		"page":     fmt.Sprintf("%d", r.Page),
 	})
 }
@@ -40,17 +40,17 @@ type Response struct {
 // Metadata returns gRPC metadata for a pagination response.
 func (r Response) Metadata() metadata.MD {
 	md := metadata.New(map[string]string{
-		"per_page":     fmt.Sprintf("%d", r.PerPage),
+		"per-page":     fmt.Sprintf("%d", r.PerPage),
 		"offset":       fmt.Sprintf("%d", r.Offset),
 		"total":        fmt.Sprintf("%d", r.Total),
-		"last_page":    fmt.Sprintf("%d", r.LastPage),
-		"current_page": fmt.Sprintf("%d", r.CurrentPage),
+		"last-page":    fmt.Sprintf("%d", r.LastPage),
+		"current-page": fmt.Sprintf("%d", r.CurrentPage),
 	})
 	if r.NextPage != nil {
-		md.Set("next_page", fmt.Sprintf("%d", *r.NextPage))
+		md.Set("next-page", fmt.Sprintf("%d", *r.NextPage))
 	}
 	if r.PrevPage != nil {
-		md.Set("prev_page", fmt.Sprintf("%d", *r.PrevPage))
+		md.Set("prev-page", fmt.Sprintf("%d", *r.PrevPage))
 	}
 	return md
 }
