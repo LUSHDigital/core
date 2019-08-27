@@ -2,6 +2,7 @@ package paginationmw
 
 import (
 	"context"
+	"log"
 	"strconv"
 
 	"github.com/LUSHDigital/core/pagination"
@@ -12,10 +13,8 @@ import (
 // InterceptServerRequest returns a new Response instance from the provided
 // context, or returns an error if it fails, or finds the context to be invalid.
 func InterceptServerRequest(ctx context.Context) (pagination.Request, error) {
-	var (
-		req pagination.Request
-		err error
-	)
+	var err error
+	req := pagination.Request{}
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return req, nil
@@ -23,10 +22,12 @@ func InterceptServerRequest(ctx context.Context) (pagination.Request, error) {
 	extract := func(key string, md metadata.MD) (uint64, error) {
 		val := md.Get(key)
 		if len(val) < 1 {
+			log.Printf("grpc pagination: tried to access %q meta data key but it didn't have any values", key)
 			return 0, nil
 		}
 		n, err := strconv.ParseUint(val[0], 10, 64)
 		if err != nil {
+			log.Printf("grpc pagination: could not parse %q key: %v", key, err)
 			return 0, pagination.ErrMetadataInvalid(key, err)
 		}
 		return n, nil
