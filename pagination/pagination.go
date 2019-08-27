@@ -9,7 +9,8 @@ import (
 
 // Request derives the requested pagination data given by the client.
 type Request struct {
-	PerPage, Page uint64
+	PerPage uint64
+	Page    uint64
 }
 
 // Metadata returns gRPC metadata for a pagination request.
