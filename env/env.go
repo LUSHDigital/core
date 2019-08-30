@@ -5,7 +5,6 @@ package env
 import (
 	"log"
 	"os"
-	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -24,9 +23,27 @@ func MustGet(name string) string {
 }
 
 // TryLoadDefault will attempt to load the default environment variables.
+// This WILL NOT OVERRIDE an env variable that already exists.
+// Those set prior to this call will remain. For env variables set in multiple
+// files passed to this function, the FIRST one will prevail.
 func TryLoadDefault(paths ...string) {
 	paths = append([]string{"infra/.env", "infra/local.env"}, paths...)
-	if err := godotenv.Load(paths...); err != nil {
-		log.Printf("could not load environment files: %s: skipping...\n", strings.Join(paths, " "))
+	for _, p := range paths {
+		if err := godotenv.Load(p); err != nil {
+			log.Printf("could not load environment file: %s: skipping...\n", p)
+		}
+	}
+}
+
+// TryOverloadDefault will attempt to load the default environment variables.
+// This WILL OVERRIDE an env variable that already exists.
+// Those set prior to this call will be replaced if set here. For env variables
+// set in multiple files passed to this function, the LAST one will prevail.
+func TryOverloadDefault(paths ...string) {
+	paths = append([]string{"infra/.env", "infra/local.env"}, paths...)
+	for _, p := range paths {
+		if err := godotenv.Overload(p); err != nil {
+			log.Printf("could not load environment file: %s: skipping...\n", p)
+		}
 	}
 }
