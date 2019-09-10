@@ -25,6 +25,19 @@ func (c *Consumer) HasAnyGrant(grants ...string) bool {
 	return false
 }
 
+// MissesAnyGrant checks if a consumer is missing any of a given set of grants
+func (c Consumer) MissesAnyGrant(grants ...string) bool {
+	for _, grant := range grants {
+		for _, g := range c.Grants {
+			if grant == g {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
 // HasAnyRole checks if a consumer possess any of a given set of roles
 func (c *Consumer) HasAnyRole(roles ...string) bool {
 	for _, role := range roles {
@@ -36,6 +49,19 @@ func (c *Consumer) HasAnyRole(roles ...string) bool {
 	}
 
 	return false
+}
+
+// MissesAnyRole checks if a consumer is missing any of a given set of roles
+func (c *Consumer) MissesAnyRole(roles ...string) bool {
+	for _, role := range roles {
+		for _, r := range c.Roles {
+			if role == r {
+				return false
+			}
+		}
+	}
+
+	return true
 }
 
 // HasAnyNeed checks if a consumer has any of the given needs
