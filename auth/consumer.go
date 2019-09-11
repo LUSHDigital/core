@@ -25,6 +25,19 @@ func (c *Consumer) HasAnyGrant(grants ...string) bool {
 	return false
 }
 
+// HasNoMatchingGrant checks if a consumer is missing any of a given set of grants
+func (c Consumer) HasNoMatchingGrant(grants ...string) bool {
+	for _, grant := range grants {
+		for _, g := range c.Grants {
+			if grant == g {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
 // HasAnyRole checks if a consumer possess any of a given set of roles
 func (c *Consumer) HasAnyRole(roles ...string) bool {
 	for _, role := range roles {
@@ -38,6 +51,19 @@ func (c *Consumer) HasAnyRole(roles ...string) bool {
 	return false
 }
 
+// HasNoMatchingRole checks if a consumer is missing any of a given set of roles
+func (c *Consumer) HasNoMatchingRole(roles ...string) bool {
+	for _, role := range roles {
+		for _, r := range c.Roles {
+			if role == r {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
 // HasAnyNeed checks if a consumer has any of the given needs
 func (c *Consumer) HasAnyNeed(needs ...string) bool {
 	for _, role := range needs {
@@ -49,6 +75,19 @@ func (c *Consumer) HasAnyNeed(needs ...string) bool {
 	}
 
 	return false
+}
+
+// HasNoMatchingNeed checks if a consumer has any of the given needs
+func (c *Consumer) HasNoMatchingNeed(needs ...string) bool {
+	for _, role := range needs {
+		for _, r := range c.Needs {
+			if role == r {
+				return false
+			}
+		}
+	}
+
+	return true
 }
 
 // IsUser checks if a consumer has the same ID as a user
