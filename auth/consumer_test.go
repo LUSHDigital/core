@@ -30,7 +30,7 @@ func TestConsumer_HasAnyGrant(t *testing.T) {
 	})
 }
 
-func TestConsumer_MissesAnyGrant(t *testing.T) {
+func TestConsumer_HasNoMatchingGrant(t *testing.T) {
 	c := &auth.Consumer{
 		Grants: []string{
 			"test.foo",
@@ -39,16 +39,16 @@ func TestConsumer_MissesAnyGrant(t *testing.T) {
 		},
 	}
 	t.Run("when using one grant that exists", func(t *testing.T) {
-		test.Equals(t, false, c.MissesAnyGrant("test.foo"))
+		test.Equals(t, false, c.HasNoMatchingGrant("test.foo"))
 	})
 	t.Run("when using two grants where one does not exist", func(t *testing.T) {
-		test.Equals(t, false, c.MissesAnyGrant("test.foo", "doesnot.exist"))
+		test.Equals(t, false, c.HasNoMatchingGrant("test.foo", "doesnot.exist"))
 	})
 	t.Run("when using one grant that does not exist", func(t *testing.T) {
-		test.Equals(t, true, c.MissesAnyGrant("doesnot.exist"))
+		test.Equals(t, true, c.HasNoMatchingGrant("doesnot.exist"))
 	})
 	t.Run("when using two grants that does not exist", func(t *testing.T) {
-		test.Equals(t, true, c.MissesAnyGrant("doesnot.exist", "has.no.access"))
+		test.Equals(t, true, c.HasNoMatchingGrant("doesnot.exist", "has.no.access"))
 	})
 }
 
@@ -74,6 +74,28 @@ func TestConsumer_HasAnyNeed(t *testing.T) {
 	})
 }
 
+func TestConsumer_HasNoMatchingNeed(t *testing.T) {
+	c := &auth.Consumer{
+		Needs: []string{
+			"test.foo",
+			"test.bar",
+			"test.baz",
+		},
+	}
+	t.Run("when using one need that exists", func(t *testing.T) {
+		test.Equals(t, false, c.HasNoMatchingNeed("test.foo"))
+	})
+	t.Run("when using two needs where one does not exist", func(t *testing.T) {
+		test.Equals(t, false, c.HasNoMatchingNeed("test.foo", "doesnot.exist"))
+	})
+	t.Run("when using one need that does not exist", func(t *testing.T) {
+		test.Equals(t, true, c.HasNoMatchingNeed("doesnot.exist"))
+	})
+	t.Run("when using two needs that does not exist", func(t *testing.T) {
+		test.Equals(t, true, c.HasNoMatchingNeed("doesnot.exist", "has.no.access"))
+	})
+}
+
 func TestConsumer_HasAnyRole(t *testing.T) {
 	c := &auth.Consumer{
 		Roles: []string{
@@ -96,7 +118,7 @@ func TestConsumer_HasAnyRole(t *testing.T) {
 	})
 }
 
-func TestConsumer_MissesAnyRole(t *testing.T) {
+func TestConsumer_HasNoMatchingRole(t *testing.T) {
 	c := &auth.Consumer{
 		Roles: []string{
 			"test.foo",
@@ -105,16 +127,16 @@ func TestConsumer_MissesAnyRole(t *testing.T) {
 		},
 	}
 	t.Run("when using one role that exists", func(t *testing.T) {
-		test.Equals(t, false, c.MissesAnyRole("test.foo"))
+		test.Equals(t, false, c.HasNoMatchingRole("test.foo"))
 	})
 	t.Run("when using two roles where one does not exist", func(t *testing.T) {
-		test.Equals(t, false, c.MissesAnyRole("test.foo", "doesnot.exist"))
+		test.Equals(t, false, c.HasNoMatchingRole("test.foo", "doesnot.exist"))
 	})
 	t.Run("when using one role that does not exist", func(t *testing.T) {
-		test.Equals(t, true, c.MissesAnyRole("doesnot.exist"))
+		test.Equals(t, true, c.HasNoMatchingRole("doesnot.exist"))
 	})
 	t.Run("when using two roles that does not exist", func(t *testing.T) {
-		test.Equals(t, true, c.MissesAnyRole("doesnot.exist", "has.no.access"))
+		test.Equals(t, true, c.HasNoMatchingRole("doesnot.exist", "has.no.access"))
 	})
 }
 
