@@ -94,7 +94,8 @@ There are a few libraries that can be used in conjunction with the core library 
 ## Tools
 There are a few tools that can be used with projects that use the core libary.
 
-- [jwtl](https://github.com/LUSHDigital/jwtl#jwtl-json-web-token-command-line-tool): A command line tool to help generating JWTs during development.
+- [LUSHDigital/jwtl](https://github.com/LUSHDigital/jwtl#jwtl-json-web-token-command-line-tool): A command line tool to help generating JWTs during development.
+- [LUSHDigital/core-mage](https://github.com/LUSHDigital/core-mage): A library for the [mage build tool](https://magefile.org/) including convenient build targets used in conjunction with a projcet using this core library.
 
 ## Recommended Libraries
 Some libraries have been designed to work together with the core library and some are even dependencies.
