@@ -1,3 +1,5 @@
+// +build integration
+
 package grpcsrv_test
 
 import (
