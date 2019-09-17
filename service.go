@@ -133,7 +133,7 @@ func (s *Service) grace() time.Duration {
 	return grace
 }
 
-// WaitWithTimeout defines
+// WaitWithTimeout will wait for a number of pieces of work has finished and send a message on the completed channel.
 func WaitWithTimeout(delta int, cancelled <-chan int, timeout time.Duration) (<-chan int, func()) {
 	completed := make(chan int, 1)
 	wg := &sync.WaitGroup{}
