@@ -3,8 +3,7 @@ package metricsrv
 
 import (
 	"context"
-	"fmt"
-	"io"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -79,7 +78,7 @@ func (s *Server) Addr() *net.TCPAddr {
 }
 
 // Run will start the metrics server.
-func (s *Server) Run(ctx context.Context, out io.Writer) error {
+func (s *Server) Run(ctx context.Context) error {
 	lis, err := net.Listen("tcp", s.Server.Addr)
 	if err != nil {
 		return err
@@ -89,6 +88,6 @@ func (s *Server) Run(ctx context.Context, out io.Writer) error {
 	mux := http.NewServeMux()
 	mux.Handle(s.Path, promhttp.Handler())
 	s.Server.Handler = mux
-	fmt.Fprintf(out, "serving prometheus metrics over http on http://%s%s", s.Addr().String(), s.Path)
+	log.Printf("serving prometheus metrics over http on http://%s%s", s.Addr().String(), s.Path)
 	return s.Server.Serve(lis)
 }

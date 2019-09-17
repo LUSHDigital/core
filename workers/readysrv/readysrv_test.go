@@ -2,7 +2,6 @@ package readysrv_test
 
 import (
 	"context"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -24,7 +23,7 @@ func Example() {
 			return []string{"google can be accessed"}, true
 		}),
 	})
-	srv.Run(ctx, ioutil.Discard)
+	srv.Run(ctx)
 }
 
 func TestCheckerFunc(t *testing.T) {

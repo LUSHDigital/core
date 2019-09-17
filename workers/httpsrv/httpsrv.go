@@ -4,7 +4,7 @@ package httpsrv
 import (
 	"context"
 	"fmt"
-	"io"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -129,7 +129,7 @@ type Server struct {
 }
 
 // Run will start the gRPC server and listen for requests.
-func (gs *Server) Run(ctx context.Context, out io.Writer) error {
+func (gs *Server) Run(ctx context.Context) error {
 	addr := gs.Server.Addr
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -142,7 +142,7 @@ func (gs *Server) Run(ctx context.Context, out io.Writer) error {
 	}
 
 	gs.Server.Handler = WrapperHandler(gs.Now, gs.Server.Handler)
-	fmt.Fprintf(out, "serving http on http://%s", gs.Addr().String())
+	log.Printf("serving http on http://%s", gs.Addr().String())
 	return gs.Server.Serve(lis)
 }
 

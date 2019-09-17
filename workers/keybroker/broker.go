@@ -3,7 +3,7 @@ package keybroker
 import (
 	"context"
 	"fmt"
-	"io"
+	"log"
 	"time"
 )
 
@@ -70,8 +70,8 @@ func (b *broker) Close() {
 	b.ticker.Stop()
 }
 
-func (b *broker) Run(ctx context.Context, out io.Writer) {
-	fmt.Fprintf(out, "running %s broker checking for new key every %d second(s)\n", b.keyType, b.interval/time.Second)
+func (b *broker) Run(ctx context.Context) {
+	log.Printf("running %s broker checking for new key every %d second(s)\n", b.keyType, b.interval/time.Second)
 	b.running = true
 	defer func() { b.running = false }()
 	defer close(b.renew)
@@ -85,7 +85,7 @@ func (b *broker) Run(ctx context.Context, out io.Writer) {
 			case <-b.renew:
 				bts, err := b.source.Get(ctx)
 				if err != nil {
-					fmt.Fprintf(out, "%s broker interval error: %v\n", b.keyType, err)
+					log.Printf("%s broker interval error: %v\n", b.keyType, err)
 					b.Renew()
 				}
 				b.res <- bts

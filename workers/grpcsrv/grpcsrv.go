@@ -3,8 +3,7 @@ package grpcsrv
 
 import (
 	"context"
-	"fmt"
-	"io"
+	"log"
 	"net"
 	"os"
 	"strconv"
@@ -55,7 +54,7 @@ type Server struct {
 }
 
 // Run will start the gRPC server and listen for requests.
-func (gs *Server) Run(ctx context.Context, out io.Writer) error {
+func (gs *Server) Run(ctx context.Context) error {
 	lis, err := net.Listen("tcp", gs.addr)
 	if err != nil {
 		return err
@@ -65,7 +64,7 @@ func (gs *Server) Run(ctx context.Context, out io.Writer) error {
 	hsrv := health.NewServer()
 	grpc_health_v1.RegisterHealthServer(gs.Connection, hsrv)
 
-	fmt.Fprintf(out, "serving grpc on %s", gs.Addr().String())
+	log.Printf("serving grpc on %s", gs.Addr().String())
 	return gs.Connection.Serve(lis)
 }
 

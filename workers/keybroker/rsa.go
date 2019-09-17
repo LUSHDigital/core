@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/rsa"
 	"fmt"
-	"io"
 	"log"
 	"math/big"
 
@@ -101,15 +100,15 @@ func (b *RSAPublicKeyBroker) Close() {
 }
 
 // Run will periodically try and the public key.
-func (b *RSAPublicKeyBroker) Run(ctx context.Context, out io.Writer) error {
-	go b.broker.Run(ctx, out)
+func (b *RSAPublicKeyBroker) Run(ctx context.Context) error {
+	go b.broker.Run(ctx)
 	select {
 	case res := <-b.broker.res:
 		key, err := jwt.ParseRSAPublicKeyFromPEM(res)
 		if err != nil {
 			return fmt.Errorf("cannot parse rsa public key: %v", err)
 		}
-		fmt.Fprintf(out, "rsa public key broker found new key of size %d\n", key.Size())
+		log.Printf("rsa public key broker found new key of size %d\n", key.Size())
 		b.key = key
 	case err := <-b.broker.err:
 		return err
@@ -154,15 +153,15 @@ func (b *RSAPrivateKeyBroker) Close() {
 }
 
 // Run will periodically try and the private key.
-func (b *RSAPrivateKeyBroker) Run(ctx context.Context, out io.Writer) error {
-	go b.broker.Run(ctx, out)
+func (b *RSAPrivateKeyBroker) Run(ctx context.Context) error {
+	go b.broker.Run(ctx)
 	select {
 	case res := <-b.broker.res:
 		key, err := jwt.ParseRSAPrivateKeyFromPEM(res)
 		if err != nil {
 			return fmt.Errorf("cannot parse rsa private key: %v", err)
 		}
-		fmt.Fprintf(out, "rsa private key broker found new key of size %d\n", key.Size())
+		log.Printf("rsa private key broker found new key of size %d\n", key.Size())
 		b.key = key
 	case err := <-b.broker.err:
 		return err

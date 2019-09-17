@@ -5,7 +5,6 @@ package grpcsrv_test
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"testing"
@@ -41,7 +40,7 @@ func TestHealthCheck(t *testing.T) {
 	server := grpcsrv.New(&grpcsrv.Config{
 		Addr: "",
 	})
-	go server.Run(ctx, ioutil.Discard)
+	go server.Run(ctx)
 	addr := server.Addr()
 	host := fmt.Sprintf("127.0.0.1:%d", addr.Port)
 	conn, err := grpc.Dial(host, grpc.WithInsecure())
@@ -65,7 +64,7 @@ func Example() {
 		grpc.StreamInterceptor(paginationmw.StreamServerInterceptor),
 		grpc.UnaryInterceptor(paginationmw.UnaryServerInterceptor),
 	)
-	srv.Run(ctx, ioutil.Discard)
+	srv.Run(ctx)
 }
 
 func TestServer_Addr(t *testing.T) {
@@ -76,7 +75,7 @@ func TestServer_Addr(t *testing.T) {
 			Addr: ":",
 		})
 		servers[i] = srv
-		go srv.Run(ctx, ioutil.Discard)
+		go srv.Run(ctx)
 	}
 	for _, srv := range servers {
 		test.NotEquals(t, ":0", srv.Addr().String())

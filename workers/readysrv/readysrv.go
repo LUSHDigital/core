@@ -4,8 +4,7 @@ package readysrv
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"io"
+	"log"
 	"net/http"
 	"os"
 )
@@ -35,7 +34,7 @@ type Server struct {
 }
 
 // Run will start the metrics server.
-func (s *Server) Run(ctx context.Context, out io.Writer) error {
+func (s *Server) Run(ctx context.Context) error {
 	addr := os.Getenv("READINESS_INTERFACE")
 	if addr == "" {
 		addr = DefaultInterface
@@ -44,7 +43,7 @@ func (s *Server) Run(ctx context.Context, out io.Writer) error {
 	if path == "" {
 		path = DefaultPath
 	}
-	fmt.Fprintf(out, "serving readiness checks server over http on http://%s%s", s.Interface, s.Path)
+	log.Printf("serving readiness checks server over http on http://%s%s", s.Interface, s.Path)
 	http.Handle(path, CheckHandler(s.Checks))
 	return http.ListenAndServe(addr, nil)
 

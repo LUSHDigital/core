@@ -2,7 +2,6 @@ package httpsrv_test
 
 import (
 	"context"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -36,7 +35,7 @@ func Example() {
 	go httpsrv.New(&http.Server{
 		Handler:     handler,
 		ReadTimeout: 1 * time.Second,
-	}).Run(ctx, os.Stdout)
+	}).Run(ctx)
 }
 
 func TestHealthHandler(t *testing.T) {
@@ -86,7 +85,7 @@ func TestServer_Addr(t *testing.T) {
 			Handler: handler,
 		})
 		servers[i] = srv
-		go srv.Run(ctx, ioutil.Discard)
+		go srv.Run(ctx)
 	}
 	for _, srv := range servers {
 		test.NotEquals(t, ":0", srv.Addr().String())

@@ -58,7 +58,7 @@ func NewService(name, kind string, opts ...ServiceOption) *Service {
 // ServiceWorker represents the behaviour for running a service worker.
 type ServiceWorker interface {
 	// Run should be a blocking operation
-	Run(context.Context, io.Writer) error
+	Run(context.Context) error
 }
 
 type writer func(b []byte) (int, error)
