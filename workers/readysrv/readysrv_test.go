@@ -15,7 +15,7 @@ var (
 )
 
 func Example() {
-	srv := readysrv.New(readysrv.Checks{
+	srv := readysrv.New(nil, readysrv.Checks{
 		"google": readysrv.CheckerFunc(func() ([]string, bool) {
 			if _, err := http.Get("https://google.com"); err != nil {
 				return []string{err.Error()}, false
