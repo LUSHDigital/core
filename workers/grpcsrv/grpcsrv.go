@@ -68,6 +68,13 @@ func (gs *Server) Run(ctx context.Context) error {
 	return gs.Connection.Serve(lis)
 }
 
+// Halt will attempt to gracefully shut down the server.
+func (gs *Server) Halt(ctx context.Context) error {
+	log.Printf("stopping serving grpc on %s...", gs.Addr().String())
+	gs.Connection.GracefulStop()
+	return nil
+}
+
 // Addr will block until you have received an address for your server.
 func (gs *Server) Addr() *net.TCPAddr {
 	if gs.tcpAddr != nil {
