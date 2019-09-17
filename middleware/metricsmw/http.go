@@ -39,7 +39,6 @@ var (
 
 	// All represents a combination of all HTTP metric collectors.
 	All = []prometheus.Collector{
-		RequestCounter,
 		RequestDurationHistogram,
 		ResponseSizeHistogram,
 	}
