@@ -10,14 +10,6 @@ import (
 )
 
 var (
-	// RequestCounter counts the number of requests for a combination of method, code and path.
-	RequestCounter = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "http_request_total",
-			Help: "A running count for HTTP requests",
-		},
-		[]string{"method", "code", "path"},
-	)
 
 	// RequestDurationHistogram measures the duration in seconds for requests.
 	RequestDurationHistogram = prometheus.NewHistogramVec(
@@ -39,7 +31,6 @@ var (
 
 	// All represents a combination of all HTTP metric collectors.
 	All = []prometheus.Collector{
-		RequestCounter,
 		RequestDurationHistogram,
 		ResponseSizeHistogram,
 	}
@@ -120,12 +111,6 @@ func MeasureRequests(next http.HandlerFunc) http.HandlerFunc {
 			log.Printf("metrics: cannot get http request duration histogram: %v\n", err)
 		} else {
 			rdh.Observe(duration.Seconds())
-		}
-
-		if rc, err := RequestCounter.GetMetricWith(labels); err != nil {
-			log.Printf("metrics: cannot get http request counter: %v\n", err)
-		} else {
-			rc.Inc()
 		}
 	}
 }
