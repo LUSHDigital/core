@@ -17,10 +17,10 @@ srv.Run(ctx, os.Stdout)
 
 ### Starting server with a custom http server
 
-```
-srv := httpsrv.New&http.Server{
+```go
+srv := httpsrv.New(&http.Server{
     Handler: Handler,
     ReadTimeout: 1 * time.Second,
 })
-srv.Run(ctx, os.Stdout)
+srv.Run(ctx)
 ```

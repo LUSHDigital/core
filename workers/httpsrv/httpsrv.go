@@ -92,7 +92,7 @@ func NewDefault(handler http.Handler) *Server {
 // New sets up a new HTTP server.
 func New(server *http.Server) *Server {
 	if server == nil {
-		server = &http.Server{}
+		server = &DefaultHTTPServer
 	}
 	if server.WriteTimeout == 0 {
 		server.WriteTimeout = DefaultHTTPServer.WriteTimeout
@@ -144,6 +144,12 @@ func (gs *Server) Run(ctx context.Context) error {
 	gs.Server.Handler = WrapperHandler(gs.Now, gs.Server.Handler)
 	log.Printf("serving http on http://%s", gs.Addr().String())
 	return gs.Server.Serve(lis)
+}
+
+// Halt will attempt to gracefully shut down the server.
+func (gs *Server) Halt(ctx context.Context) error {
+	log.Printf("stopping serving http on http://%s...", gs.Addr().String())
+	return gs.Server.Shutdown(ctx)
 }
 
 // Addr will block until you have received an address for your server.
