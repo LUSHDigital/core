@@ -42,7 +42,7 @@ func main() {
 		}),
 	})
 
-	service.StartWorkers(context.Background(),
+	service.MustRun(context.Background(),
 		server,
 		metrics,
 		broker,

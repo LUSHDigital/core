@@ -22,9 +22,9 @@ func main() {
 	core.SetupLogs()
 
 	metrics := metricsrv.New(nil)
-	broker := keybroker.NewRSA(nil)
-	readiness := readysrv.New(readysrv.Checks{
-		"rsa_key": broker,
+	broker := keybroker.NewPublicRSA(nil)
+	readiness := readysrv.New(nil, readysrv.Checks{
+		"public_rsa_key": broker,
 	})
 
 	server := httpsrv.New(&http.Server{
@@ -35,7 +35,7 @@ func main() {
 		}),
 	})
 
-	service.StartWorkers(context.Background(),
+	service.MustRun(context.Background(),
 		server,
 		metrics,
 		broker,
