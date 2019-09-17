@@ -102,19 +102,24 @@ func (b *RSAPublicKeyBroker) Close() {
 // Run will periodically try and the public key.
 func (b *RSAPublicKeyBroker) Run(ctx context.Context) error {
 	go b.broker.Run(ctx)
-	select {
-	case res := <-b.broker.res:
-		key, err := jwt.ParseRSAPublicKeyFromPEM(res)
-		if err != nil {
-			return fmt.Errorf("cannot parse rsa public key: %v", err)
+	for {
+		select {
+		case res := <-b.broker.res:
+			key, err := jwt.ParseRSAPublicKeyFromPEM(res)
+			if err != nil {
+				return fmt.Errorf("cannot parse rsa public key: %v", err)
+			}
+			log.Printf("rsa public key broker found new key of size %d\n", key.Size())
+			b.key = key
+		case err := <-b.broker.err:
+			return err
 		}
-		log.Printf("rsa public key broker found new key of size %d\n", key.Size())
-		b.key = key
-	case err := <-b.broker.err:
-		return err
-	case <-ctx.Done():
 	}
-	return nil
+}
+
+// Halt will attempt to gracefully shut down the broker.
+func (b *RSAPublicKeyBroker) Halt(ctx context.Context) error {
+	return b.broker.Halt(ctx)
 }
 
 // Check will see if the broker is ready.
@@ -155,20 +160,24 @@ func (b *RSAPrivateKeyBroker) Close() {
 // Run will periodically try and the private key.
 func (b *RSAPrivateKeyBroker) Run(ctx context.Context) error {
 	go b.broker.Run(ctx)
-	select {
-	case res := <-b.broker.res:
-		key, err := jwt.ParseRSAPrivateKeyFromPEM(res)
-		if err != nil {
-			return fmt.Errorf("cannot parse rsa private key: %v", err)
+	for {
+		select {
+		case res := <-b.broker.res:
+			key, err := jwt.ParseRSAPrivateKeyFromPEM(res)
+			if err != nil {
+				return fmt.Errorf("cannot parse rsa private key: %v", err)
+			}
+			log.Printf("rsa private key broker found new key of size %d\n", key.Size())
+			b.key = key
+		case err := <-b.broker.err:
+			return err
 		}
-		log.Printf("rsa private key broker found new key of size %d\n", key.Size())
-		b.key = key
-	case err := <-b.broker.err:
-		return err
-	case <-ctx.Done():
-		return nil
 	}
-	return nil
+}
+
+// Halt will attempt to gracefully shut down the broker.
+func (b *RSAPrivateKeyBroker) Halt(ctx context.Context) error {
+	return b.broker.Halt(ctx)
 }
 
 // Check will see if the broker is ready.

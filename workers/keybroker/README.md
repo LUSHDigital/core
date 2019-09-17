@@ -19,7 +19,7 @@ broker := keybroker.NewPublicRSA(&keybroker.Config{
 })
 
 // Run the broker
-go broker.Run(ctx, ioutil.Discard)
+go broker.Run(ctx)
 
 // Queue retrieval of new key
 broker.Renew()
