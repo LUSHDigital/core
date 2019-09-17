@@ -9,9 +9,12 @@ package core
 import (
 	"context"
 	"fmt"
-	"io"
 	"log"
 	"os"
+	"os/signal"
+	"sync"
+	"syscall"
+	"time"
 )
 
 var (
@@ -32,6 +35,9 @@ type Service struct {
 	Version string `json:"version"`
 	// Revision represents the SVC revision or commit hash of the service.
 	Revision string `json:"revision"`
+
+	// GracePeriod represents the duration workers have to clean up before the process gets killed.
+	GracePeriod time.Duration `json:"grace_period"`
 }
 
 // ServiceOption represents behaviour for applying options to a new service.
@@ -55,32 +61,60 @@ func NewService(name, kind string, opts ...ServiceOption) *Service {
 	}
 }
 
-// ServiceWorker represents the behaviour for running a service worker.
-type ServiceWorker interface {
+// Worker represents the behaviour for running a service worker.
+type Worker interface {
 	// Run should be a blocking operation
 	Run(context.Context) error
 }
 
-type writer func(b []byte) (int, error)
+// StartWorkers will start the given service workers and block block indefinitely.
+func (s *Service) StartWorkers(ctx context.Context, workers ...Worker) {
+	if err := s.validate(); err != nil {
+		log.Fatalln(err)
+	}
+	var (
+		cancelled    <-chan int
+		completed    <-chan int
+		done, cancel func()
+	)
+	ctx, cancelled, cancel = ContextWithSignals(ctx)
+	completed, done = WaitWithTimeout(len(workers), cancelled, s.grace())
 
-func (f writer) Write(b []byte) (int, error) {
-	return f(b)
+	var work = func(ctx context.Context, worker Worker, done, cancel func()) {
+		if err := worker.Run(ctx); err != nil {
+			log.Println(err)
+			cancel()
+		}
+		done()
+	}
+
+	log.Println(s.startmsg())
+	for _, worker := range workers {
+		go work(ctx, worker, done, cancel)
+	}
+
+	select {
+	case code := <-completed:
+		var message string
+		switch code {
+		case 0:
+			message = "shutdown gracefully..."
+		default:
+			message = "failed to shutdown gracefully: killing!"
+		}
+		log.Println(message)
+		os.Exit(code)
+	}
 }
 
-// StartWorkers will start the given service workers and block block indefinitely.
-func (s *Service) StartWorkers(ctx context.Context, workers ...ServiceWorker) {
+func (s *Service) validate() error {
 	if s.Name == "" || s.Type == "" {
-		log.Fatalln("cannot start without a name or type")
+		return fmt.Errorf("cannot start without a name or type")
 	}
-	var out = writer(func(b []byte) (int, error) {
-		log.Print(string(b))
-		return len(b), nil
-	})
-	var work = func(worker ServiceWorker) {
-		if err := worker.Run(ctx, out); err != nil {
-			log.Fatalln(err)
-		}
-	}
+	return nil
+}
+
+func (s *Service) startmsg() string {
 	msg := fmt.Sprintf("starting %s: %s", s.Type, s.Name)
 	if s.Version != "" {
 		msg = fmt.Sprintf("%s %s", msg, s.Version)
@@ -88,9 +122,59 @@ func (s *Service) StartWorkers(ctx context.Context, workers ...ServiceWorker) {
 	if s.Revision != "" {
 		msg = fmt.Sprintf("%s (%s)", msg, s.Revision[0:6])
 	}
-	log.Println(msg)
-	for _, worker := range workers {
-		go work(worker)
+	return msg
+}
+
+func (s *Service) grace() time.Duration {
+	grace := s.GracePeriod
+	if grace == 0 {
+		grace = time.Second * 5
 	}
-	select {} // blocks the thread indefinitely
+	return grace
+}
+
+// WaitWithTimeout defines
+func WaitWithTimeout(delta int, cancelled <-chan int, timeout time.Duration) (<-chan int, func()) {
+	completed := make(chan int, 1)
+	wg := &sync.WaitGroup{}
+	wg.Add(delta)
+	go func(wg *sync.WaitGroup) {
+		wg.Wait()
+		completed <- 0
+	}(wg)
+	go func() {
+		select {
+		case code := <-cancelled:
+			time.Sleep(timeout)
+			completed <- code
+		}
+	}()
+	return completed, wg.Done
+}
+
+// ContextWithSignals creates a new instance of signal context.
+func ContextWithSignals(ctx context.Context) (context.Context, <-chan int, context.CancelFunc) {
+	var cancel context.CancelFunc
+	ctx, cancel = context.WithCancel(ctx)
+
+	sigs := make(chan os.Signal, 1)
+	cancelled := make(chan int, 1)
+
+	signal.Notify(sigs,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+	)
+
+	var cancelAndNotify = func() {
+		cancel()
+		cancelled <- 1
+	}
+
+	go func(cancel context.CancelFunc) {
+		sig := <-sigs
+		log.Printf("received signal: %s", sig)
+		cancel()
+	}(cancelAndNotify)
+
+	return ctx, cancelled, cancelAndNotify
 }
