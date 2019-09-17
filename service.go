@@ -61,16 +61,49 @@ func NewService(name, kind string, opts ...ServiceOption) *Service {
 	}
 }
 
-// Worker represents the behaviour for running a service worker.
-type Worker interface {
-	// Run should be a blocking operation
+// Runner represents the behaviour for running a service worker.
+type Runner interface {
+	// Run should run start processing the worker and be a blocking operation.
 	Run(context.Context) error
 }
 
-// StartWorkers will start the given service workers and block block indefinitely.
+// Halter represents the behaviour for stopping a service worker.
+type Halter interface {
+	// Halt should tell the worker to stop doing work.
+	Halt(context.Context) error
+}
+
+// Worker represents the behaviour for a service worker.
+type Worker interface {
+	Runner
+	Halter
+}
+
+// StartWorkers will start the given service workers and block block indefinitely, until interupted.
+// The process with an appropriate status code.
+// DEPRECATED: Use MustRun in favour of StartWorkers.
 func (s *Service) StartWorkers(ctx context.Context, workers ...Worker) {
+	log.Println("DEPRECATED: Use core.MustRun in favour of core.StartWorkers")
+	s.MustRun(ctx, workers...)
+}
+
+// MustRun will start the given service workers and block block indefinitely, until interupted.
+// The process with an appropriate status code.
+func (s *Service) MustRun(ctx context.Context, workers ...Worker) {
+	os.Exit(s.Run(ctx, workers...))
+}
+
+// Run will start the given service workers and block block indefinitely, until interupted.
+func (s *Service) Run(ctx context.Context, workers ...Worker) int {
+	const fail int = 1
+	nWorkers := len(workers)
+	if nWorkers < 1 {
+		log.Println("need at least 1 service worker")
+		return fail
+	}
 	if err := s.validate(); err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return fail
 	}
 	var (
 		cancelled    <-chan int
@@ -78,32 +111,40 @@ func (s *Service) StartWorkers(ctx context.Context, workers ...Worker) {
 		done, cancel func()
 	)
 	ctx, cancelled, cancel = ContextWithSignals(ctx)
-	completed, done = WaitWithTimeout(len(workers), cancelled, s.grace())
+	completed, cancelled, done = WaitWithTimeout(nWorkers, cancelled, s.grace())
 
-	var work = func(ctx context.Context, worker Worker, done, cancel func()) {
+	var run = func(ctx context.Context, worker Worker, done, cancel func()) {
 		if err := worker.Run(ctx); err != nil {
-			log.Println(err)
-			cancel()
+			log.Println("service errored:", err)
+			go cancel()
 		}
 		done()
 	}
-
-	log.Println(s.startmsg())
-	for _, worker := range workers {
-		go work(ctx, worker, done, cancel)
+	var halt = func(ctx context.Context, worker Worker) {
+		if err := worker.Halt(ctx); err != nil {
+			log.Println("service halted:", err)
+		}
 	}
 
-	select {
-	case code := <-completed:
-		var message string
-		switch code {
-		case 0:
-			message = "shutdown gracefully..."
-		default:
-			message = "failed to shutdown gracefully: killing!"
+	log.Printf("starting %s: %s", s.Type, s.name())
+
+	for _, worker := range workers {
+		go run(ctx, worker, done, cancel)
+	}
+	for {
+		select {
+		case <-cancelled:
+			for _, worker := range workers {
+				go halt(ctx, worker)
+			}
+		case code := <-completed:
+			message := "shutdown gracefully..."
+			if code > 0 {
+				message = "failed to shutdown gracefully: killing!"
+			}
+			log.Println(message)
+			return code
 		}
-		log.Println(message)
-		os.Exit(code)
 	}
 }
 
@@ -114,15 +155,14 @@ func (s *Service) validate() error {
 	return nil
 }
 
-func (s *Service) startmsg() string {
-	msg := fmt.Sprintf("starting %s: %s", s.Type, s.Name)
+func (s *Service) name() (n string) {
 	if s.Version != "" {
-		msg = fmt.Sprintf("%s %s", msg, s.Version)
+		n = fmt.Sprintf("%s %s", s.Name, s.Version)
 	}
 	if s.Revision != "" {
-		msg = fmt.Sprintf("%s (%s)", msg, s.Revision[0:6])
+		n = fmt.Sprintf("%s (%s)", n, s.Revision[0:6])
 	}
-	return msg
+	return n
 }
 
 func (s *Service) grace() time.Duration {
@@ -134,28 +174,30 @@ func (s *Service) grace() time.Duration {
 }
 
 // WaitWithTimeout will wait for a number of pieces of work has finished and send a message on the completed channel.
-func WaitWithTimeout(delta int, cancelled <-chan int, timeout time.Duration) (<-chan int, func()) {
-	completed := make(chan int, 1)
+func WaitWithTimeout(delta int, cancelled <-chan int, timeout time.Duration) (<-chan int, <-chan int, func()) {
+	completedC := make(chan int, 1)
+	cancelledC := make(chan int, 1)
 	wg := &sync.WaitGroup{}
 	wg.Add(delta)
 	go func(wg *sync.WaitGroup) {
 		wg.Wait()
-		completed <- 0
+		completedC <- 0
 	}(wg)
 	go func() {
 		select {
 		case code := <-cancelled:
+			cancelledC <- code
 			time.Sleep(timeout)
-			completed <- code
+			completedC <- code
 		}
 	}()
-	return completed, wg.Done
+	return completedC, cancelledC, wg.Done
 }
 
 // ContextWithSignals creates a new instance of signal context.
 func ContextWithSignals(ctx context.Context) (context.Context, <-chan int, context.CancelFunc) {
-	var cancel context.CancelFunc
-	ctx, cancel = context.WithCancel(ctx)
+	var cancelCtx context.CancelFunc
+	ctx, cancelCtx = context.WithCancel(ctx)
 
 	sigs := make(chan os.Signal, 1)
 	cancelled := make(chan int, 1)
@@ -165,16 +207,16 @@ func ContextWithSignals(ctx context.Context) (context.Context, <-chan int, conte
 		syscall.SIGTERM,
 	)
 
-	var cancelAndNotify = func() {
-		cancel()
+	var cancel = func() {
+		cancelCtx()
 		cancelled <- 1
 	}
 
-	go func(cancel context.CancelFunc) {
+	go func() {
 		sig := <-sigs
 		log.Printf("received signal: %s", sig)
 		cancel()
-	}(cancelAndNotify)
+	}()
 
-	return ctx, cancelled, cancelAndNotify
+	return ctx, cancelled, cancel
 }
