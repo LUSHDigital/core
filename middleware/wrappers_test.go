@@ -4,7 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/LUSHDigital/core/test"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -16,9 +17,13 @@ func TestWrapServerStream(t *testing.T) {
 	ctx := context.WithValue(context.TODO(), "something", 1)
 	fake := &fakeServerStream{ctx: ctx}
 	wrapped := middleware.WrapServerStream(fake)
-	assert.NotNil(t, wrapped.Context().Value("something"), "values from fake must propagate to wrapper")
+	t.Run("values from fake must propagate to wrapper", func(t *testing.T) {
+		test.NotEquals(t, nil, wrapped.Context().Value("something"))
+	})
 	wrapped.WrappedContext = context.WithValue(wrapped.Context(), "other", 2)
-	assert.NotNil(t, wrapped.Context().Value("other"), "values from wrapper must be set")
+	t.Run("values from wrapper must be set", func(t *testing.T) {
+		test.NotEquals(t, nil, wrapped.Context().Value("other"))
+	})
 }
 
 type fakeServerStream struct {
