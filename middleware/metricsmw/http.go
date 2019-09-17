@@ -19,11 +19,11 @@ var (
 		[]string{"method", "code", "path"},
 	)
 
-	// RequestDurationHistogram measures the duration in nanoseconds for requests.
+	// RequestDurationHistogram measures the duration in seconds for requests.
 	RequestDurationHistogram = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
-			Name: "http_request_duration_nanoseconds",
-			Help: "Duration in nanoseconds of each request",
+			Name: "http_request_duration_seconds",
+			Help: "Duration in seconds of each request",
 		},
 		[]string{"method", "code", "path"},
 	)
@@ -119,7 +119,7 @@ func MeasureRequests(next http.HandlerFunc) http.HandlerFunc {
 		if rdh, err := RequestDurationHistogram.GetMetricWith(labels); err != nil {
 			log.Printf("metrics: cannot get http request duration histogram: %v\n", err)
 		} else {
-			rdh.Observe(float64(duration.Nanoseconds()))
+			rdh.Observe(duration.Seconds())
 		}
 
 		if rc, err := RequestCounter.GetMetricWith(labels); err != nil {
