@@ -91,3 +91,9 @@ func (s *Server) Run(ctx context.Context) error {
 	log.Printf("serving prometheus metrics over http on http://%s%s", s.Addr().String(), s.Path)
 	return s.Server.Serve(lis)
 }
+
+// Halt will attempt to gracefully shut down the server.
+func (s *Server) Halt(ctx context.Context) error {
+	log.Printf("stopping serving prometheus metrics over http on http://%s...", s.Addr().String())
+	return s.Server.Shutdown(ctx)
+}
