@@ -1,7 +1,9 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://raw.githubusercontent.com/LUSHDigital/core/master/LICENSE) [![Go Report Card](https://goreportcard.com/badge/github.com/LUSHDigital/core)](https://goreportcard.com/report/github.com/LUSHDigital/core) [![Build Status](https://travis-ci.org/LUSHDigital/core.svg?branch=master)](https://travis-ci.org/LUSHDigital/core)
 [![GoDoc](https://godoc.org/github.com/LUSHDigital/core?status.svg)](https://godoc.org/github.com/LUSHDigital/core)
-# Core (Go)
+
+# ![Donguri by Cerys Evans](https://res.cloudinary.com/lush/image/upload/c_scale,w_60/v1568812743/github/core/donguri_wink_cropped.jpg) Core (Go)
 A collection of packages for building a Go microservice on the LUSH platform.
+
 
 ## Quick start
 Below there's an example for how to get running quickly with a service using the LUSHDigital core package.
@@ -103,3 +105,11 @@ Consider using these if you need extended functionality for certain things.
 
 - [LUSHDigital/scan](https://github.com/LUSHDigital/scan): Scan database/sql rows directly to structs, slices, and primitive types, originally forked from github.com/blockloop/scan
 - [LUSHDigital/uuid](https://github.com/LUSHDigital/uuid): A UUID package originally forked from github.com/gofrs/uuid & github.com/satori/go.uuid
+- [LUSHDigital/spew](https://github.com/LUSHDigital/spew): A pretty-printer package originally forked from github.com/davecgh/go-spew/spew
+
+## Contributors
+- [Zee Philip Vieira](https://github.com/zeeraw): Author & Maintainer
+- [Ben Cable](https://github.com/ladydascalie): Author & Maintainer
+- [Zach Jones](https://github.com/zdjones): Code
+- [Dan P](https://github.com/cuotos): Code
+- [Cerys Evans](https://www.cerysevansillustration.com/): Design
