@@ -110,5 +110,5 @@ Consider using these if you need extended functionality for certain things.
 - [Zee Philip Vieira](https://github.com/zeeraw): Author & Maintainer
 - [Ben Cable](https://github.com/ladydascalie): Author & Maintainer
 - [Zach Jones](https://github.com/zdjones): Code
-- [cuotos](https://github.com/cuotos): Code
+- [Dan P](https://github.com/cuotos): Code
 - [Cerys Evans](https://www.cerysevansillustration.com/): Design
