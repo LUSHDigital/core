@@ -18,6 +18,13 @@ const (
 func HandlerValidateJWT(brk auth.RSAPublicKeyCopierRenewer, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		raw := strings.TrimPrefix(r.Header.Get(authHeader), authHeaderPrefix)
+		if raw == "" {
+			rest.Response{
+				Code:    http.StatusUnauthorized,
+				Message: "missing token",
+			}.WriteTo(w)
+			return
+		}
 		pk := brk.Copy()
 		parser := auth.NewParser(&pk)
 		claims, err := parser.Claims(raw)
