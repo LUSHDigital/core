@@ -116,7 +116,7 @@ func TestHandlerValidateJWT(t *testing.T) {
 			}
 
 			// only add the token when a consumer is provided.
-			if c.claims.Consumer.IsUser(5) {
+			if c.claims.Consumer.IsUser(defaultConsumer.ID) {
 				req.Header.Add("Authorization", "Bearer "+token)
 			}
 
