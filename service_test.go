@@ -20,7 +20,7 @@ func ExampleNewService() {
 	core.NewService("example", "service")
 }
 
-func ExampleService_MustRun() {
+func ExampleService_StartWorkers() {
 	service := core.NewService("example", "service")
 	service.StartWorkers(ctx,
 		grpcsrv.New(nil),
