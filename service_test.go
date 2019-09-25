@@ -17,12 +17,12 @@ var (
 )
 
 func ExampleNewService() {
-	core.NewService()
+	core.NewService("example", "service")
 }
 
-func ExampleService_StartWorkers() {
-	svc := core.NewService()
-	svc.StartWorkers(ctx,
+func ExampleService_MustRun() {
+	service := core.NewService("example", "service")
+	service.StartWorkers(ctx,
 		grpcsrv.New(nil),
 		httpsrv.NewDefault(handler),
 		metricsrv.New(nil),

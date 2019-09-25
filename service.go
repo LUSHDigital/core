@@ -11,8 +11,15 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
+)
 
-	"github.com/LUSHDigital/core/env"
+var (
+	// tag and ref can be used by build stage with build flags to set things like git commit hash and tag.
+	// --ldflags "-X github.com/LUSHDigital/core.tag=${GIT_TAG}"
+	// --ldflags "-X github.com/LUSHDigital/core.ref=${GIT_COMMIT_HASH}"
+	tag string
+	ref string
 )
 
 // Service represents the minimal information required to define a working service.
@@ -27,13 +34,24 @@ type Service struct {
 	Revision string `json:"revision"`
 }
 
-// NewService reads a service definition from the environment.
-func NewService() *Service {
+// ServiceOption represents behaviour for applying options to a new service.
+type ServiceOption interface {
+	Apply(*Service)
+}
+
+// NewService creates a new service based on
+func NewService(name, kind string, opts ...ServiceOption) *Service {
+	if v := os.Getenv("SERVICE_VERSION"); v != "" {
+		tag = v
+	}
+	if r := os.Getenv("SERVICE_REVISION"); r != "" {
+		ref = r
+	}
 	return &Service{
-		Name:     env.MustGet("SERVICE_NAME"),
-		Type:     env.MustGet("SERVICE_TYPE"),
-		Version:  env.MustGet("SERVICE_VERSION"),
-		Revision: env.MustGet("SERVICE_REVISION"),
+		Name:     name,
+		Type:     kind,
+		Version:  tag,
+		Revision: ref,
 	}
 }
 
