@@ -23,14 +23,10 @@ import (
 	"github.com/LUSHDigital/core/workers/readysrv"
 )
 
-var service = &core.Service{
-	Name:    "example",
-	Type:    "service",
-	Version: "1.0.0",
-}
-
 func main() {
 	core.SetupLogs()
+
+	service := core.NewService("example", "service")
 
 	metrics := metricsrv.New(nil)
 	broker := keybroker.NewPublicRSA(nil)
