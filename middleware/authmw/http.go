@@ -9,20 +9,33 @@ import (
 )
 
 const (
-	authHeader               = "Authorization"
-	authHeaderPrefix         = "Bearer "
-	msgMissingRequiredGrants = "missing required grants"
+	authHeader       = "Authorization"
+	authHeaderPrefix = "Bearer"
+)
+
+var (
+	missingTokenResponse = rest.Response{
+		Code:    http.StatusUnauthorized,
+		Message: "missing token",
+	}
+	missingGrantsResponse = rest.Response{
+		Code:    http.StatusUnauthorized,
+		Message: "missing required grants",
+	}
 )
 
 // HandlerValidateJWT takes a JWT from the request headers, attempts validation and returns a http handler.
 func HandlerValidateJWT(brk auth.RSAPublicKeyCopierRenewer, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		raw := strings.TrimPrefix(r.Header.Get(authHeader), authHeaderPrefix)
+		h := r.Header.Get(authHeader)
+		split := strings.Split(h, authHeaderPrefix)
+		if len(split) != 2 {
+			missingTokenResponse.WriteTo(w)
+			return
+		}
+		raw := strings.TrimSpace(split[1])
 		if raw == "" {
-			rest.Response{
-				Code:    http.StatusUnauthorized,
-				Message: "missing token",
-			}.WriteTo(w)
+			missingTokenResponse.WriteTo(w)
 			return
 		}
 		pk := brk.Copy()
@@ -49,10 +62,7 @@ func HandlerGrants(grants []string, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		consumer := auth.ConsumerFromContext(r.Context())
 		if !consumer.HasAnyGrant(grants...) {
-			rest.Response{
-				Code:    http.StatusUnauthorized,
-				Message: msgMissingRequiredGrants,
-			}.WriteTo(w)
+			missingGrantsResponse.WriteTo(w)
 			return
 		}
 		next.ServeHTTP(w, r)
@@ -64,10 +74,7 @@ func HandlerRoles(roles []string, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		consumer := auth.ConsumerFromContext(r.Context())
 		if !consumer.HasAnyRole(roles...) {
-			rest.Response{
-				Code:    http.StatusUnauthorized,
-				Message: msgMissingRequiredGrants,
-			}.WriteTo(w)
+			missingGrantsResponse.WriteTo(w)
 			return
 		}
 		next.ServeHTTP(w, r)
