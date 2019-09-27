@@ -9,15 +9,35 @@ import (
 )
 
 const (
-	authHeader               = "Authorization"
-	authHeaderPrefix         = "Bearer "
-	msgMissingRequiredGrants = "missing required grants"
+	authHeader       = "Authorization"
+	authHeaderPrefix = "Bearer"
+)
+
+var (
+	missingTokenResponse = rest.Response{
+		Code:    http.StatusUnauthorized,
+		Message: "missing token",
+	}
+	missingGrantsResponse = rest.Response{
+		Code:    http.StatusUnauthorized,
+		Message: "missing required grants",
+	}
 )
 
 // HandlerValidateJWT takes a JWT from the request headers, attempts validation and returns a http handler.
 func HandlerValidateJWT(brk auth.RSAPublicKeyCopierRenewer, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		raw := strings.TrimPrefix(r.Header.Get(authHeader), authHeaderPrefix)
+		h := r.Header.Get(authHeader)
+		split := strings.Split(h, authHeaderPrefix)
+		if len(split) != 2 {
+			missingTokenResponse.WriteTo(w)
+			return
+		}
+		raw := strings.TrimSpace(split[1])
+		if raw == "" {
+			missingTokenResponse.WriteTo(w)
+			return
+		}
 		pk := brk.Copy()
 		parser := auth.NewParser(&pk)
 		claims, err := parser.Claims(raw)
@@ -26,8 +46,10 @@ func HandlerValidateJWT(brk auth.RSAPublicKeyCopierRenewer, next http.HandlerFun
 			case auth.TokenSignatureError:
 				brk.Renew() // Renew the public key if there's an error validating the token signature
 			}
-			res := &rest.Response{Code: http.StatusUnauthorized, Message: err.Error()}
-			res.WriteTo(w)
+			rest.Response{
+				Code:    http.StatusUnauthorized,
+				Message: err.Error(),
+			}.WriteTo(w)
 			return
 		}
 		ctx := auth.ContextWithConsumer(r.Context(), claims.Consumer)
@@ -40,8 +62,7 @@ func HandlerGrants(grants []string, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		consumer := auth.ConsumerFromContext(r.Context())
 		if !consumer.HasAnyGrant(grants...) {
-			res := &rest.Response{Code: http.StatusUnauthorized, Message: msgMissingRequiredGrants}
-			res.WriteTo(w)
+			missingGrantsResponse.WriteTo(w)
 			return
 		}
 		next.ServeHTTP(w, r)
@@ -53,8 +74,7 @@ func HandlerRoles(roles []string, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		consumer := auth.ConsumerFromContext(r.Context())
 		if !consumer.HasAnyRole(roles...) {
-			res := &rest.Response{Code: http.StatusUnauthorized, Message: msgMissingRequiredGrants}
-			res.WriteTo(w)
+			missingGrantsResponse.WriteTo(w)
 			return
 		}
 		next.ServeHTTP(w, r)

@@ -29,6 +29,13 @@ func TestHandlerValidateJWT(t *testing.T) {
 		expectedErrorMessage string
 	}{
 		{
+			name:                 "token is missing",
+			broker:               keybrokermock.MockRSAPublicKey(*correctPK),
+			claims:               auth.Claims{},
+			expectedStatusCode:   http.StatusUnauthorized,
+			expectedErrorMessage: "missing token",
+		},
+		{
 			name:   "token is good",
 			broker: keybrokermock.MockRSAPublicKey(*correctPK),
 			claims: auth.Claims{
@@ -107,7 +114,11 @@ func TestHandlerValidateJWT(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			req.Header.Add("Authorization", "Bearer "+token)
+
+			// only add the token when a consumer is provided.
+			if c.claims.Consumer.IsUser(defaultConsumer.ID) {
+				req.Header.Add("Authorization", "Bearer "+token)
+			}
 
 			recorder := httptest.NewRecorder()
 			handler := authmw.HandlerValidateJWT(c.broker, func(w http.ResponseWriter, r *http.Request) {
