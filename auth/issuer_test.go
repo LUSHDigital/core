@@ -3,9 +3,10 @@ package auth_test
 import (
 	"fmt"
 	"testing"
+	"time"
 
-	"github.com/LUSHDigital/core/auth"
 	"github.com/LUSHDigital/core/test"
+	"github.com/dgrijalva/jwt-go"
 )
 
 var (
@@ -13,16 +14,16 @@ var (
 )
 
 func ExampleIssuer_Issue() {
-	consumer := &auth.Consumer{
-		ID:        999,
-		FirstName: "Testy",
-		LastName:  "McTest",
-		Grants: []string{
-			"testing.read",
-			"testing.create",
-		},
+	claims := jwt.StandardClaims{
+		Id:        "1234",
+		Issuer:    "Tests",
+		Audience:  "Developers",
+		Subject:   "Example",
+		ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
+		IssuedAt:  time.Now().Unix(),
+		NotBefore: time.Now().Unix(),
 	}
-	raw, err := issuer.Issue(consumer)
+	raw, err := issuer.Issue(&claims)
 	if err != nil {
 		return
 	}
@@ -30,22 +31,28 @@ func ExampleIssuer_Issue() {
 }
 
 func TestIssuer_Issue(t *testing.T) {
-	consumer := &auth.Consumer{
-		ID:        999,
-		FirstName: "Testy",
-		LastName:  "McTest",
-		Grants: []string{
-			"testing.read",
-			"testing.create",
+	claims := Claims{
+		StandardClaims: jwt.StandardClaims{
+			Id:        "1234",
+			Issuer:    "Tests",
+			Audience:  "Developers",
+			Subject:   "Example",
+			ExpiresAt: then.Unix(),
+			IssuedAt:  now.Unix(),
+			NotBefore: now.Unix(),
+		},
+		Consumer: Consumer{
+			ID: "999",
 		},
 	}
-	raw, err := issuer.Issue(consumer)
+	raw, err := issuer.Issue(&claims)
 	if err != nil {
 		t.Error(err)
 	}
-	claims, err := parser.Claims(raw)
+	var parsed Claims
+	err = parser.Parse(raw, &parsed)
 	if err != nil {
 		t.Error(err)
 	}
-	test.Equals(t, consumer.ID, claims.Consumer.ID)
+	test.Equals(t, claims.Consumer.ID, parsed.Consumer.ID)
 }

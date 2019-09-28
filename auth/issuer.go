@@ -1,12 +1,11 @@
 package auth
 
 import (
-	"crypto/rand"
+	"crypto"
+	"crypto/ecdsa"
 	"crypto/rsa"
-	"os"
 	"time"
 
-	"github.com/LUSHDigital/uuid"
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -17,108 +16,63 @@ const (
 
 // IssuerConfig is a set of data to configure an issuer
 type IssuerConfig struct {
-	Name        string
-	ValidPeriod time.Duration
-	TimeFunc    func() time.Time
+	Name          string
+	ValidPeriod   time.Duration
+	SigningMethod jwt.SigningMethod
 }
 
 // Issuer represents a set of methods for generating a JWT with a private key
 type Issuer struct {
-	privateKey  *rsa.PrivateKey
-	publicKey   *rsa.PublicKey
-	name        string
-	validPeriod time.Duration
-	timeFunc    func() time.Time
+	method  jwt.SigningMethod
+	private crypto.PrivateKey
+	name    string
+	valid   time.Duration
 }
 
-// NewIssuerFromPrivateKeyPEM will take a private key PEM file and return a token issuer
-func NewIssuerFromPrivateKeyPEM(cfg IssuerConfig, pem []byte) (*Issuer, error) {
-	pk, err := jwt.ParseRSAPrivateKeyFromPEM(pem)
+type encodingFunc func(der []byte) (interface{}, error)
+
+// NewIssuerFromPEM will take a private key PEM and derive the private key from it.
+func NewIssuerFromPEM(key []byte, c IssuerConfig) (*Issuer, error) {
+	private, err := PrivateKeyFromPEM(key)
 	if err != nil {
 		return nil, err
 	}
-	return NewIssuer(cfg, pk), nil
+	return NewIssuer(private, c), nil
 }
 
-// NewIssuer returns a new JWT instance
-func NewIssuer(cfg IssuerConfig, privateKey *rsa.PrivateKey) *Issuer {
-	if cfg.ValidPeriod < time.Nanosecond {
-		cfg.ValidPeriod = DefaultValidPeriod
+// NewIssuerFromPEMWithPassword will take a private key PEM with a password and derive the private key from it.
+func NewIssuerFromPEMWithPassword(key []byte, password string, c IssuerConfig) (*Issuer, error) {
+	private, err := PrivateKeyFromPEMWithPassword(key, password)
+	if err != nil {
+		return nil, err
 	}
-	now := cfg.TimeFunc
-	if now == nil {
-		now = time.Now
+	return NewIssuer(private, c), nil
+}
+
+// NewIssuer creates a new issuer.
+func NewIssuer(private crypto.PrivateKey, c IssuerConfig) *Issuer {
+	method := c.SigningMethod
+	if method == nil {
+		switch private.(type) {
+		case *rsa.PrivateKey:
+			method = jwt.SigningMethodRS256
+		case *ecdsa.PrivateKey:
+			method = jwt.SigningMethodES256
+		}
+	}
+	if c.ValidPeriod < time.Nanosecond {
+		c.ValidPeriod = DefaultValidPeriod
 	}
 	return &Issuer{
-		privateKey:  privateKey,
-		publicKey:   &privateKey.PublicKey,
-		name:        cfg.Name,
-		validPeriod: cfg.ValidPeriod,
-		timeFunc:    now,
+		method:  method,
+		private: private,
+		name:    c.Name,
+		valid:   c.ValidPeriod,
 	}
 }
 
-// NewMockIssuer creates a new issuer with a random key pair.
-func NewMockIssuer() (*Issuer, error) {
-	reader := rand.Reader
-	bitSize := 2048
-	privateKey, err := rsa.GenerateKey(reader, bitSize)
-	if err != nil {
-		return nil, err
-	}
-	name, err := os.Hostname()
-	if err != nil {
-		return nil, err
-	}
-	return NewIssuer(IssuerConfig{
-		Name: name,
-	}, privateKey), nil
-}
-
-// NewMockIssuerWithTime creates a new issuer with a random key pair.
-func NewMockIssuerWithTime(now func() time.Time) (*Issuer, error) {
-	reader := rand.Reader
-	bitSize := 2048
-	privateKey, err := rsa.GenerateKey(reader, bitSize)
-	if err != nil {
-		return nil, err
-	}
-	name, err := os.Hostname()
-	if err != nil {
-		return nil, err
-	}
-	return NewIssuer(IssuerConfig{
-		Name:     name,
-		TimeFunc: now,
-	}, privateKey), nil
-}
-
-// Issue generates and returns a JWT authentication token for a private key
-func (i *Issuer) Issue(consumer *Consumer) (string, error) {
-	id, err := uuid.NewV4()
-	if err != nil {
-		return "", err
-	}
-	claims := Claims{
-		Consumer: *consumer,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: i.timeFunc().Add(i.validPeriod).Unix(),
-			IssuedAt:  i.timeFunc().Unix(),
-			NotBefore: i.timeFunc().Unix(),
-			Issuer:    i.name,
-			Id:        id.String(),
-		},
-	}
-	return i.IssueWithClaims(claims)
-}
-
-// IssueWithClaims overrides the default claims and issues a JWT token for the a private key
-func (i *Issuer) IssueWithClaims(claims Claims) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-	return token.SignedString(i.privateKey)
-}
-
-// Parser returns a parser based on the issuers private key's public counterpart
-func (i *Issuer) Parser() *Parser {
-	return &Parser{publicKey: i.publicKey}
+// Issue will sign a JWT and return its string representation.
+func (i *Issuer) Issue(claims jwt.Claims) (string, error) {
+	token := jwt.NewWithClaims(i.method, claims)
+	return token.SignedString(i.private)
 }
