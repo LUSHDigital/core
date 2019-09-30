@@ -4,9 +4,9 @@ package keybrokermock
 import "crypto/rsa"
 
 // MockRSAPublicKey resolves any source and returns a mocked RSAPublicKeyCopier and Renewer
-func MockRSAPublicKey(key rsa.PublicKey) *RSAPublicKeyMock {
+func MockRSAPublicKey(key *rsa.PublicKey) *RSAPublicKeyMock {
 	return &RSAPublicKeyMock{
-		key: &key,
+		key: key,
 	}
 }
 
