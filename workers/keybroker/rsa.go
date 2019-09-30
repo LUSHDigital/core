@@ -7,6 +7,8 @@ import (
 	"log"
 	"math/big"
 
+	"github.com/LUSHDigital/core/auth"
+
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -105,9 +107,13 @@ func (b *RSAPublicKeyBroker) Run(ctx context.Context) error {
 	for {
 		select {
 		case res := <-b.broker.res:
-			key, err := jwt.ParseRSAPublicKeyFromPEM(res)
+			ukey, err := auth.PublicKeyFromPEM(res)
 			if err != nil {
-				return fmt.Errorf("cannot parse rsa public key: %v", err)
+				return fmt.Errorf("cannot parse public key: %v", err)
+			}
+			key, ok := ukey.(*rsa.PublicKey)
+			if !ok {
+				return fmt.Errorf("key is not a valid rsa key: %T", key)
 			}
 			log.Printf("rsa public key broker found new key of size %d\n", key.Size())
 			b.key = key
