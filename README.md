@@ -69,7 +69,6 @@ These packages contain functionality for the core concepts of our services.
 ### Middlewares
 These packages contain convenient middlewares for transport protocols like HTTP REST and gRPC.
 
-- [core/middleware/authmw](https://github.com/LUSHDigital/core/tree/master/middleware/authmw#auth-middleware)
 - [core/middleware/i18nmw](https://github.com/LUSHDigital/core/tree/master/middleware/i18nmw#internationalisation-middleware)
 - [core/middleware/metricsmw](https://github.com/LUSHDigital/core/tree/master/middleware/metricsmw#metrics-middleware)
 - [core/middleware/paginationmw](https://github.com/LUSHDigital/core/tree/master/middleware/paginationmw#pagination-middleware)
