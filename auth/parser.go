@@ -33,7 +33,7 @@ type PublicKeyFunc func(crypto.PublicKey) jwt.Keyfunc
 func (p *Parser) Parse(raw string, claims jwt.Claims) error {
 	_, err := jwt.ParseWithClaims(raw, claims, p.fn(p.public))
 	if err != nil {
-		return nil
+		return err
 	}
 	return nil
 }
