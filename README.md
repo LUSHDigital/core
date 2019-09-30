@@ -42,7 +42,7 @@ func main() {
 		}),
 	})
 
-	service.StartWorkers(context.Background(),
+	service.MustRun(context.Background(),
 		server,
 		metrics,
 		broker,
@@ -64,6 +64,7 @@ These packages contain functionality for the core concepts of our services.
 - [core/pagination](https://github.com/LUSHDigital/core/tree/master/pagination#pagination)
 - [core/rest](https://github.com/LUSHDigital/core/tree/master/rest#rest)
 - [core/test](https://github.com/LUSHDigital/core/tree/master/test#test)
+- [core/workers](https://github.com/LUSHDigital/core/tree/master/workers#workers)
 
 ### Middlewares
 These packages contain convenient middlewares for transport protocols like HTTP REST and gRPC.
@@ -74,8 +75,8 @@ These packages contain convenient middlewares for transport protocols like HTTP 
 - [core/middleware/paginationmw](https://github.com/LUSHDigital/core/tree/master/middleware/paginationmw#pagination-middleware)
 - [core/middleware/tracingmw](https://github.com/LUSHDigital/core/tree/master/middleware/tracingmw#tracing-middleware)
 
-### Service Workers
-These packages contain convenient service workers things like network servers, background workers and message brokers.
+### Workers
+These packages contain convenient workers things like network servers, background workers and message brokers.
 
 - [core/workers/grpcsrv](https://github.com/LUSHDigital/core/tree/master/workers/grpcsrv#grpc-server)
 - [core/workers/httpsrv](https://github.com/LUSHDigital/core/tree/master/workers/httpsrv#http-server)

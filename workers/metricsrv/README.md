@@ -18,5 +18,5 @@ srv := metricsrv.New(&metricsrv.Config{
     },
     Path: "/metrics",
 })
-srv.Run(ctx, ioutil.Discard)
+srv.Run(ctx)
 ```

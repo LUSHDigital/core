@@ -2,7 +2,6 @@ package metricsrv_test
 
 import (
 	"context"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"testing"
@@ -23,7 +22,7 @@ func ExampleServer_Run() {
 		},
 		Path: "/metrics",
 	})
-	srv.Run(ctx, ioutil.Discard)
+	srv.Run(ctx)
 }
 
 func TestNew(t *testing.T) {
@@ -55,7 +54,7 @@ func TestServer_Addr(t *testing.T) {
 			},
 		})
 		servers[i] = srv
-		go srv.Run(ctx, ioutil.Discard)
+		go srv.Run(ctx)
 	}
 	for _, srv := range servers {
 		test.NotEquals(t, ":0", srv.Addr().String())

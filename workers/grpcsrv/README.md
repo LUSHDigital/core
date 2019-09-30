@@ -17,5 +17,5 @@ srv := grpcsrv.New(&grpcsrv.Config{
     grpc.StreamInterceptor(paginationmw.StreamServerInterceptor),
     grpc.UnaryInterceptor(paginationmw.UnaryServerInterceptor),
 )
-srv.Run(ctx, ioutil.Discard)
+srv.Run(ctx)
 ```

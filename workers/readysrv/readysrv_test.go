@@ -2,7 +2,6 @@ package readysrv_test
 
 import (
 	"context"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,7 +15,7 @@ var (
 )
 
 func Example() {
-	srv := readysrv.New(readysrv.Checks{
+	srv := readysrv.New(nil, readysrv.Checks{
 		"google": readysrv.CheckerFunc(func() ([]string, bool) {
 			if _, err := http.Get("https://google.com"); err != nil {
 				return []string{err.Error()}, false
@@ -24,7 +23,7 @@ func Example() {
 			return []string{"google can be accessed"}, true
 		}),
 	})
-	srv.Run(ctx, ioutil.Discard)
+	srv.Run(ctx)
 }
 
 func TestCheckerFunc(t *testing.T) {

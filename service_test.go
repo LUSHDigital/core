@@ -22,7 +22,7 @@ func ExampleNewService() {
 
 func ExampleService_StartWorkers() {
 	service := core.NewService("example", "service")
-	service.StartWorkers(ctx,
+	service.MustRun(ctx,
 		grpcsrv.New(nil),
 		httpsrv.NewDefault(handler),
 		metricsrv.New(nil),

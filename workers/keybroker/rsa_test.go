@@ -2,7 +2,6 @@ package keybroker_test
 
 import (
 	"context"
-	"io/ioutil"
 	"testing"
 	"time"
 
@@ -49,7 +48,7 @@ func Example() {
 	})
 
 	// Run the broker
-	go broker.Run(ctx, ioutil.Discard)
+	go broker.Run(ctx)
 
 	// Queue retrieval of new key
 	broker.Renew()
@@ -72,7 +71,7 @@ func TestRSAPublicKeyBroker_Run(t *testing.T) {
 			Source:   keybroker.StringSource(sourceString),
 			Interval: tick,
 		})
-		go b1.Run(ctx, ioutil.Discard)
+		go b1.Run(ctx)
 		defer b1.Close()
 
 		time.Sleep(10 * time.Millisecond)
@@ -84,7 +83,7 @@ func TestRSAPublicKeyBroker_Run(t *testing.T) {
 			Source:   &badSource{},
 			Interval: tick,
 		})
-		go b2.Run(ctx, ioutil.Discard)
+		go b2.Run(ctx)
 		defer b2.Close()
 
 		time.Sleep(10 * time.Millisecond)
@@ -101,7 +100,7 @@ func TestRSAPublicKeyBroker_Check(t *testing.T) {
 		Interval: tick,
 	})
 
-	go b1.Run(ctx, ioutil.Discard)
+	go b1.Run(ctx)
 	time.Sleep(10 * time.Millisecond)
 
 	t.Run("good source, started", func(t *testing.T) {
@@ -123,7 +122,7 @@ func TestRSAPublicKeyBroker_Check(t *testing.T) {
 		Source:   &badSource{},
 		Interval: tick,
 	})
-	go b2.Run(ctx, ioutil.Discard)
+	go b2.Run(ctx)
 	time.Sleep(10 * time.Millisecond)
 
 	t.Run("good source, started", func(t *testing.T) {
@@ -146,7 +145,7 @@ func TestRSAPrivateKeyBroker_Run(t *testing.T) {
 			Source:   keybroker.StringSource(privSourceString),
 			Interval: tick,
 		})
-		go b1.Run(ctx, ioutil.Discard)
+		go b1.Run(ctx)
 		defer b1.Close()
 
 		time.Sleep(10 * time.Millisecond)
@@ -158,7 +157,7 @@ func TestRSAPrivateKeyBroker_Run(t *testing.T) {
 			Source:   &badSource{},
 			Interval: tick,
 		})
-		go b2.Run(ctx, ioutil.Discard)
+		go b2.Run(ctx)
 		defer b2.Close()
 
 		time.Sleep(10 * time.Millisecond)
@@ -175,7 +174,7 @@ func TestRSAPrivateKeyBroker_Check(t *testing.T) {
 		Interval: tick,
 	})
 
-	go b1.Run(ctx, ioutil.Discard)
+	go b1.Run(ctx)
 	time.Sleep(10 * time.Millisecond)
 
 	t.Run("good source, started", func(t *testing.T) {
@@ -197,7 +196,7 @@ func TestRSAPrivateKeyBroker_Check(t *testing.T) {
 		Source:   &badSource{},
 		Interval: tick,
 	})
-	go b2.Run(ctx, ioutil.Discard)
+	go b2.Run(ctx)
 	time.Sleep(10 * time.Millisecond)
 
 	t.Run("good source, started", func(t *testing.T) {

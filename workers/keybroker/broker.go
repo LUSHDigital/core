@@ -3,7 +3,7 @@ package keybroker
 import (
 	"context"
 	"fmt"
-	"io"
+	"log"
 	"time"
 )
 
@@ -66,26 +66,29 @@ func (b *broker) Renew() {
 // Close stops the ticker and releases resources
 func (b *broker) Close() {
 	// Close the cancelled channel first to stop all select switches.
-	close(b.cancelled)
 	b.ticker.Stop()
+	close(b.cancelled)
 }
 
-func (b *broker) Run(ctx context.Context, out io.Writer) {
-	fmt.Fprintf(out, "running %s broker checking for new key every %d second(s)\n", b.keyType, b.interval/time.Second)
+// Run starts the broker.
+func (b *broker) Run(ctx context.Context) {
+	log.Printf("running %s broker checking for new key every %d second(s)\n", b.keyType, b.interval/time.Second)
 	b.running = true
 	defer func() { b.running = false }()
 	defer close(b.renew)
 	for {
 		select {
 		case <-b.cancelled:
-			b.err <- fmt.Errorf("%s broker cancelled", b.keyType)
+			err := fmt.Errorf("%s broker cancelled", b.keyType)
+			log.Println(err)
+			b.err <- err
 			return
 		case <-b.ticker.C:
 			select {
 			case <-b.renew:
 				bts, err := b.source.Get(ctx)
 				if err != nil {
-					fmt.Fprintf(out, "%s broker interval error: %v\n", b.keyType, err)
+					log.Printf("%s broker interval error: %v\n", b.keyType, err)
 					b.Renew()
 				}
 				b.res <- bts
@@ -96,4 +99,10 @@ func (b *broker) Run(ctx context.Context, out io.Writer) {
 			return
 		}
 	}
+}
+
+// Halt will attempt to gracefully shut down the broker.
+func (b *broker) Halt(ctx context.Context) error {
+	b.Close()
+	return nil
 }
