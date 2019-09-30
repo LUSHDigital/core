@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/LUSHDigital/core/auth"
@@ -26,21 +25,50 @@ func RSAKeyFunc(pk crypto.PublicKey) jwt.Keyfunc {
 	}
 }
 
-// NewRSAIssuerAndParser creates a new issuer with a random key pair.
-func NewRSAIssuerAndParser() (*auth.Issuer, *auth.Parser, error) {
+// NewRSAKeyPair will create a key pair.
+func NewRSAKeyPair() (*rsa.PrivateKey, *rsa.PublicKey, error) {
 	private, err := rsa.GenerateKey(rand.Reader, bitSize)
 	if err != nil {
 		return nil, nil, err
 	}
-	name, err := os.Hostname()
+	return private, &private.PublicKey, nil
+}
+
+// MustNewRSAKeyPair will create a key pair and will panic on failure.
+func MustNewRSAKeyPair() (*rsa.PrivateKey, *rsa.PublicKey) {
+	private, public, err := NewRSAKeyPair()
+	if err != nil {
+		panic(err)
+	}
+	return private, public
+}
+
+// NewRSAIssuerAndParser creates a new issuer with a random key pair.
+func NewRSAIssuerAndParser() (*auth.Issuer, *auth.Parser, error) {
+	private, public, err := NewRSAKeyPair()
 	if err != nil {
 		return nil, nil, err
 	}
+	issuer, parser := NewRSAIssuerAndParserFromKeyPair(private, public)
+	return issuer, parser, nil
+}
+
+// MustNewRSAIsserAndParser creates a new issuer and parser with a random key pair and will panic on failure.
+func MustNewRSAIsserAndParser() (*auth.Issuer, *auth.Parser) {
+	issuer, parser, err := NewRSAIssuerAndParser()
+	if err != nil {
+		panic(err)
+	}
+	return issuer, parser
+}
+
+// NewRSAIssuerAndParserFromKeyPair creates a new issuer and parser from an rsa key pair.
+func NewRSAIssuerAndParserFromKeyPair(private *rsa.PrivateKey, public *rsa.PublicKey) (*auth.Issuer, *auth.Parser) {
 	issuer := auth.NewIssuer(private, auth.IssuerConfig{
-		Name:          name,
+		Name:          "RSA Mock",
 		ValidPeriod:   30 * time.Minute,
 		SigningMethod: jwt.SigningMethodRS256,
 	})
-	parser := auth.NewParser(&private.PublicKey, RSAKeyFunc)
-	return issuer, parser, nil
+	parser := auth.NewParser(public, RSAKeyFunc)
+	return issuer, parser
 }
