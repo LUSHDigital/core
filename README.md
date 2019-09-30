@@ -86,8 +86,9 @@ These packages contain convenient service workers things like network servers, b
 ## Plugins
 There are a few libraries that can be used in conjunction with the core library containing their own service workers, ready checks and/or middlewares.
 
-- [core-redis](https://github.com/LUSHDigital/core-redis#core-redis): Libraries for connecting to, and working with a Redis store.
-- [core-sql](https://github.com/LUSHDigital/core-sql#core-sql): Libraries for connecting to, and working with an SQL database.
+- [LUSHDigital/core-redis](https://github.com/LUSHDigital/core-redis#core-redis): Packages for connecting to, and working with a Redis store.
+- [LUSHDigital/core-sql](https://github.com/LUSHDigital/core-sql#core-sql): Packages for connecting to, and working with an SQL database.
+- [LUSHDigital/core-lush](https://github.com/LUSHDigital/core-lush#core-lush-go): Packages specific to the LUSH platform.
 
 ## Tools
 There are a few tools that can be used with projects that use the core libary.
