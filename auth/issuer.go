@@ -9,18 +9,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-const (
-	// DefaultValidPeriod is the default amount of minutes a token is valid
-	DefaultValidPeriod = time.Duration(60 * time.Minute)
-)
-
-// IssuerConfig is a set of data to configure an issuer
-type IssuerConfig struct {
-	Name          string
-	ValidPeriod   time.Duration
-	SigningMethod jwt.SigningMethod
-}
-
 // Issuer represents a set of methods for generating a JWT with a private key
 type Issuer struct {
 	method  jwt.SigningMethod
@@ -32,26 +20,25 @@ type Issuer struct {
 type encodingFunc func(der []byte) (interface{}, error)
 
 // NewIssuerFromPEM will take a private key PEM and derive the private key from it.
-func NewIssuerFromPEM(key []byte, c IssuerConfig) (*Issuer, error) {
+func NewIssuerFromPEM(key []byte, method jwt.SigningMethod) (*Issuer, error) {
 	private, err := PrivateKeyFromPEM(key)
 	if err != nil {
 		return nil, err
 	}
-	return NewIssuer(private, c), nil
+	return NewIssuer(private, method), nil
 }
 
 // NewIssuerFromPEMWithPassword will take a private key PEM with a password and derive the private key from it.
-func NewIssuerFromPEMWithPassword(key []byte, password string, c IssuerConfig) (*Issuer, error) {
+func NewIssuerFromPEMWithPassword(key []byte, password string, method jwt.SigningMethod) (*Issuer, error) {
 	private, err := PrivateKeyFromPEMWithPassword(key, password)
 	if err != nil {
 		return nil, err
 	}
-	return NewIssuer(private, c), nil
+	return NewIssuer(private, method), nil
 }
 
 // NewIssuer creates a new issuer.
-func NewIssuer(private crypto.PrivateKey, c IssuerConfig) *Issuer {
-	method := c.SigningMethod
+func NewIssuer(private crypto.PrivateKey, method jwt.SigningMethod) *Issuer {
 	if method == nil {
 		switch private.(type) {
 		case *rsa.PrivateKey:
@@ -60,14 +47,9 @@ func NewIssuer(private crypto.PrivateKey, c IssuerConfig) *Issuer {
 			method = jwt.SigningMethodES256
 		}
 	}
-	if c.ValidPeriod < time.Nanosecond {
-		c.ValidPeriod = DefaultValidPeriod
-	}
 	return &Issuer{
 		method:  method,
 		private: private,
-		name:    c.Name,
-		valid:   c.ValidPeriod,
 	}
 }
 

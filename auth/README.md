@@ -8,11 +8,7 @@ You can initiate an token issuer by passing a valid RSA or ECDSA PEM block.
 
 ```go
 var private = []byte(`... private key ...`)
-issuer := auth.NewIssuerFromPEM(private, auth.IssuerConfig{
-	Name:          "RSA Token Issuer",
-	ValidPeriod:   30 * time.Minute,
-	SigningMethod: jwt.SigningMethodRS256,
-})
+issuer := auth.NewIssuerFromPEM(private, jwt.SigningMethodRS256)
 ```
 
 ### Issue new tokens

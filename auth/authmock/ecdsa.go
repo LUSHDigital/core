@@ -6,7 +6,6 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"fmt"
-	"time"
 
 	"github.com/LUSHDigital/core/auth"
 	"github.com/dgrijalva/jwt-go"
@@ -61,11 +60,7 @@ func MustNewECDSAIsserAndParser() (*auth.Issuer, *auth.Parser) {
 
 // NewECDSAIssuerAndParserFromKeyPair creates a new issuer and parser from an ecdsa key pair.
 func NewECDSAIssuerAndParserFromKeyPair(private *ecdsa.PrivateKey, public *ecdsa.PublicKey) (*auth.Issuer, *auth.Parser) {
-	issuer := auth.NewIssuer(private, auth.IssuerConfig{
-		Name:          "ECDSA Mock",
-		ValidPeriod:   30 * time.Minute,
-		SigningMethod: jwt.SigningMethodES256,
-	})
+	issuer := auth.NewIssuer(private, jwt.SigningMethodES256)
 	parser := auth.NewParser(public, ECDSAKeyFunc)
 	return issuer, parser
 }

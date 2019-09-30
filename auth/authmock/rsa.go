@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"fmt"
-	"time"
 
 	"github.com/LUSHDigital/core/auth"
 	"github.com/dgrijalva/jwt-go"
@@ -64,11 +63,7 @@ func MustNewRSAIsserAndParser() (*auth.Issuer, *auth.Parser) {
 
 // NewRSAIssuerAndParserFromKeyPair creates a new issuer and parser from an rsa key pair.
 func NewRSAIssuerAndParserFromKeyPair(private *rsa.PrivateKey, public *rsa.PublicKey) (*auth.Issuer, *auth.Parser) {
-	issuer := auth.NewIssuer(private, auth.IssuerConfig{
-		Name:          "RSA Mock",
-		ValidPeriod:   30 * time.Minute,
-		SigningMethod: jwt.SigningMethodRS256,
-	})
+	issuer := auth.NewIssuer(private, jwt.SigningMethodRS256)
 	parser := auth.NewParser(public, RSAKeyFunc)
 	return issuer, parser
 }

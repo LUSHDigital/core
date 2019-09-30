@@ -31,20 +31,6 @@ func ExampleIssuer_Issue() {
 }
 
 func TestIssuer_Issue(t *testing.T) {
-	claims := Claims{
-		StandardClaims: jwt.StandardClaims{
-			Id:        "1234",
-			Issuer:    "Tests",
-			Audience:  "Developers",
-			Subject:   "Example",
-			ExpiresAt: then.Unix(),
-			IssuedAt:  now.Unix(),
-			NotBefore: now.Unix(),
-		},
-		Consumer: Consumer{
-			ID: "999",
-		},
-	}
 	raw, err := issuer.Issue(&claims)
 	if err != nil {
 		t.Error(err)
