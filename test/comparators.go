@@ -8,17 +8,17 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-// ErrorTypeComparator defines an error type comparator for use with go-cmp
+// ErrorTypeComparer defines an error type comparator for use with go-cmp
 // Example:
 //  opts := cmp.Options{
-//  	 test.ErrorTypeComparator,
+//  	 test.ErrorTypeComparer,
 //  }
 //
 //  if !cmp.Equal(err, MyCustomError{}, opts) {
 //  	t.Fatal(e.String())
 //  }
 //
-var ErrorTypeComparator = cmp.Comparer(func(x error, y error) bool {
+var ErrorTypeComparer = cmp.Comparer(func(x error, y error) bool {
 	return reflect.TypeOf(x) == reflect.TypeOf(y)
 })
 

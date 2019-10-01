@@ -1,8 +1,8 @@
 package test_test
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/LUSHDigital/core/test"
@@ -15,10 +15,10 @@ func TestErrorTypeComparator(t *testing.T) {
 	testErr := TestError{errors.New("oops")}
 	someErr := errors.New("ouch")
 	opts := cmp.Options{
-		test.ErrorTypeComparator,
+		test.ErrorTypeComparer,
 	}
 	if cmp.Equal(testErr, someErr, opts) {
-		t.Fatalf("exected unequality between %T and %T\n", someErr, testErr)
+		t.Fatalf("expected %T and %T to be of different types\n", someErr, testErr)
 	}
 }
 
@@ -28,7 +28,7 @@ func TestErrorReporter(t *testing.T) {
 
 	var e test.ErrorReporter
 	opts := cmp.Options{
-		test.ErrorTypeComparator,
+		test.ErrorTypeComparer,
 		cmp.Reporter(&e),
 	}
 	if !cmp.Equal(testErr, someErr, opts) {
@@ -38,13 +38,13 @@ func TestErrorReporter(t *testing.T) {
 	}
 }
 
-func ExampleErrorTypeComparator() {
+func ExampleErrorTypeComparer() {
 	testErr := TestError{errors.New("oops")}
 	someErr := errors.New("ouch")
 
 	var e test.ErrorReporter
 	opts := cmp.Options{
-		test.ErrorTypeComparator,
+		test.ErrorTypeComparer,
 		cmp.Reporter(&e),
 	}
 	if !cmp.Equal(testErr, someErr, opts) {
