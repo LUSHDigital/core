@@ -1,17 +1,20 @@
 language: go
-
 go:
   - "1.13"
   - master
-
 install: true
 env:
   - GO111MODULE=on
-
 before_script:
   - go get golang.org/x/lint/golint
-
 script:
   - go test -v -cover ./...
   - go vet ./...
   - golint -set_exit_status $(go list ./... | grep -v /vendor/)
+notifications:
+  slack:
+    rooms:
+      secure: hzEakLZdmFIUbyV0L3AoxYvMV5YrNEdmf2EKiVldzb8gy71bTHJ9oI3xFQWWAl3yvg31Z4dnPWpYekkJWS/StOUaODJvrak7eu91ZfYDJgUxfYeehAhhU0DKZ2lw7cvyto270VDm5JrF/OjZdMzuFbFpRIZ7nb9hzI/lSo6SwXHj09kf9hhy8gdlMshOHcxP9RkJlX2jRBo0RLYNpMAZQPlY6GszOJVd0SuH2/FMhdPOpbiNeWCpMqlG4iqbjieasX+yEHtloK+V0Wd8S6jNL6ENwzVpdtwCthAvz17rfyedza2gqPpYxM4zGWMSB+OxvVIU6rv+QpD7fLdPTEheF5t2oZgcA6MzKqprxhFZUqbn1EBrSOJ5XImvcRCfr3bgWonCtLghjrXuazLn8lsnMQeBDHdr8EZ0zlTtz9GBDZds/B8XUFfF4HwwWt3MrRVORBwfmbWjdilRAdWUIHtpe8Li9ymDMGMAxk5PakBxIODUKZ9F8uuzRDyJhiQEw+rd4ILv9mvx8Uq2eIRAcbzOXE6yhhwO3NMGPY0cDPH1l5y0drwtJwSFHQnW2xj0NTUNbmwPUF590kzMwOgZCu2dNuFPyJzlg4a5Lju4rxkOXXCVryjIlChIVOSgojPiM8n5hgyb+ik6DqynhSMqMGqOK+izlPxU51a1qbWcVNs7glA=
+    on_pull_requests: true
+    on_success: always
+    on_failure: always
