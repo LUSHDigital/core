@@ -60,6 +60,14 @@ func TestMakeResponse(t *testing.T) {
 			total:   100,
 			expErr:  pagination.ErrCalculateOffset,
 		},
+		{
+			name:             "Page 0 must not cause underflow",
+			perPage:          10,
+			page:             0,
+			total:            100,
+			expectedOffset:   0,
+			expectedLastPage: 10,
+		},
 	}
 
 	for _, tc := range tt {
