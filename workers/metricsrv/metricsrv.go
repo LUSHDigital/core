@@ -42,7 +42,7 @@ func New(config *Config) *Server {
 	if config.Server == nil {
 		config.Server = &http.Server{}
 	}
-	if addr := os.Getenv("PROMETHEUS_ADDR"); addr != "" && config.Server.Addr == "" {
+	if addr := os.Getenv("METRICS_ADDR"); addr != "" && config.Server.Addr == "" {
 		config.Server.Addr = addr
 	}
 	if config.Server.Addr == "" {
