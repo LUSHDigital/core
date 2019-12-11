@@ -26,8 +26,8 @@ func ExampleServer_Run() {
 }
 
 func TestNew(t *testing.T) {
-	os.Setenv("PROMETHEUS_ADDR", "0.0.0.0:1111")
-	os.Setenv("PROMETHEUS_PATH", "/testmetrics")
+	os.Setenv("METRICS_ADDR", "0.0.0.0:1111")
+	os.Setenv("METRICS_PROMETHEUS_PATH", "/testmetrics")
 	srv := metricsrv.New(nil)
 	test.Equals(t, "0.0.0.0:1111", srv.Server.Addr)
 	test.Equals(t, "/testmetrics", srv.Path)
