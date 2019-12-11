@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/http/pprof"
 	"os"
 	"path"
 	"time"
@@ -32,7 +33,7 @@ func New(config *Config) *Server {
 	if config == nil {
 		config = &Config{}
 	}
-	if path := os.Getenv("PROMETHEUS_PATH"); path != "" && config.Path == "" {
+	if path := os.Getenv("METRICS_PROMETHEUS_PATH"); path != "" && config.Path == "" {
 		config.Path = path
 	}
 	if config.Path == "" {
@@ -41,7 +42,7 @@ func New(config *Config) *Server {
 	if config.Server == nil {
 		config.Server = &http.Server{}
 	}
-	if addr := os.Getenv("PROMETHEUS_ADDR"); addr != "" && config.Server.Addr == "" {
+	if addr := os.Getenv("METRICS_ADDR"); addr != "" && config.Server.Addr == "" {
 		config.Server.Addr = addr
 	}
 	if config.Server.Addr == "" {
@@ -87,13 +88,19 @@ func (s *Server) Run(ctx context.Context) error {
 
 	mux := http.NewServeMux()
 	mux.Handle(s.Path, promhttp.Handler())
+	mux.HandleFunc("/debug/pprof/", pprof.Index)
+	mux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
+
 	s.Server.Handler = mux
-	log.Printf("serving prometheus metrics over http on http://%s%s", s.Addr().String(), s.Path)
+	log.Printf("serving profiling and prometheus metrics over http on http://%s%s", s.Addr().String(), s.Path)
 	return s.Server.Serve(lis)
 }
 
 // Halt will attempt to gracefully shut down the server.
 func (s *Server) Halt(ctx context.Context) error {
-	log.Printf("stopping serving prometheus metrics over http on http://%s...", s.Addr().String())
+	log.Printf("stopping serving profiling and prometheus metrics over http on http://%s...", s.Addr().String())
 	return s.Server.Shutdown(ctx)
 }
