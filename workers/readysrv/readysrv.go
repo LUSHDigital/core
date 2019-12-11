@@ -10,8 +10,6 @@ import (
 	"os"
 	"path"
 	"time"
-
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 const (
@@ -81,16 +79,13 @@ func (s *Server) Addr() *net.TCPAddr {
 	return s.tcpAddr
 }
 
-// Run will start the metrics server.
+// Run will start the ready server.
 func (s *Server) Run(ctx context.Context) error {
 	lis, err := net.Listen("tcp", s.Server.Addr)
 	if err != nil {
 		return err
 	}
 	s.addrC <- lis.Addr().(*net.TCPAddr)
-	mux := http.NewServeMux()
-	mux.Handle(s.Path, promhttp.Handler())
-	s.Server.Handler = mux
 	log.Printf("serving readiness checks server over http on http://%s%s", s.Addr(), s.Path)
 	return s.Server.Serve(lis)
 }
