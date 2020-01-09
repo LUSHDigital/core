@@ -12,6 +12,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -155,16 +156,19 @@ func (s *Service) validate() error {
 	return nil
 }
 
-func (s *Service) name() (n string) {
-	switch {
-	case s.Version != "":
-		n = fmt.Sprintf("%s %s", s.Name, s.Version)
-	case s.Revision != "":
-		n = fmt.Sprintf("%s (%s)", s.Name, s.Revision[0:6])
-	default:
-		n = s.Name
+func (s *Service) name() string {
+	var w strings.Builder
+
+	w.WriteString(s.Name)
+
+	if s.Revision != "" {
+		w.WriteString(" (" + s.Revision + ")")
 	}
-	return n
+
+	if s.Version != "" {
+		w.WriteString(" " + s.Version)
+	}
+	return w.String()
 }
 
 func (s *Service) grace() time.Duration {
