@@ -162,7 +162,7 @@ func (s *Service) name() string {
 	w.WriteString(s.Name)
 
 	if s.Revision != "" {
-		w.WriteString(" (" + s.Revision + ")")
+		w.WriteString(" (" + s.Revision[0:6] + ")")
 	}
 
 	if s.Version != "" {
