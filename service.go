@@ -156,11 +156,13 @@ func (s *Service) validate() error {
 }
 
 func (s *Service) name() (n string) {
-	if s.Version != "" {
+	switch {
+	case s.Version != "":
 		n = fmt.Sprintf("%s %s", s.Name, s.Version)
-	}
-	if s.Revision != "" {
-		n = fmt.Sprintf("%s (%s)", n, s.Revision[0:6])
+	case s.Revision != "":
+		n = fmt.Sprintf("%s (%s)", s.Name, s.Revision[0:6])
+	default:
+		n = s.Name
 	}
 	return n
 }
