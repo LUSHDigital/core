@@ -12,6 +12,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -155,14 +156,19 @@ func (s *Service) validate() error {
 	return nil
 }
 
-func (s *Service) name() (n string) {
-	if s.Version != "" {
-		n = fmt.Sprintf("%s %s", s.Name, s.Version)
-	}
+func (s *Service) name() string {
+	var w strings.Builder
+
+	w.WriteString(s.Name)
+
 	if s.Revision != "" {
-		n = fmt.Sprintf("%s (%s)", n, s.Revision[0:6])
+		w.WriteString(" (" + s.Revision[0:6] + ")")
 	}
-	return n
+
+	if s.Version != "" {
+		w.WriteString(" " + s.Version)
+	}
+	return w.String()
 }
 
 func (s *Service) grace() time.Duration {
