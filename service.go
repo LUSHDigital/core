@@ -161,7 +161,7 @@ func (s *Service) name() string {
 
 	w.WriteString(s.Name)
 
-	if len([]rune(s.Revision)) > 5  {
+	if len(s.Revision) > 5  {
 		w.WriteString(" (" + s.Revision[0:6] + ")")
 	}
 
