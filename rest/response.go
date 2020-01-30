@@ -104,17 +104,17 @@ func WriteTo(code int, i interface{}, w http.ResponseWriter) error {
 	return json.NewEncoder(w).Encode(i)
 }
 
-// Data represents the collection data the the response will return to the consumer.
+// Data represents the collection data that the response will return to the consumer.
 // Type ends up being the name of the key containing the collection of Content
 type Data struct {
 	Type    string
 	Content interface{}
 }
 
-// UnmarshalJSON implements the Unmarshaler interface
-// this implementation will fill the type in the case we're been provided a valid single collection
+// UnmarshalJSON implements the Unmarshaler interface.
+// This implementation will fill the type in the case we're being provided a valid single collection
 // and set the content to the contents of said collection.
-// for every other options, it behaves like normal.
+// For every other option, it behaves like normal.
 // Despite the fact that we are not supposed to marshal without a type set,
 // this is purposefully left open to unmarshal without a collection name set, in case you may want to set it later,
 // and for interop with other systems which may not send the collection properly.
