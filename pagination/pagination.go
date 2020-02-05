@@ -23,7 +23,11 @@ func (r Request) Metadata() metadata.MD {
 
 // Offset calculates the offset from the provided pagination request.
 func (r Request) Offset() uint64 {
-	return (r.Page - 1) * r.PerPage
+	p := r.Page
+	if p < 1 {
+		p = 1
+	}
+	return (p - 1) * r.PerPage
 }
 
 // Response manages pagination of a data set.
