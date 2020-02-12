@@ -6,12 +6,10 @@ import (
 	"time"
 
 	"github.com/LUSHDigital/uuid"
-
-	"github.com/LUSHDigital/core/auth/authmock"
-
 	"github.com/dgrijalva/jwt-go"
 
 	"github.com/LUSHDigital/core/auth"
+	"github.com/LUSHDigital/core/auth/authmock"
 )
 
 type Consumer struct {
