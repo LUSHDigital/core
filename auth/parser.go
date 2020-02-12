@@ -3,7 +3,7 @@ package auth
 import (
 	"crypto"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 )
 
 // Parser represents a set of methods for parsing and validating a JWT against a public key
