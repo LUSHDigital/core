@@ -41,13 +41,8 @@ type Service struct {
 	GracePeriod time.Duration `json:"grace_period"`
 }
 
-// ServiceOption represents behaviour for applying options to a new service.
-type ServiceOption interface {
-	Apply(*Service)
-}
-
 // NewService creates a new service based on
-func NewService(name, kind string, opts ...ServiceOption) *Service {
+func NewService(name, kind string) *Service {
 	if v := os.Getenv("SERVICE_VERSION"); v != "" {
 		tag = v
 	}
