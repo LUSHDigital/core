@@ -87,7 +87,7 @@ func (source EnvHTTPSource) Get(ctx context.Context) ([]byte, error) {
 type FileSource string
 
 // Get retrieves data from the path to a file on disk
-func (source FileSource) Get(ctx context.Context) ([]byte, error) {
+func (source FileSource) Get(_ context.Context) ([]byte, error) {
 	if source == "" {
 		return nil, ErrEmptyFilePath
 	}
@@ -117,7 +117,7 @@ func (source EnvFileSource) Get(ctx context.Context) ([]byte, error) {
 type StringSource string
 
 // Get converts the string to a byte slice
-func (source StringSource) Get(ctx context.Context) ([]byte, error) {
+func (source StringSource) Get(_ context.Context) ([]byte, error) {
 	if source == "" {
 		return nil, ErrEmptyString
 	}

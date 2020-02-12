@@ -102,7 +102,7 @@ func (b *broker) Run(ctx context.Context) {
 }
 
 // Halt will attempt to gracefully shut down the broker.
-func (b *broker) Halt(ctx context.Context) error {
+func (b *broker) Halt(_ context.Context) error {
 	b.Close()
 	return nil
 }

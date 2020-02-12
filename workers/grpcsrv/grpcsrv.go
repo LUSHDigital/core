@@ -54,7 +54,7 @@ type Server struct {
 }
 
 // Run will start the gRPC server and listen for requests.
-func (gs *Server) Run(ctx context.Context) error {
+func (gs *Server) Run(_ context.Context) error {
 	lis, err := net.Listen("tcp", gs.addr)
 	if err != nil {
 		return err
@@ -69,7 +69,7 @@ func (gs *Server) Run(ctx context.Context) error {
 }
 
 // Halt will attempt to gracefully shut down the server.
-func (gs *Server) Halt(ctx context.Context) error {
+func (gs *Server) Halt(_ context.Context) error {
 	log.Printf("stopping serving grpc on %s...", gs.Addr().String())
 	gs.Connection.GracefulStop()
 	return nil

@@ -127,7 +127,7 @@ type Server struct {
 }
 
 // Run will start the gRPC server and listen for requests.
-func (gs *Server) Run(ctx context.Context) error {
+func (gs *Server) Run(_ context.Context) error {
 	addr := gs.Server.Addr
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
