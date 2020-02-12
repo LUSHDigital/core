@@ -31,8 +31,8 @@ func New(config *Config, checks Checks) *Server {
 	if config == nil {
 		config = &Config{}
 	}
-	if path := os.Getenv("READINESS_PATH"); path != "" && config.Path == "" {
-		config.Path = path
+	if readinessPath := os.Getenv("READINESS_PATH"); readinessPath != "" && config.Path == "" {
+		config.Path = readinessPath
 	}
 	if config.Path == "" {
 		config.Path = DefaultPath

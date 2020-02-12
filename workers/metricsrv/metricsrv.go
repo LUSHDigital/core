@@ -33,8 +33,8 @@ func New(config *Config) *Server {
 	if config == nil {
 		config = &Config{}
 	}
-	if path := os.Getenv("METRICS_PROMETHEUS_PATH"); path != "" && config.Path == "" {
-		config.Path = path
+	if prometheusPath := os.Getenv("METRICS_PROMETHEUS_PATH"); prometheusPath != "" && config.Path == "" {
+		config.Path = prometheusPath
 	}
 	if config.Path == "" {
 		config.Path = DefaultPath
