@@ -13,7 +13,7 @@ const (
 
 // ParseLocaleHandler will take a language from an http header and attach it to the context.
 func ParseLocaleHandler(next http.HandlerFunc) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		raw := strings.TrimSpace(r.Header.Get(acceptLanguageHeader))
 		locales := strings.Split(raw, ",")
 		var (
@@ -30,7 +30,7 @@ func ParseLocaleHandler(next http.HandlerFunc) http.HandlerFunc {
 		}
 		ctx := i18n.ContextWithLocale(r.Context(), locale)
 		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+	}
 }
 
 // MiddlewareFunc represents a middleware func for use with gorilla mux.
