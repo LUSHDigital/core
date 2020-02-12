@@ -30,7 +30,7 @@ func main() {
 
 	metrics := metricsrv.New(nil)
 	broker := keybroker.NewPublicRSA(nil)
-	readiness := readysrv.New(readysrv.Checks{
+	readiness := readysrv.New(nil, readysrv.Checks{
 		"rsa_key": broker,
 	})
 
