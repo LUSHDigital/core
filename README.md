@@ -24,8 +24,6 @@ import (
 )
 
 func main() {
-	core.SetupLogs()
-
 	service := core.NewService("example", "service")
 
 	metrics := metricsrv.New(nil)
