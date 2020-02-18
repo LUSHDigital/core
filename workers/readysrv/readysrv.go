@@ -31,8 +31,8 @@ func New(config *Config, checks Checks) *Server {
 	if config == nil {
 		config = &Config{}
 	}
-	if path := os.Getenv("READINESS_PATH"); path != "" && config.Path == "" {
-		config.Path = path
+	if readinessPath := os.Getenv("READINESS_PATH"); readinessPath != "" && config.Path == "" {
+		config.Path = readinessPath
 	}
 	if config.Path == "" {
 		config.Path = DefaultPath
@@ -80,7 +80,7 @@ func (s *Server) Addr() *net.TCPAddr {
 }
 
 // Run will start the ready server.
-func (s *Server) Run(ctx context.Context) error {
+func (s *Server) Run(_ context.Context) error {
 	lis, err := net.Listen("tcp", s.Server.Addr)
 	if err != nil {
 		return err

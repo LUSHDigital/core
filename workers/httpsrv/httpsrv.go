@@ -43,20 +43,19 @@ var (
 
 // WrapperHandler returns the wrapper handler for the http server.
 func WrapperHandler(now func() time.Time, next http.Handler) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.RequestURI {
 		case "/healthz":
 			HealthHandler(now)(w, r)
 		default:
 			next.ServeHTTP(w, r)
 		}
-	})
-
+	}
 }
 
 // HealthHandler responds with service health.
 func HealthHandler(now func() time.Time) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		start := now()
 
 		var mem runtime.MemStats
@@ -78,8 +77,7 @@ func HealthHandler(now func() time.Time) http.HandlerFunc {
 			},
 		}
 		res.WriteTo(w)
-	})
-
+	}
 }
 
 // NewDefault returns a http server
@@ -129,7 +127,7 @@ type Server struct {
 }
 
 // Run will start the gRPC server and listen for requests.
-func (gs *Server) Run(ctx context.Context) error {
+func (gs *Server) Run(_ context.Context) error {
 	addr := gs.Server.Addr
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {

@@ -24,13 +24,11 @@ import (
 )
 
 func main() {
-	core.SetupLogs()
-
 	service := core.NewService("example", "service")
 
 	metrics := metricsrv.New(nil)
 	broker := keybroker.NewPublicRSA(nil)
-	readiness := readysrv.New(readysrv.Checks{
+	readiness := readysrv.New(nil, readysrv.Checks{
 		"rsa_key": broker,
 	})
 
@@ -109,4 +107,5 @@ Consider using these if you need extended functionality for certain things.
 - [Ben Cable](https://github.com/ladydascalie): Author & Maintainer
 - [Zach Jones](https://github.com/zdjones): Code
 - [Dan P](https://github.com/cuotos): Code
+- [Oliver Pauffley](https://github.com/oliverpauffley): Code
 - [Cerys Evans](https://www.cerysevansillustration.com/): Design

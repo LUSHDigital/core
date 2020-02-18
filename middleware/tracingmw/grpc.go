@@ -42,7 +42,7 @@ func InterceptServerRequestID(ctx context.Context) (string, error) {
 
 // UnaryServerInterceptor is a gRPC server-side unary interceptor that checks
 // that there is a request ID and ensures one gets set
-func UnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+func UnaryServerInterceptor(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	rid, err := InterceptServerRequestID(ctx)
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func UnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.Una
 
 // StreamServerInterceptor is a gRPC server-side streaming interceptor that checks
 // that there is a request ID and ensures one gets set
-func StreamServerInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+func StreamServerInterceptor(srv interface{}, ss grpc.ServerStream, _ *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 	rid, err := InterceptServerRequestID(ss.Context())
 	if err != nil {
 		return err

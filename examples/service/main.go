@@ -19,8 +19,6 @@ var service = &core.Service{
 }
 
 func main() {
-	core.SetupLogs()
-
 	metrics := metricsrv.New(nil)
 	broker := keybroker.NewPublicRSA(nil)
 	readiness := readysrv.New(nil, readysrv.Checks{

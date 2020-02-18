@@ -37,7 +37,7 @@ VldpJy2uFVg2TrcsIwJAJw/vz25NbLxibdJ6cqZKF30411tgufDIjgzVr9MQX3np
 
 type badSource struct{}
 
-func (s *badSource) Get(ctx context.Context) ([]byte, error) {
+func (s *badSource) Get(_ context.Context) ([]byte, error) {
 	return []byte{}, nil
 }
 
