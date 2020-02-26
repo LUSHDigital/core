@@ -1,6 +1,6 @@
 module github.com/LUSHDigital/core
 
-go 1.13
+go 1.14
 
 require (
 	github.com/LUSHDigital/uuid v0.2.0
