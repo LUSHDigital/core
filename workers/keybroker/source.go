@@ -24,9 +24,10 @@ func (sources Sources) Get(ctx context.Context) ([]byte, error) {
 	for _, source := range sources {
 		bts, err := source.Get(ctx)
 		if err == nil {
+			log.Printf("keybroker successfully resolved source %q\n", source)
 			return bts, nil
 		}
-		log.Printf("could not resolve source %s: %v: skipping...\n", source, err)
+		log.Printf("keybroker could not resolve source %q: %v: skipping...\n", source, err)
 	}
 	return nil, ErrNoSourcesResolved{
 		N: len(sources),
