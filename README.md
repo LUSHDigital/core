@@ -4,7 +4,6 @@
 # ![Donguri by Cerys Evans](https://res.cloudinary.com/lush/image/upload/c_scale,w_60/v1568812743/github/core/donguri_wink_cropped.jpg) Core (Go)
 A collection of packages for building a Go microservice on the LUSH platform.
 
-
 ## Quick start
 Below there's an example for how to get running quickly with a service using the LUSHDigital core package.
 
@@ -17,27 +16,34 @@ import (
 	"time"
 
 	"github.com/LUSHDigital/core"
+	"github.com/LUSHDigital/core/middleware/metricsmw"
 	"github.com/LUSHDigital/core/workers/httpsrv"
 	"github.com/LUSHDigital/core/workers/keybroker"
 	"github.com/LUSHDigital/core/workers/metricsrv"
 	"github.com/LUSHDigital/core/workers/readysrv"
 )
 
-func main() {
-	service := core.NewService("example", "service")
+var service = &core.Service{
+	Name:    "example",
+	Type:    "service",
+	Version: "1.0.0",
+}
 
+func main() {
 	metrics := metricsrv.New(nil)
 	broker := keybroker.NewPublicRSA(nil)
 	readiness := readysrv.New(nil, readysrv.Checks{
-		"rsa_key": broker,
+		"public_rsa_key": broker,
 	})
+
+	handler := metricsmw.MeasureRequests(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(200)
+		w.Write([]byte("hello world"))
+	}))
 
 	server := httpsrv.New(&http.Server{
 		ReadTimeout: 10 * time.Second,
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-			w.WriteHeader(200)
-			w.Write([]byte("hello world"))
-		}),
+		Handler:     handler,
 	})
 
 	service.MustRun(context.Background(),
@@ -47,10 +53,11 @@ func main() {
 		readiness,
 	)
 }
+
 ```
 
 ## Documentation
-Documentation and examples are provided in README files in each pacakge.
+Documentation and examples are provided in README files in each package.
 
 ### Core Concepts
 These packages contain functionality for the core concepts of our services.
@@ -89,16 +96,16 @@ There are a few libraries that can be used in conjunction with the core library 
 - [LUSHDigital/core-lush](https://github.com/LUSHDigital/core-lush#core-lush-go): Packages specific to the LUSH platform.
 
 ## Tools
-There are a few tools that can be used with projects that use the core libary.
+There are a few tools that can be used with projects that use the core library.
 
 - [LUSHDigital/jwtl](https://github.com/LUSHDigital/jwtl#jwtl-json-web-token-command-line-tool): A command line tool to help generating JWTs during development.
-- [LUSHDigital/core-mage](https://github.com/LUSHDigital/core-mage): A library for the [mage build tool](https://magefile.org/) including convenient build targets used in conjunction with a projcet using this core library.
+- [LUSHDigital/core-mage](https://github.com/LUSHDigital/core-mage): A library for the [mage build tool](https://magefile.org/) including convenient build targets used in conjunction with a project using this core library.
 
 ## Recommended Libraries
 Some libraries have been designed to work together with the core library and some are even dependencies.
 Consider using these if you need extended functionality for certain things.
 
-- [LUSHDigital/scan](https://github.com/LUSHDigital/scan): Scan database/sql rows directly to structs, slices, and primitive types, originally forked from github.com/blockloop/scan
+- [LUSHDigital/scan](https://github.com/LUSHDigital/scan): Scan database/sql rows directly to a struct, slice, or primitive any type. Originally forked from github.com/blockloop/scan
 - [LUSHDigital/uuid](https://github.com/LUSHDigital/uuid): A UUID package originally forked from github.com/gofrs/uuid & github.com/satori/go.uuid
 - [LUSHDigital/spew](https://github.com/LUSHDigital/spew): A pretty-printer package originally forked from github.com/davecgh/go-spew/spew
 
