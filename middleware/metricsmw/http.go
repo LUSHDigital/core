@@ -45,14 +45,14 @@ type recorder struct {
 
 func (w *recorder) WriteHeader(status int) {
 	w.status = status
-	w.ResponseWriter.WriteHeader(status)
+	w.WriteHeader(status)
 }
 
 func (w *recorder) Write(b []byte) (int, error) {
 	if w.status == 0 {
 		w.status = 200
 	}
-	n, err := w.ResponseWriter.Write(b)
+	n, err := w.Write(b)
 	w.length += n
 	return n, err
 }
@@ -91,7 +91,9 @@ func MeasureRequests(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var (
 			now = time.Now()
-			rec = &recorder{}
+			rec = &recorder{
+				ResponseWriter: w,
+			}
 		)
 
 		// Pass the request through to the handler.
