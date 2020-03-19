@@ -45,14 +45,14 @@ type recorder struct {
 
 func (w *recorder) WriteHeader(status int) {
 	w.status = status
-	w.WriteHeader(status)
+	w.ResponseWriter.WriteHeader(status)
 }
 
 func (w *recorder) Write(b []byte) (int, error) {
 	if w.status == 0 {
 		w.status = 200
 	}
-	n, err := w.Write(b)
+	n, err := w.ResponseWriter.Write(b)
 	w.length += n
 	return n, err
 }
