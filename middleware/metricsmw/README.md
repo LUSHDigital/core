@@ -28,7 +28,7 @@ Using gorilla mux.
 
 ```go
 r := mux.NewRouter()
-r.Use(metrics.MeasureRequestsMiddleware)
+r.Use(mux.MiddlewareFunc(metrics.MeasureRequestsMiddleware))
 ```
 
 Using standard net/http library.

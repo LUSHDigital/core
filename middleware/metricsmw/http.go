@@ -17,7 +17,7 @@ var (
 			Name: "http_request_duration_seconds",
 			Help: "Duration in seconds of each request",
 		},
-		[]string{"method", "code", "path"},
+		[]string{"method", "code"},
 	)
 
 	// ResponseSizeHistogram measures the size in bytes for responses.
@@ -26,7 +26,7 @@ var (
 			Name: "http_response_byte_size",
 			Help: "Size in bytes of each response",
 		},
-		[]string{"method", "code", "path"},
+		[]string{"method", "code"},
 	)
 
 	// All represents a combination of all HTTP metric collectors.
@@ -103,7 +103,6 @@ func MeasureRequests(next http.HandlerFunc) http.HandlerFunc {
 		labels := prometheus.Labels{
 			"method": r.Method,
 			"code":   strconv.Itoa(rec.status),
-			"path":   r.RequestURI,
 		}
 
 		if rsh, err := ResponseSizeHistogram.GetMetricWith(labels); err != nil {
