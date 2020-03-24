@@ -20,3 +20,7 @@ var StreamClientInterceptor = grpcprometheus.StreamClientInterceptor
 
 // UnaryClientInterceptor is a gRPC client-side interceptor that provides Prometheus monitoring for Unary RPCs.
 var UnaryClientInterceptor = grpcprometheus.UnaryClientInterceptor
+
+func init() {
+	grpcprometheus.EnableHandlingTimeHistogram()
+}
