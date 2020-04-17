@@ -22,5 +22,6 @@ var StreamClientInterceptor = grpcprometheus.StreamClientInterceptor
 var UnaryClientInterceptor = grpcprometheus.UnaryClientInterceptor
 
 func init() {
-	grpcprometheus.EnableHandlingTimeHistogram()
+	buckets := []float64{0.2,0.4,0.6,0.8,1,1.5,2,5,10,15}
+	grpcprometheus.EnableHandlingTimeHistogram(grpcprometheus.WithHistogramBuckets(buckets))
 }
