@@ -20,3 +20,10 @@ var StreamClientInterceptor = grpcprometheus.StreamClientInterceptor
 
 // UnaryClientInterceptor is a gRPC client-side interceptor that provides Prometheus monitoring for Unary RPCs.
 var UnaryClientInterceptor = grpcprometheus.UnaryClientInterceptor
+
+func init() {
+	// buckets are the values in seconds that represent the upper limit of the histogram buckets.
+	// These are set to focus the collection around 1 second whilst providing scope for large values.
+	buckets := []float64{0.2,0.4,0.6,0.8,1,1.5,2,5,10,15}
+	grpcprometheus.EnableHandlingTimeHistogram(grpcprometheus.WithHistogramBuckets(buckets))
+}

@@ -28,7 +28,7 @@ Using gorilla mux.
 
 ```go
 r := mux.NewRouter()
-r.Use(metrics.MeasureRequestsMiddleware)
+r.Use(mux.MiddlewareFunc(metrics.MeasureRequestsMiddleware))
 ```
 
 Using standard net/http library.
@@ -38,3 +38,8 @@ http.Handle("/check", metrics.MeasureRequests(func(w http.ResponseWriter, r *htt
     w.WriteHeader(200)
 }))
 ```
+
+### Time series buckets
+The collection of histogram metrics must put data into predefined buckets.
+These have been set at: `0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 5.0, 10.0, 15.0` seconds.
+more information can be found here: [Prometheus Documentation](https://prometheus.io/docs/practices/histograms/#errors-of-quantile-estimation)

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/LUSHDigital/core"
+	"github.com/LUSHDigital/core/middleware/metricsmw"
 	"github.com/LUSHDigital/core/workers/httpsrv"
 	"github.com/LUSHDigital/core/workers/keybroker"
 	"github.com/LUSHDigital/core/workers/metricsrv"
@@ -25,12 +26,14 @@ func main() {
 		"public_rsa_key": broker,
 	})
 
+	handler := metricsmw.MeasureRequests(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(200)
+		w.Write([]byte("hello world"))
+	}))
+
 	server := httpsrv.New(&http.Server{
 		ReadTimeout: 10 * time.Second,
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-			w.WriteHeader(200)
-			w.Write([]byte("hello world"))
-		}),
+		Handler:     handler,
 	})
 
 	service.MustRun(context.Background(),

@@ -7,29 +7,30 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
 var (
-
 	// RequestDurationHistogram measures the duration in seconds for requests.
-	RequestDurationHistogram = prometheus.NewHistogramVec(
+	RequestDurationHistogram = promauto.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name: "http_request_duration_seconds",
 			Help: "Duration in seconds of each request",
 		},
-		[]string{"method", "code", "path"},
+		[]string{"method", "code"},
 	)
 
 	// ResponseSizeHistogram measures the size in bytes for responses.
-	ResponseSizeHistogram = prometheus.NewHistogramVec(
+	ResponseSizeHistogram = promauto.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name: "http_response_byte_size",
 			Help: "Size in bytes of each response",
 		},
-		[]string{"method", "code", "path"},
+		[]string{"method", "code"},
 	)
 
 	// All represents a combination of all HTTP metric collectors.
+	// TODO: Remove once we move to v1.0 since we no longer need to register the collectors manually.
 	All = []prometheus.Collector{
 		RequestDurationHistogram,
 		ResponseSizeHistogram,
@@ -57,8 +58,10 @@ func (w *recorder) Write(b []byte) (int, error) {
 }
 
 // Register registers all the metric collectors with prometheus.
+// DEPRECATED: metricsmw.Register() does not need to be called since registering of metrics now happens automatically.
+// TODO: Remove once we move to v1.0 since we no longer need to register the collectors manually.
 func Register() {
-	prometheus.MustRegister(All...)
+	log.Println("DEPRECATED: metricsmw.Register() does not need to be called since registering of metrics now happens automatically")
 }
 
 // MiddlewareFunc represents a middleware func for use with gorilla mux.
@@ -88,7 +91,9 @@ func MeasureRequests(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var (
 			now = time.Now()
-			rec = &recorder{}
+			rec = &recorder{
+				ResponseWriter: w,
+			}
 		)
 
 		// Pass the request through to the handler.
@@ -98,7 +103,6 @@ func MeasureRequests(next http.HandlerFunc) http.HandlerFunc {
 		labels := prometheus.Labels{
 			"method": r.Method,
 			"code":   strconv.Itoa(rec.status),
-			"path":   r.RequestURI,
 		}
 
 		if rsh, err := ResponseSizeHistogram.GetMetricWith(labels); err != nil {
