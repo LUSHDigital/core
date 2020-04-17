@@ -41,6 +41,7 @@ var (
 		ReadHeaderTimeout: 1 * time.Second,
 	}
 
+	// DefaultCORS contains the default CORS settings used when starting an httpsrv.Server
 	DefaultCORS = CORS{
 		// Use broad defaults.
 		// Origin: "*" is safe, see: https://fetch.spec.whatwg.org/#basic-safe-cors-protocol-setup
@@ -166,6 +167,7 @@ func New(server *http.Server) *Server {
 	}
 }
 
+// CORS defines a struct which allows configuring the CORS settings for httpsrv.Server
 type CORS struct {
 	AllowOrigin  string
 	AllowHeaders []string
