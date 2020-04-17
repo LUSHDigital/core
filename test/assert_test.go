@@ -38,7 +38,7 @@ func TestEquals(t *testing.T) {
 		},
 	}
 	for n, tC := range testCases {
-		t.Run(string(n), func(t *testing.T) {
+		t.Run(fmt.Sprint(n), func(t *testing.T) {
 			test.Equals(t, tC.expected, tC.actual)
 		})
 	}
@@ -75,7 +75,7 @@ func TestNotEquals(t *testing.T) {
 		},
 	}
 	for n, tC := range testCases {
-		t.Run(string(n), func(t *testing.T) {
+		t.Run(fmt.Sprint(n), func(t *testing.T) {
 			test.NotEquals(t, tC.expected, tC.actual)
 		})
 	}
