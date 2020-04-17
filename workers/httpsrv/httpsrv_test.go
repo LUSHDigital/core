@@ -62,6 +62,87 @@ func TestHealthHandler(t *testing.T) {
 	}
 }
 
+func TestCORSHandler(t *testing.T) {
+	var (
+		keyOrigin  = "Access-Control-Allow-Origin"
+		keyHeaders = "Access-Control-Allow-Headers"
+		keyMethods = "Access-Control-Allow-Methods"
+	)
+	for _, tt := range [...]struct {
+		method     string
+		URL        string
+		cors       httpsrv.CORS
+		wantStatus int
+	}{
+		{http.MethodOptions, "/", httpsrv.DefaultCORS, http.StatusNoContent},
+		{http.MethodOptions, "/foo", httpsrv.DefaultCORS, http.StatusNoContent},
+		{http.MethodGet, "/", httpsrv.DefaultCORS, http.StatusOK},
+		// Custom CORS headers
+		{
+			http.MethodOptions,
+			"/",
+			httpsrv.CORS{
+				AllowOrigin: "https://foo.bar.org",
+				AllowHeaders: []string{
+					"Origin",
+					"X-Requested-With",
+				},
+				AllowMethods: []string{
+					http.MethodPost,
+					http.MethodGet,
+					http.MethodOptions,
+					http.MethodDelete,
+				},
+			},
+			http.StatusNoContent,
+		},
+		{
+			http.MethodPost,
+			"/",
+			httpsrv.CORS{
+				AllowOrigin: "https://foo.bar.org",
+				AllowHeaders: []string{
+					"Origin",
+					"X-Requested-With",
+				},
+				AllowMethods: []string{
+					http.MethodPost,
+					http.MethodGet,
+					http.MethodOptions,
+					http.MethodDelete,
+				},
+			},
+			http.StatusOK,
+		},
+	} {
+		w := httptest.NewRecorder()
+		req, err := http.NewRequest(tt.method, tt.URL, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		httpsrv.CORSHandler(tt.cors, handler)(w, req)
+		res := w.Result()
+		wantHeaders := map[string]string{
+			keyOrigin:  tt.cors.AllowOrigin,
+			keyHeaders: strings.Join(tt.cors.AllowHeaders, ", "),
+			keyMethods: strings.Join(tt.cors.AllowMethods, ", "),
+		}
+		// Preflight should abort non-OPTIONS methods without updating headers.
+		if tt.method != http.MethodOptions {
+			wantHeaders[keyHeaders] = ""
+			wantHeaders[keyMethods] = ""
+		}
+		for k, want := range wantHeaders {
+			if got := res.Header.Get(k); got != want {
+				t.Errorf("incorrect CORS header %v, %s request to %s: got %v want %v", tt.method, tt.URL, k, got, want)
+			}
+		}
+		if res.StatusCode != tt.wantStatus {
+			t.Errorf("incorrect status code, %s request to %s: got %v want %v", tt.method, tt.URL, res.StatusCode, tt.wantStatus)
+		}
+	}
+}
+
 func TestNotFoundHandler(t *testing.T) {
 	req, err := http.NewRequest("GET", "/", nil)
 	if err != nil {
