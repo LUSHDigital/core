@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"sync"
 	"time"
 )
 
@@ -49,6 +50,13 @@ type broker struct {
 	err       chan error
 	running   bool
 	keyType   string
+	mu        sync.Mutex
+}
+
+func (b *broker) isRunning() bool {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.running
 }
 
 // Renew will inform the broker to force renewal of the key
@@ -73,8 +81,14 @@ func (b *broker) Close() {
 // Run starts the broker.
 func (b *broker) Run(ctx context.Context) {
 	log.Printf("running %s broker checking for new key every %d second(s)\n", b.keyType, b.interval/time.Second)
+	b.mu.Lock()
 	b.running = true
-	defer func() { b.running = false }()
+	b.mu.Unlock()
+	defer func() {
+		b.mu.Lock()
+		b.running = false
+		b.mu.Unlock()
+	}()
 	defer close(b.renew)
 	for {
 		select {

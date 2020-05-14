@@ -136,7 +136,7 @@ func (b *RSAPublicKeyBroker) Halt(ctx context.Context) error {
 
 // Check will see if the broker is ready.
 func (b *RSAPublicKeyBroker) Check() ([]string, bool) {
-	if !b.broker.running {
+	if !b.broker.isRunning() {
 		return []string{"rsa public key broker is not yet running"}, false
 	}
 	b.mu.Lock()
@@ -201,7 +201,7 @@ func (b *RSAPrivateKeyBroker) Halt(ctx context.Context) error {
 
 // Check will see if the broker is ready.
 func (b *RSAPrivateKeyBroker) Check() ([]string, bool) {
-	if !b.broker.running {
+	if !b.broker.isRunning() {
 		return []string{"rsa private key broker is not yet running"}, false
 	}
 	b.mu.Lock()
