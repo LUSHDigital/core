@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"sync"
 
 	"github.com/LUSHDigital/core/auth"
 
@@ -81,10 +82,13 @@ func NewPrivateRSA(config *Config) *RSAPrivateKeyBroker {
 type RSAPublicKeyBroker struct {
 	broker *broker
 	key    *rsa.PublicKey
+	mu     sync.Mutex
 }
 
 // Copy returns a shallow copy o the RSA public key.
 func (b *RSAPublicKeyBroker) Copy() rsa.PublicKey {
+	b.mu.Lock()
+	defer b.mu.Unlock()
 	if b.key == nil {
 		return *DefaultPublicRSA
 	}
@@ -116,7 +120,9 @@ func (b *RSAPublicKeyBroker) Run(ctx context.Context) error {
 				return fmt.Errorf("key is not a valid rsa key: %T", key)
 			}
 			log.Printf("rsa public key broker found new key of size %d\n", key.Size())
+			b.mu.Lock()
 			b.key = key
+			b.mu.Unlock()
 		case err := <-b.broker.err:
 			return err
 		}
@@ -130,9 +136,11 @@ func (b *RSAPublicKeyBroker) Halt(ctx context.Context) error {
 
 // Check will see if the broker is ready.
 func (b *RSAPublicKeyBroker) Check() ([]string, bool) {
-	if !b.broker.running {
+	if !b.broker.isRunning() {
 		return []string{"rsa public key broker is not yet running"}, false
 	}
+	b.mu.Lock()
+	defer b.mu.Unlock()
 	if b.key == nil {
 		return []string{fmt.Sprintf("rsa public key broker has not yet retrieved a key")}, false
 	}
@@ -143,10 +151,13 @@ func (b *RSAPublicKeyBroker) Check() ([]string, bool) {
 type RSAPrivateKeyBroker struct {
 	broker *broker
 	key    *rsa.PrivateKey
+	mu     sync.Mutex
 }
 
 // Copy returns a shallow copy o the RSA private key.
 func (b *RSAPrivateKeyBroker) Copy() rsa.PrivateKey {
+	b.mu.Lock()
+	defer b.mu.Unlock()
 	if b.key == nil {
 		return *DefaultPrivateRSA
 	}
@@ -174,7 +185,9 @@ func (b *RSAPrivateKeyBroker) Run(ctx context.Context) error {
 				return fmt.Errorf("cannot parse rsa private key: %v", err)
 			}
 			log.Printf("rsa private key broker found new key of size %d\n", key.Size())
+			b.mu.Lock()
 			b.key = key
+			b.mu.Unlock()
 		case err := <-b.broker.err:
 			return err
 		}
@@ -188,9 +201,11 @@ func (b *RSAPrivateKeyBroker) Halt(ctx context.Context) error {
 
 // Check will see if the broker is ready.
 func (b *RSAPrivateKeyBroker) Check() ([]string, bool) {
-	if !b.broker.running {
+	if !b.broker.isRunning() {
 		return []string{"rsa private key broker is not yet running"}, false
 	}
+	b.mu.Lock()
+	defer b.mu.Unlock()
 	if b.key == nil {
 		return []string{fmt.Sprintf("rsa private key broker has not yet retrieved a key")}, false
 	}
