@@ -109,6 +109,9 @@ func CheckHandler(checks Checks) http.HandlerFunc {
 			messages, ok := check.Check()
 			if !ok {
 				ready = false
+				for _, msg := range messages {
+					log.Printf("readysrv: %s: %s\n", name, msg)
+				}
 			}
 			res[name] = health{
 				OK:       ok,
