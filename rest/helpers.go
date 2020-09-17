@@ -68,6 +68,11 @@ func InternalError(msg interface{}) *Response {
 	return &Response{Code: http.StatusInternalServerError, Message: fmt.Sprintf("internal server error: %v", msg)}
 }
 
+// BadRequestError returns a prepared 400 Bad Request Server Error, including the error message in the message field of the response object.
+func BadRequestError(msg interface{}) *Response {
+	return &Response{Code: http.StatusBadRequest, Message: fmt.Sprintf("bad request error: %v", msg)}
+}
+
 // UnauthorizedError returns a prepared 401 Unauthorized error.
 func UnauthorizedError() *Response {
 	return &Response{Code: http.StatusUnauthorized, Message: "unauthorized"}
