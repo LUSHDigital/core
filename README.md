@@ -110,7 +110,7 @@ Consider using these if you need extended functionality for certain things.
 - [LUSHDigital/spew](https://github.com/LUSHDigital/spew): A pretty-printer package originally forked from github.com/davecgh/go-spew/spew
 
 ## Contributors
-- [Zee Philip Vieira](https://github.com/zeeraw): Author & Maintainer
+- [Zee Philip Vieira](https://github.com/zeeraw): Author
 - [Ben Cable](https://github.com/ladydascalie): Author & Maintainer
 - [Zach Jones](https://github.com/zdjones): Code
 - [Dan P](https://github.com/cuotos): Code
