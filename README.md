@@ -111,7 +111,7 @@ Consider using these if you need extended functionality for certain things.
 
 ## Contributors
 - [Zee Philip Vieira](https://github.com/zeeraw): Author & Maintainer
-- [Ben Cable](https://github.com/ladydascalie): Author & Maintainer
+- [Ben Cable](https://github.com/ladydascalie): Author
 - [Zach Jones](https://github.com/zdjones): Code
 - [Dan P](https://github.com/cuotos): Code
 - [Oliver Pauffley](https://github.com/oliverpauffley): Code
